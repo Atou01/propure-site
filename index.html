@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pro Pure — Produits Ménagers Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --cream: #F5F0EB;
+  --cream-light: #FAF7F4;
+  --cream-dark: #EDE5DB;
+  --gold: #C4A87C;
+  --gold-dark: #A8895E;
+  --charcoal: #2C2C2C;
+  --charcoal-light: #4A4A4A;
+  --sage: #A8B5A0;
+  --sage-light: #C8D4C0;
+  --white: #FFFFFF;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--cream-light);
+  color: var(--charcoal);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ NAVBAR ============ */
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 3rem;
+  background: rgba(250, 247, 244, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(196, 168, 124, 0.15);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.navbar.scrolled {
+  padding: 0.8rem 3rem;
+  background: rgba(250, 247, 244, 0.95);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.05);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; }
+.nav-links a {
+  font-size: 0.85rem; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--charcoal-light);
+  text-decoration: none; position: relative;
+  transition: color 0.3s;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1.5px; background: var(--gold);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-links a:hover { color: var(--charcoal); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cart {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.85rem; font-weight: 500; color: var(--charcoal);
+  cursor: pointer; text-decoration: none;
+}
+.cart-count {
+  background: var(--gold); color: white; font-size: 0.7rem;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============ HERO CAROUSEL ============ */
+.hero {
+  position: relative; height: 100vh; overflow: hidden;
+  background: var(--cream);
+}
+.hero-slides {
+  position: relative; height: 100%; width: 100%;
+}
+.hero-slide {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.hero-slide.active { opacity: 1; pointer-events: auto; }
+
+.hero-slide-content {
+  text-align: center; z-index: 2; padding: 2rem;
+  transform: translateY(30px);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, opacity 1s ease 0.3s;
+  opacity: 0;
+}
+.hero-slide.active .hero-slide-content {
+  transform: translateY(0); opacity: 1;
+}
+.hero-badge {
+  display: inline-block; padding: 0.5rem 1.5rem;
+  background: rgba(196, 168, 124, 0.15);
+  border: 1px solid rgba(196, 168, 124, 0.3);
+  border-radius: 50px; font-size: 0.75rem;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-dark); margin-bottom: 1.5rem;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 600; line-height: 1.1;
+  color: var(--charcoal); margin-bottom: 1rem;
+}
+.hero-subtitle {
+  font-size: 1.15rem; font-weight: 300;
+  color: var(--charcoal-light); max-width: 500px;
+  margin: 0 auto 2rem; line-height: 1.7;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 2.5rem;
+  background: var(--charcoal); color: white;
+  font-size: 0.85rem; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  text-decoration: none; border-radius: 50px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-cta:hover {
+  background: var(--gold); transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(196, 168, 124, 0.3);
+}
+.hero-cta svg { transition: transform 0.3s; }
+.hero-cta:hover svg { transform: translateX(4px); }
+
+.hero-bg-gradient {
+  position: absolute; inset: 0; z-index: 0;
+}
+.hero-bg-gradient.slide-1 {
+  background: radial-gradient(ellipse at 30% 50%, rgba(196, 168, 124, 0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 30%, rgba(168, 181, 160, 0.1) 0%, transparent 50%),
+              var(--cream);
+}
+.hero-bg-gradient.slide-2 {
+  background: radial-gradient(ellipse at 60% 40%, rgba(168, 181, 160, 0.2) 0%, transparent 60%),
+              radial-gradient(ellipse at 20% 70%, rgba(196, 168, 124, 0.1) 0%, transparent 50%),
+              var(--cream);
+}
+.hero-bg-gradient.slide-3 {
+  background: radial-gradient(ellipse at 50% 60%, rgba(196, 168, 124, 0.2) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(200, 212, 192, 0.15) 0%, transparent 50%),
+              var(--cream);
+}
+
+/* Floating product images in hero */
+.hero-floating {
+  position: absolute; z-index: 1;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-float-1 {
+  width: 180px; height: 280px; background: linear-gradient(135deg, var(--cream-dark), var(--gold) 80%);
+  border-radius: 100px; top: 15%; left: 8%;
+  opacity: 0.4; filter: blur(1px);
+  animation: floatSlow 8s ease-in-out infinite;
+}
+.hero-float-2 {
+  width: 120px; height: 200px; background: linear-gradient(135deg, var(--sage-light), var(--sage) 80%);
+  border-radius: 80px; bottom: 20%; right: 10%;
+  opacity: 0.3; filter: blur(1px);
+  animation: floatSlow 10s ease-in-out infinite reverse;
+}
+.hero-float-3 {
+  width: 80px; height: 80px; background: var(--gold);
+  border-radius: 50%; top: 30%; right: 20%;
+  opacity: 0.15;
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(3deg); }
+}
+
+/* Hero navigation dots */
+.hero-dots {
+  position: absolute; bottom: 3rem; left: 50%;
+  transform: translateX(-50%); z-index: 10;
+  display: flex; gap: 0.75rem;
+}
+.hero-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(44, 44, 44, 0.2);
+  cursor: pointer; transition: all 0.4s;
+  border: none;
+}
+.hero-dot.active {
+  background: var(--gold);
+  transform: scale(1.3);
+}
+
+/* Hero arrows */
+.hero-arrow {
+  position: absolute; top: 50%; z-index: 10;
+  transform: translateY(-50%);
+  width: 50px; height: 50px; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(196, 168, 124, 0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.3s;
+  color: var(--charcoal);
+}
+.hero-arrow:hover {
+  background: var(--gold); color: white;
+  box-shadow: 0 5px 20px rgba(196, 168, 124, 0.3);
+}
+.hero-arrow.prev { left: 2rem; }
+.hero-arrow.next { right: 2rem; }
+
+/* ============ CATEGORIES PILLS ============ */
+.categories-section {
+  padding: 4rem 3rem 2rem;
+  background: var(--cream-light);
+}
+.categories-scroll {
+  display: flex; gap: 0.75rem;
+  overflow-x: auto; padding-bottom: 1rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.categories-scroll::-webkit-scrollbar { display: none; }
+.cat-pill {
+  flex-shrink: 0;
+  padding: 0.7rem 1.8rem;
+  border: 1.5px solid var(--gold);
+  border-radius: 50px;
+  font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--charcoal);
+  cursor: pointer; transition: all 0.3s;
+  background: transparent;
+  white-space: nowrap;
+}
+.cat-pill:hover, .cat-pill.active {
+  background: var(--gold); color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(196, 168, 124, 0.25);
+}
+
+/* ============ SCROLL ANIMATIONS ============ */
+.reveal {
+  opacity: 0; transform: translateY(60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0; transform: translateX(-60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right {
+  opacity: 0; transform: translateX(60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+.reveal-scale {
+  opacity: 0; transform: scale(0.85);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+/* Staggered delay for children */
+.stagger > *:nth-child(1) { transition-delay: 0s; }
+.stagger > *:nth-child(2) { transition-delay: 0.1s; }
+.stagger > *:nth-child(3) { transition-delay: 0.2s; }
+.stagger > *:nth-child(4) { transition-delay: 0.3s; }
+.stagger > *:nth-child(5) { transition-delay: 0.4s; }
+
+/* ============ SECTION TITLES ============ */
+.section-header {
+  text-align: center; padding: 5rem 3rem 3rem;
+}
+.section-label {
+  font-size: 0.75rem; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 1rem; display: block;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600; color: var(--charcoal);
+  margin-bottom: 1rem;
+}
+.section-subtitle {
+  font-size: 1.05rem; font-weight: 300;
+  color: var(--charcoal-light); max-width: 600px;
+  margin: 0 auto; line-height: 1.7;
+}
+
+/* ============ PRODUCT CAROUSEL ============ */
+.products-carousel-wrapper {
+  padding: 0 3rem 5rem;
+  position: relative;
+}
+.products-carousel {
+  display: flex; gap: 1.5rem;
+  overflow-x: auto; scroll-snap-type: x mandatory;
+  padding: 1rem 0 2rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.products-carousel::-webkit-scrollbar { display: none; }
+
+.product-card {
+  flex: 0 0 280px; scroll-snap-align: start;
+  background: white; border-radius: 20px;
+  overflow: hidden; cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+}
+.product-img {
+  height: 300px; overflow: hidden;
+  background: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.product-img-placeholder {
+  width: 100px; height: 200px;
+  border-radius: 10px;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-card:hover .product-img-placeholder {
+  transform: scale(1.05) rotate(-2deg);
+}
+.product-tag {
+  position: absolute; top: 1rem; left: 1rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--gold); color: white;
+  font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 20px;
+}
+.product-info { padding: 1.5rem; }
+.product-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem; font-weight: 600;
+  color: var(--charcoal); margin-bottom: 0.3rem;
+}
+.product-desc {
+  font-size: 0.85rem; color: var(--charcoal-light);
+  font-weight: 300; margin-bottom: 1rem;
+}
+.product-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.product-price {
+  font-size: 1.2rem; font-weight: 600; color: var(--charcoal);
+}
+.product-price span {
+  font-size: 0.85rem; font-weight: 300;
+  color: var(--charcoal-light);
+}
+.add-to-cart-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--charcoal); color: white;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  font-size: 1.2rem;
+}
+.add-to-cart-btn:hover {
+  background: var(--gold);
+  transform: scale(1.1);
+}
+
+/* Carousel navigation */
+.carousel-nav {
+  display: flex; gap: 0.75rem; justify-content: center;
+  margin-top: 1rem;
+}
+.carousel-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: white; border: 1.5px solid var(--cream-dark);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s; color: var(--charcoal);
+}
+.carousel-btn:hover {
+  background: var(--gold); color: white; border-color: var(--gold);
+}
+
+/* ============ BRAND STORY SECTION ============ */
+.brand-story {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 80vh; overflow: hidden;
+}
+.brand-story-visual {
+  background: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.brand-visual-circle {
+  width: 350px; height: 350px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--sage) 100%);
+  opacity: 0.2; position: absolute;
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.1); opacity: 0.3; }
+}
+.brand-visual-bottle {
+  width: 120px; height: 300px;
+  background: linear-gradient(180deg, var(--cream-dark) 0%, var(--gold) 100%);
+  border-radius: 20px 20px 10px 10px;
+  position: relative; z-index: 2;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+.brand-visual-bottle::before {
+  content: ''; position: absolute;
+  top: -30px; left: 50%; transform: translateX(-50%);
+  width: 30px; height: 40px;
+  background: var(--charcoal); border-radius: 5px 5px 0 0;
+}
+.brand-visual-bottle::after {
+  content: 'PRO PURE'; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: var(--font-display); font-size: 0.9rem;
+  font-weight: 700; letter-spacing: 3px;
+  color: white; text-align: center;
+}
+.brand-story-content {
+  display: flex; flex-direction: column;
+  justify-content: center; padding: 5rem;
+  background: var(--cream-light);
+}
+.brand-story-content .section-label { text-align: left; }
+.brand-story-content .section-title {
+  text-align: left; margin-bottom: 1.5rem;
+}
+.brand-story-text {
+  font-size: 1.05rem; line-height: 1.8;
+  color: var(--charcoal-light); font-weight: 300;
+  margin-bottom: 2rem;
+}
+.brand-values {
+  display: flex; gap: 2rem; margin-top: 1rem;
+}
+.value-item { text-align: center; }
+.value-icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: rgba(196, 168, 124, 0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 0.75rem; font-size: 1.5rem;
+}
+.value-label {
+  font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--charcoal);
+}
+
+/* ============ GAMMES SECTION ============ */
+.gammes-section {
+  padding: 5rem 3rem;
+  background: var(--cream);
+}
+.gammes-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2rem; margin-top: 3rem;
+}
+.gamme-card {
+  background: white; border-radius: 24px;
+  padding: 2.5rem; text-align: center;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.gamme-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(196, 168, 124, 0.05), rgba(168, 181, 160, 0.05));
+  opacity: 0; transition: opacity 0.5s;
+}
+.gamme-card:hover::before { opacity: 1; }
+.gamme-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+}
+.gamme-icon {
+  width: 100px; height: 100px; border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+}
+.gamme-icon.lessives { background: linear-gradient(135deg, #E8E0F0, #D4C5E8); }
+.gamme-icon.adoucissants { background: linear-gradient(135deg, #E0E8F0, #C5D4E8); }
+.gamme-icon.nettoyants { background: linear-gradient(135deg, #E0F0E8, #C5E8D4); }
+.gamme-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem; font-weight: 600;
+  margin-bottom: 0.5rem; color: var(--charcoal);
+}
+.gamme-count {
+  font-size: 0.85rem; color: var(--charcoal-light);
+  font-weight: 300;
+}
+.gamme-link {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  margin-top: 1.5rem; font-size: 0.85rem;
+  font-weight: 500; color: var(--gold-dark);
+  text-decoration: none; letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ============ TESTIMONIALS ============ */
+.testimonials-section {
+  padding: 5rem 3rem; background: var(--charcoal);
+  color: white; text-align: center;
+}
+.testimonials-section .section-label { color: var(--gold); }
+.testimonials-section .section-title { color: white; }
+.testimonials-track {
+  display: flex; gap: 2rem;
+  overflow-x: auto; padding: 2rem 0;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.testimonials-track::-webkit-scrollbar { display: none; }
+.testimonial-card {
+  flex: 0 0 350px; scroll-snap-align: center;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 2.5rem;
+  text-align: left;
+}
+.testimonial-stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+.testimonial-text {
+  font-size: 1rem; line-height: 1.7;
+  font-weight: 300; color: rgba(255,255,255,0.85);
+  margin-bottom: 1.5rem; font-style: italic;
+}
+.testimonial-author {
+  font-weight: 500; font-size: 0.9rem;
+}
+.testimonial-role {
+  font-size: 0.8rem; color: rgba(255,255,255,0.5);
+  margin-top: 0.25rem;
+}
+
+/* ============ CTA BANNER ============ */
+.cta-banner {
+  padding: 6rem 3rem; text-align: center;
+  background: linear-gradient(135deg, var(--cream) 0%, var(--cream-dark) 50%, rgba(196, 168, 124, 0.15) 100%);
+  position: relative; overflow: hidden;
+}
+.cta-banner::before {
+  content: ''; position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(196, 168, 124, 0.2) 0%, transparent 70%);
+  top: -100px; right: -100px; border-radius: 50%;
+}
+.cta-banner .section-title { margin-bottom: 1rem; }
+.cta-banner .hero-cta { margin-top: 1.5rem; }
+
+/* ============ FOOTER ============ */
+.footer {
+  background: var(--charcoal); color: rgba(255,255,255,0.7);
+  padding: 4rem 3rem 2rem;
+}
+.footer-grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 3rem; margin-bottom: 3rem;
+}
+.footer-brand .nav-logo { color: white; margin-bottom: 1rem; display: block; }
+.footer-brand p {
+  font-size: 0.9rem; line-height: 1.7;
+  color: rgba(255,255,255,0.5); max-width: 300px;
+}
+.footer-col h4 {
+  font-family: var(--font-display);
+  font-size: 1rem; font-weight: 600;
+  color: white; margin-bottom: 1.5rem;
+}
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.75rem; }
+.footer-col a {
+  color: rgba(255,255,255,0.5); text-decoration: none;
+  font-size: 0.85rem; transition: color 0.3s;
+}
+.footer-col a:hover { color: var(--gold); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 2rem; text-align: center;
+  font-size: 0.8rem; color: rgba(255,255,255,0.3);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+  .navbar { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  .hero-float-1, .hero-float-2, .hero-float-3 { display: none; }
+  .hero-arrow { display: none; }
+  .brand-story { grid-template-columns: 1fr; }
+  .brand-story-content { padding: 3rem 1.5rem; }
+  .gammes-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .products-carousel-wrapper { padding: 0 1.5rem 3rem; }
+  .categories-section { padding: 3rem 1.5rem 2rem; }
+  .brand-values { flex-direction: column; gap: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-logo">PRO<span>PURE</span></a>
+  <ul class="nav-links">
+    <li><a href="#produits">Produits</a></li>
+    <li><a href="#gammes">Nos Gammes</a></li>
+    <li><a href="#histoire">Notre Histoire</a></li>
+    <li><a href="#avis">Avis</a></li>
+  </ul>
+  <button class="nav-cart" onclick="toggleCart()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+</nav>
+
+<!-- HERO CAROUSEL -->
+<section class="hero" id="hero">
+  <div class="hero-slides">
+    <!-- Slide 1 -->
+    <div class="hero-slide active" data-slide="0">
+      <div class="hero-bg-gradient slide-1"></div>
+      <div class="hero-floating hero-float-1"></div>
+      <div class="hero-floating hero-float-2"></div>
+      <div class="hero-floating hero-float-3"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Nouveaut&eacute; 2026</span>
+        <h1 class="hero-title">La Puret&eacute;<br/>au Naturel</h1>
+        <p class="hero-subtitle">Des produits m&eacute;nagers premium, fabriqu&eacute;s en France, pour un int&eacute;rieur impeccable et un parfum d'exception.</p>
+        <a href="#produits" class="hero-cta">
+          D&eacute;couvrir la Collection
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="hero-slide" data-slide="1">
+      <div class="hero-bg-gradient slide-2"></div>
+      <div class="hero-floating hero-float-1" style="animation-delay: -3s;"></div>
+      <div class="hero-floating hero-float-2" style="animation-delay: -5s;"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Gamme Adoucissants</span>
+        <h1 class="hero-title">20 Parfums<br/>d'Exception</h1>
+        <p class="hero-subtitle">Myst&egrave;re, Galaxie, Charnel, Prestige... Trouvez la fragrance qui vous ressemble.</p>
+        <a href="#gammes" class="hero-cta">
+          Explorer les Parfums
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+    <!-- Slide 3 -->
+    <div class="hero-slide" data-slide="2">
+      <div class="hero-bg-gradient slide-3"></div>
+      <div class="hero-floating hero-float-1" style="animation-delay: -6s;"></div>
+      <div class="hero-floating hero-float-3" style="left: 15%; top: 25%;"></div>
+      <div class="hero-slide-content">
+        <span class="hero-badge">Format &Eacute;conomique</span>
+        <h1 class="hero-title">Bidon 5 Litres<br/>Maxi Douceur</h1>
+        <p class="hero-subtitle">Nos lessives et adoucissants en grand format. La qualit&eacute; Pro Pure, l'&eacute;conomie en plus.</p>
+        <a href="#produits" class="hero-cta">
+          Voir les Formats 5L
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrows -->
+  <button class="hero-arrow prev" onclick="changeSlide(-1)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="hero-arrow next" onclick="changeSlide(1)">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+
+  <!-- Dots -->
+  <div class="hero-dots">
+    <button class="hero-dot active" onclick="goToSlide(0)"></button>
+    <button class="hero-dot" onclick="goToSlide(1)"></button>
+    <button class="hero-dot" onclick="goToSlide(2)"></button>
+  </div>
+</section>
+
+<!-- CATEGORIES PILLS -->
+<section class="categories-section reveal" id="categories">
+  <div class="categories-scroll">
+    <button class="cat-pill active">Tous les Produits</button>
+    <button class="cat-pill">Lessives 5L</button>
+    <button class="cat-pill">Adoucissants 5L</button>
+    <button class="cat-pill">Adoucissants 1L</button>
+    <button class="cat-pill">Nettoyants 1L</button>
+    <button class="cat-pill">Nouveaut&eacute;s</button>
+    <button class="cat-pill">Best-sellers</button>
+  </div>
+</section>
+
+<!-- PRODUCTS CAROUSEL -->
+<section id="produits">
+  <div class="section-header reveal">
+    <span class="section-label">Notre S&eacute;lection</span>
+    <h2 class="section-title">Produits Best-Sellers</h2>
+    <p class="section-subtitle">D&eacute;couvrez nos produits les plus aim&eacute;s, s&eacute;lectionn&eacute;s pour leur efficacit&eacute; et leur parfum unique.</p>
+  </div>
+  <div class="products-carousel-wrapper">
+    <div class="products-carousel stagger" id="productsCarousel">
+      <!-- Product 1 -->
+      <div class="product-card reveal" data-base-price="24.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>
+          <span class="product-tag">Best-seller</span>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Adoucissant Myst&egrave;re</h3>
+          <p class="product-desc">Fragrance envoutante et myst&eacute;rieuse — 5L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 2,49&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">24,90&euro; <span>/ 5L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+      <!-- Product 2 -->
+      <div class="product-card reveal" data-base-price="9.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E0F0E8 0%, #A0C8B0 100%);"></div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Nettoyant Multi-Usages</h3>
+          <p class="product-desc">Efficacit&eacute; maximale, douceur garantie — 1L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 0,99&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">9,90&euro; <span>/ 1L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+      <!-- Product 3 -->
+      <div class="product-card reveal" data-base-price="24.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #F0E8E0 0%, #D4B896 100%);"></div>
+          <span class="product-tag">Nouveau</span>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Adoucissant Charnel</h3>
+          <p class="product-desc">Notes chaleureuses et sensuelles — 5L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 2,49&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">24,90&euro; <span>/ 5L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+      <!-- Product 4 -->
+      <div class="product-card reveal" data-base-price="22.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E0E8F0 0%, #96B8D4 100%);"></div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Lessive Marine</h3>
+          <p class="product-desc">Fra&icirc;cheur oc&eacute;anique longue dur&eacute;e — 5L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 2,29&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">22,90&euro; <span>/ 5L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+      <!-- Product 5 -->
+      <div class="product-card reveal" data-base-price="26.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #F5F0E0 0%, #C8B480 100%);"></div>
+          <span class="product-tag">Populaire</span>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Adoucissant Prestige</h3>
+          <p class="product-desc">L'excellence du parfum premium — 5L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 2,69&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">26,90&euro; <span>/ 5L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+      <!-- Product 6 -->
+      <div class="product-card reveal" data-base-price="11.90">
+        <div class="product-img">
+          <div class="product-img-placeholder" style="background: linear-gradient(180deg, #F0E0E0 0%, #D49696 100%);"></div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">Super D&eacute;graissant</h3>
+          <p class="product-desc">Puissance professionnelle — 1L</p>
+          <div class="sub-toggle">
+            <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+            <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          </div>
+          <div class="sub-freq">
+            <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+            <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+          </div>
+          <div class="sub-discount">&eacute;conomisez 1,19&euro; par livraison</div>
+          <div class="product-bottom">
+            <div class="product-price">11,90&euro; <span>/ 1L</span></div>
+            <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-nav">
+      <button class="carousel-btn" onclick="scrollCarousel(-1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="carousel-btn" onclick="scrollCarousel(1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- BRAND STORY -->
+<section class="brand-story" id="histoire">
+  <div class="brand-story-visual reveal-scale">
+    <div class="brand-visual-circle"></div>
+    <div class="brand-visual-bottle"></div>
+  </div>
+  <div class="brand-story-content">
+    <span class="section-label reveal">Notre Histoire</span>
+    <h2 class="section-title reveal">La Qualit&eacute; Pro,<br/>Accessible &agrave; Tous</h2>
+    <p class="brand-story-text reveal">Pro Pure est n&eacute; d'une conviction simple : les produits m&eacute;nagers peuvent &ecirc;tre &agrave; la fois puissants, agr&eacute;ablement parfum&eacute;s et accessibles. Chaque formule est con&ccedil;ue pour offrir une efficacit&eacute; professionnelle tout en laissant un parfum d'exception dans votre int&eacute;rieur.</p>
+    <p class="brand-story-text reveal">De la lessive au nettoyant multi-usages, en passant par nos 20 parfums d'adoucissants, nous cr&eacute;ons des produits qui transforment les t&acirc;ches m&eacute;nag&egrave;res en moments de plaisir.</p>
+    <div class="brand-values reveal stagger">
+      <div class="value-item">
+        <div class="value-icon">&#127807;</div>
+        <span class="value-label">Qualit&eacute;</span>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">&#128171;</div>
+        <span class="value-label">Efficacit&eacute;</span>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">&#10024;</div>
+        <span class="value-label">Parfums</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMMES -->
+<section class="gammes-section" id="gammes">
+  <div class="section-header reveal">
+    <span class="section-label">Explorez</span>
+    <h2 class="section-title">Nos Gammes</h2>
+    <p class="section-subtitle">Trois univers de produits pour r&eacute;pondre &agrave; tous vos besoins d'entretien.</p>
+  </div>
+  <div class="gammes-grid stagger">
+    <div class="gamme-card reveal">
+      <div class="gamme-icon lessives">&#129531;</div>
+      <h3 class="gamme-title">Lessives</h3>
+      <p class="gamme-count">5 parfums — Format 5L</p>
+      <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
+    </div>
+    <div class="gamme-card reveal">
+      <div class="gamme-icon adoucissants">&#127800;</div>
+      <h3 class="gamme-title">Adoucissants</h3>
+      <p class="gamme-count">20+ parfums — 1L & 5L</p>
+      <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
+    </div>
+    <div class="gamme-card reveal">
+      <div class="gamme-icon nettoyants">&#10024;</div>
+      <h3 class="gamme-title">Nettoyants</h3>
+      <p class="gamme-count">5 produits — Format 1L</p>
+      <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section" id="avis">
+  <div class="section-header reveal">
+    <span class="section-label">T&eacute;moignages</span>
+    <h2 class="section-title">Ce Qu'en Disent<br/>Nos Clients</h2>
+  </div>
+  <div class="testimonials-track">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="testimonial-text">&laquo; L'adoucissant Myst&egrave;re est incroyable, le linge sent divinement bon pendant des jours. J'ai essay&eacute; beaucoup de marques, Pro Pure est de loin la meilleure. &raquo;</p>
+      <div class="testimonial-author">Sophie M.</div>
+      <div class="testimonial-role">Cliente depuis 2025</div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="testimonial-text">&laquo; Le format 5L est parfait pour une famille. Le rapport qualit&eacute;/prix est imbattable et les parfums sont vraiment premium. &raquo;</p>
+      <div class="testimonial-author">Marc D.</div>
+      <div class="testimonial-role">Client depuis 2024</div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="testimonial-text">&laquo; Le nettoyant multi-usages est ultra efficace. Ma cuisine n'a jamais &eacute;t&eacute; aussi propre. Et le parfum est subtil, pas chimique du tout. &raquo;</p>
+      <div class="testimonial-author">Aminata K.</div>
+      <div class="testimonial-role">Cliente depuis 2025</div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+      <p class="testimonial-text">&laquo; J'ai d&eacute;couvert Pro Pure sur TikTok et j'ai command&eacute; l'adoucissant Galaxie. Le packaging est beau et le produit est top ! &raquo;</p>
+      <div class="testimonial-author">Thomas L.</div>
+      <div class="testimonial-role">Client depuis 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner reveal-scale">
+  <span class="section-label">Pr&ecirc;t &agrave; essayer ?</span>
+  <h2 class="section-title">Transformez Votre<br/>Quotidien</h2>
+  <p class="section-subtitle">D&eacute;couvrez la diff&eacute;rence Pro Pure d&egrave;s aujourd'hui.</p>
+  <a href="#produits" class="hero-cta" style="margin-top: 2rem; display: inline-flex;">
+    Commander Maintenant
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">PRO<span>PURE</span></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable. Qualit&eacute;, efficacit&eacute;, parfums d'exception.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="#">Lessives 5L</a></li>
+        <li><a href="#">Adoucissants 5L</a></li>
+        <li><a href="#">Adoucissants 1L</a></li>
+        <li><a href="#">Nettoyants 1L</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="#">Notre Histoire</a></li>
+        <li><a href="#">Livraison</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Suivez-nous</h4>
+      <ul>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<!-- Shopify Buy SDK -->
+<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
+
+<!-- Cart Drawer -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>Votre Panier</h3>
+    <button class="cart-close" onclick="toggleCart()">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <p class="cart-empty">Votre panier est vide</p>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">0,00&euro;</span>
+    </div>
+    <button class="cart-checkout-btn" id="checkoutBtn" onclick="goToCheckout()">
+      Passer Commande
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+/* ============ CART DRAWER ============ */
+.cart-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4); z-index: 998;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cart-overlay.open { opacity: 1; pointer-events: all; }
+
+.cart-drawer {
+  position: fixed; top: 0; right: -420px; width: 400px; max-width: 90vw;
+  height: 100vh; z-index: 999;
+  background: var(--cream-light);
+  box-shadow: -4px 0 30px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column;
+  transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cart-drawer.open { right: 0; }
+
+.cart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--cream-dark);
+}
+.cart-header h3 {
+  font-family: var(--font-display); font-size: 1.4rem; color: var(--charcoal);
+}
+.cart-close {
+  background: none; border: none; font-size: 1.8rem; color: var(--charcoal-light);
+  cursor: pointer; line-height: 1;
+}
+
+.cart-items {
+  flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+}
+.cart-empty {
+  text-align: center; color: var(--charcoal-light); padding: 3rem 0;
+  font-size: 0.95rem;
+}
+
+.cart-item {
+  display: flex; gap: 1rem; padding: 1rem 0;
+  border-bottom: 1px solid var(--cream-dark);
+  align-items: center;
+}
+.cart-item-img {
+  width: 70px; height: 70px; border-radius: 10px;
+  background-size: cover; background-position: center;
+  background-color: var(--cream-dark); flex-shrink: 0;
+}
+.cart-item-details { flex: 1; }
+.cart-item-name {
+  font-family: var(--font-display); font-size: 0.95rem;
+  color: var(--charcoal); margin-bottom: 0.3rem;
+}
+.cart-item-price { font-size: 0.85rem; color: var(--gold-dark); font-weight: 600; }
+
+.cart-item-qty {
+  display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;
+}
+.cart-item-qty button {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--cream-dark); background: var(--white);
+  color: var(--charcoal); cursor: pointer; font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.cart-item-qty span { font-size: 0.9rem; min-width: 20px; text-align: center; }
+
+.cart-item-remove {
+  background: none; border: none; color: #c0a0a0; cursor: pointer;
+  font-size: 1.2rem; padding: 0.3rem;
+}
+
+.cart-footer {
+  padding: 1.2rem 1.5rem; border-top: 1px solid var(--cream-dark);
+}
+.cart-total {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem;
+  font-family: var(--font-display); font-size: 1.2rem; color: var(--charcoal);
+}
+.cart-checkout-btn {
+  width: 100%; padding: 1rem 2rem;
+  background: var(--charcoal); color: var(--white);
+  border: none; border-radius: 50px; cursor: pointer;
+  font-family: var(--font-body); font-size: 1rem; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+.cart-checkout-btn:hover {
+  background: var(--gold-dark); transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(196,168,124,0.3);
+}
+
+/* Cart badge on navbar */
+.nav-cart {
+  position: relative; cursor: pointer; background: none; border: none;
+  color: var(--charcoal); display: flex; align-items: center; gap: 0.3rem;
+  font-family: var(--font-body); font-size: 0.9rem;
+}
+.cart-badge {
+  position: absolute; top: -8px; right: -10px;
+  background: var(--gold); color: var(--white);
+  font-size: 0.7rem; font-weight: 600;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.cart-badge.show { opacity: 1; transform: scale(1); }
+
+/* Toast notification */
+.cart-toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--charcoal); color: var(--white);
+  padding: 0.8rem 1.5rem; border-radius: 50px;
+  font-size: 0.9rem; z-index: 1000;
+  opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cart-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ============ SUBSCRIPTION TOGGLE ============ */
+.sub-toggle {
+  display: flex; gap: 0; margin-top: 0.6rem;
+  background: var(--cream-dark); border-radius: 8px; overflow: hidden;
+  border: 1px solid rgba(196,168,124,0.2);
+}
+.sub-toggle-btn {
+  flex: 1; padding: 0.45rem 0.3rem;
+  border: none; background: transparent; cursor: pointer;
+  font-family: var(--font-body); font-size: 0.72rem; font-weight: 500;
+  color: var(--charcoal-light); transition: all 0.3s ease;
+  text-align: center; line-height: 1.2;
+}
+.sub-toggle-btn.active {
+  background: var(--white); color: var(--charcoal);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  border-radius: 6px;
+}
+.sub-toggle-btn.sub-option.active {
+  background: var(--gold); color: var(--white);
+}
+.sub-freq {
+  display: none; margin-top: 0.5rem;
+}
+.sub-freq.visible { display: flex; gap: 0.4rem; }
+.sub-freq-btn {
+  flex: 1; padding: 0.35rem 0.2rem;
+  border: 1px solid var(--cream-dark); border-radius: 6px;
+  background: var(--white); cursor: pointer;
+  font-family: var(--font-body); font-size: 0.7rem; color: var(--charcoal-light);
+  transition: all 0.2s ease; text-align: center;
+}
+.sub-freq-btn.active {
+  border-color: var(--gold); color: var(--gold-dark);
+  background: rgba(196,168,124,0.08); font-weight: 600;
+}
+.sub-discount {
+  display: none; margin-top: 0.3rem;
+  font-size: 0.75rem; color: var(--gold-dark); font-weight: 600;
+}
+.sub-discount.visible { display: block; }
+.sub-price-strike {
+  text-decoration: line-through; color: var(--charcoal-light);
+  font-weight: 400; font-size: 0.85rem; margin-right: 0.4rem;
+}
+</style>
+<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
+
+<script>
+// ============ SHOPIFY BUY SDK ============
+const SHOPIFY_DOMAIN = '2gchuh-tt.myshopify.com';
+const STOREFRONT_TOKEN = '53cac02ce08a74431eac8f362fc82686';
+let shopifyClient;
+let shopifyCheckout;
+let cartItemsData = [];
+
+async function initShopify() {
+  if (typeof ShopifyBuy === 'undefined') {
+    console.warn('Shopify Buy SDK not loaded, using static mode');
+    return;
+  }
+  try {
+    shopifyClient = ShopifyBuy.buildClient({
+      domain: SHOPIFY_DOMAIN,
+      storefrontAccessToken: STOREFRONT_TOKEN,
+    });
+    shopifyCheckout = await shopifyClient.checkout.create();
+    // Fetch real products and update the UI
+    const products = await shopifyClient.product.fetchAll(20);
+    if (products.length > 0) {
+      updateProductsFromShopify(products);
+    }
+    console.log('Shopify connected! ' + products.length + ' products loaded.');
+  } catch (err) {
+    console.warn('Shopify init error:', err);
+  }
+}
+
+function updateProductsFromShopify(products) {
+  const carousel = document.getElementById('productsCarousel');
+  if (!carousel) return;
+  carousel.innerHTML = '';
+  products.forEach((product, i) => {
+    const variant = product.variants[0];
+    const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+    const imgSrc = product.images[0] ? product.images[0].src : '';
+    const tags = product.tags || [];
+    let tagLabel = '';
+    if (i === 0) tagLabel = 'Best-seller';
+    else if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
+
+    const card = document.createElement('div');
+    card.className = 'product-card reveal visible';
+    card.setAttribute('data-base-price', price);
+    const saving = (parseFloat(price.replace(',', '.')) * 0.1).toFixed(2).replace('.', ',');
+    card.innerHTML = `
+      <div class="product-img">
+        ${imgSrc
+          ? '<img src="' + imgSrc + '" alt="' + product.title + '" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
+          : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>'}
+        ${tagLabel ? '<span class="product-tag">' + tagLabel + '</span>' : ''}
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">${product.title}</h3>
+        <p class="product-desc">${(product.description || '').substring(0, 60)}</p>
+        <div class="sub-toggle">
+          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+        </div>
+        <div class="sub-freq" style="display:none">
+          <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+          <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+        </div>
+        <div class="sub-discount" style="display:none">\u00c9conomisez ${saving}\u20ac par livraison</div>
+        <div class="product-bottom">
+          <div class="product-price">${price} &euro;</div>
+          <button class="add-to-cart-btn" onclick="addToCartStatic(this)">+</button>
+        </div>
+      </div>`;
+    carousel.appendChild(card);
+  });
+}
+
+async function addToCart(variantId, title, price, imgSrc) {
+  // Show toast
+  showToast();
+
+  if (shopifyClient && shopifyCheckout) {
+    try {
+      shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [{
+        variantId: variantId,
+        quantity: 1
+      }]);
+      syncCartFromCheckout();
+    } catch (err) {
+      console.warn('Add to cart error:', err);
+      addToCartLocal(title, price, imgSrc);
+    }
+  } else {
+    addToCartLocal(title, price, imgSrc);
+  }
+}
+
+function addToCartLocal(title, price, imgSrc) {
+  const existing = cartItemsData.find(item => item.title === title);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cartItemsData.push({ title, price, imgSrc, qty: 1 });
+  }
+  renderCart();
+}
+
+function syncCartFromCheckout() {
+  if (!shopifyCheckout) return;
+  cartItemsData = shopifyCheckout.lineItems.map(item => ({
+    id: item.id,
+    title: item.title,
+    price: parseFloat(item.variant.price.amount || item.variant.price).toFixed(2).replace('.', ','),
+    imgSrc: item.variant.image ? item.variant.image.src : '',
+    qty: item.quantity,
+    variantId: item.variant.id
+  }));
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  const footer = document.getElementById('cartFooter');
+  const badge = document.getElementById('cartBadge');
+  const totalEl = document.getElementById('cartTotal');
+
+  if (cartItemsData.length === 0) {
+    container.innerHTML = '<p class="cart-empty">Votre panier est vide</p>';
+    footer.style.display = 'none';
+    if (badge) badge.classList.remove('show');
+    return;
+  }
+
+  let html = '';
+  let total = 0;
+  let totalQty = 0;
+
+  cartItemsData.forEach((item, i) => {
+    const itemTotal = parseFloat(item.price.replace(',', '.')) * item.qty;
+    total += itemTotal;
+    totalQty += item.qty;
+    html += `
+      <div class="cart-item">
+        <div class="cart-item-img" style="background-image:url('${item.imgSrc}');"></div>
+        <div class="cart-item-details">
+          <div class="cart-item-name">${item.title}</div>
+          <div class="cart-item-price">${item.price}&euro;</div>
+          <div class="cart-item-qty">
+            <button onclick="updateQty(${i}, -1)">&minus;</button>
+            <span>${item.qty}</span>
+            <button onclick="updateQty(${i}, 1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeItem(${i})">&times;</button>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+  footer.style.display = 'block';
+  totalEl.textContent = total.toFixed(2).replace('.', ',') + '\u20AC';
+  if (badge) {
+    badge.textContent = totalQty;
+    badge.classList.add('show');
+  }
+}
+
+async function updateQty(index, delta) {
+  if (shopifyCheckout && cartItemsData[index].id) {
+    const item = cartItemsData[index];
+    const newQty = item.qty + delta;
+    if (newQty <= 0) {
+      shopifyCheckout = await shopifyClient.checkout.removeLineItems(shopifyCheckout.id, [item.id]);
+    } else {
+      shopifyCheckout = await shopifyClient.checkout.updateLineItems(shopifyCheckout.id, [{
+        id: item.id, quantity: newQty
+      }]);
+    }
+    syncCartFromCheckout();
+  } else {
+    cartItemsData[index].qty += delta;
+    if (cartItemsData[index].qty <= 0) cartItemsData.splice(index, 1);
+    renderCart();
+  }
+}
+
+async function removeItem(index) {
+  if (shopifyCheckout && cartItemsData[index].id) {
+    shopifyCheckout = await shopifyClient.checkout.removeLineItems(shopifyCheckout.id, [cartItemsData[index].id]);
+    syncCartFromCheckout();
+  } else {
+    cartItemsData.splice(index, 1);
+    renderCart();
+  }
+}
+
+function toggleCart() {
+  document.getElementById('cartDrawer').classList.toggle('open');
+  document.getElementById('cartOverlay').classList.toggle('open');
+}
+
+function goToCheckout() {
+  if (shopifyCheckout && shopifyCheckout.webUrl) {
+    window.open(shopifyCheckout.webUrl, '_blank');
+  } else {
+    alert('Redirection vers le checkout Shopify...');
+  }
+}
+
+function showToast() {
+  const toast = document.getElementById('cartToast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// Static product fallback (when SDK hasn't replaced products)
+function addToCartStatic(btn) {
+  const card = btn.closest('.product-card');
+  const title = card.querySelector('.product-name').textContent;
+  const basePrice = card.getAttribute('data-base-price');
+  const subToggle = card.querySelector('.sub-toggle');
+  let finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
+  let suffix = '';
+  if (subToggle) {
+    const subBtn = subToggle.querySelector('.sub-option');
+    if (subBtn && subBtn.classList.contains('active')) {
+      const numPrice = parseFloat(finalPrice.replace(',', '.'));
+      finalPrice = (numPrice * 0.9).toFixed(2).replace('.', ',');
+      const freqBtn = card.querySelector('.sub-freq-btn.active');
+      const months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
+      suffix = ' (Abo ' + months + ' mois)';
+    }
+  }
+  addToCartLocal(title + suffix, finalPrice, '');
+  showToast();
+}
+
+// ============ SUBSCRIPTION TOGGLE ============
+function setMode(btn, mode) {
+  const card = btn.closest('.product-card');
+  const toggleBtns = card.querySelectorAll('.sub-toggle-btn');
+  const freqDiv = card.querySelector('.sub-freq');
+  const discountDiv = card.querySelector('.sub-discount');
+  const priceEl = card.querySelector('.product-price');
+  const basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
+
+  toggleBtns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (mode === 'sub') {
+    freqDiv.style.display = 'flex';
+    discountDiv.style.display = 'block';
+    const discounted = (basePrice * 0.9).toFixed(2).replace('.', ',');
+    const saving = (basePrice * 0.1).toFixed(2).replace('.', ',');
+    priceEl.innerHTML = '<span style="text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px">' + basePrice.toFixed(2).replace('.', ',') + ' €</span>' + discounted + ' €';
+    discountDiv.textContent = 'Économisez ' + saving + ' € par livraison';
+  } else {
+    freqDiv.style.display = 'none';
+    discountDiv.style.display = 'none';
+    priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' €';
+  }
+}
+
+function setFreq(btn, months) {
+  const card = btn.closest('.product-card');
+  const freqBtns = card.querySelectorAll('.sub-freq-btn');
+  freqBtns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Init Shopify on load
+window.addEventListener('DOMContentLoaded', initShopify);
+
+// ============ HERO CAROUSEL ============
+let currentSlide = 0;
+const slides = document.querySelectorAll('.hero-slide');
+const dots = document.querySelectorAll('.hero-dot');
+let autoplayInterval;
+
+function goToSlide(index) {
+  slides[currentSlide].classList.remove('active');
+  dots[currentSlide].classList.remove('active');
+  currentSlide = (index + slides.length) % slides.length;
+  slides[currentSlide].classList.add('active');
+  dots[currentSlide].classList.add('active');
+}
+
+function changeSlide(direction) {
+  goToSlide(currentSlide + direction);
+  resetAutoplay();
+}
+
+function startAutoplay() {
+  autoplayInterval = setInterval(() => changeSlide(1), 5000);
+}
+
+function resetAutoplay() {
+  clearInterval(autoplayInterval);
+  startAutoplay();
+}
+
+startAutoplay();
+
+// Touch/swipe support for hero
+let touchStartX = 0;
+const heroEl = document.getElementById('hero');
+heroEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+heroEl.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    changeSlide(diff > 0 ? 1 : -1);
+  }
+});
+
+// ============ NAVBAR SCROLL ============
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ============ SCROLL REVEAL ANIMATIONS ============
+const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.15,
+  rootMargin: '0px 0px -50px 0px'
+});
+
+revealElements.forEach(el => revealObserver.observe(el));
+
+// ============ PRODUCTS CAROUSEL SCROLL ============
+function scrollCarousel(direction) {
+  const carousel = document.getElementById('productsCarousel');
+  const scrollAmount = 300;
+  carousel.scrollBy({
+    left: direction * scrollAmount,
+    behavior: 'smooth'
+  });
+}
+
+// ============ CATEGORY PILLS ============
+document.querySelectorAll('.cat-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+});
+
+// ============ PARALLAX FLOATING ELEMENTS ============
+document.addEventListener('mousemove', (e) => {
+  const x = (e.clientX / window.innerWidth - 0.5) * 20;
+  const y = (e.clientY / window.innerHeight - 0.5) * 20;
+  document.querySelectorAll('.hero-floating').forEach((el, i) => {
+    const speed = (i + 1) * 0.5;
+    el.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+  });
+});
+
+// ============ SMOOTH ANCHOR SCROLL ============
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

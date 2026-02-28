@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ &amp; Contact — Pro Pure</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar" role="navigation">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img" /></a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Accueil</a>
+    <a href="catalogue.html" class="nav-link">Catalogue</a>
+    <a href="index.html#histoire" class="nav-link">Notre Histoire</a>
+    <a href="index.html#avis" class="nav-link">Avis</a>
+  </div>
+  <div class="nav-actions">
+    <button class="cart-icon" onclick="toggleCart()" aria-label="Ouvrir le panier">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <button class="burger-menu" onclick="document.querySelector('.mobile-nav-overlay').classList.add('active')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav-overlay">
+  <button class="mobile-nav-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
+  <a href="index.html" class="mobile-nav-link">Accueil</a>
+  <a href="catalogue.html" class="mobile-nav-link">Catalogue</a>
+  <a href="index.html#histoire" class="mobile-nav-link">Notre Histoire</a>
+  <a href="index.html#avis" class="mobile-nav-link">Avis</a>
+</div>
+
+<main>
+<section class="legal-page">
+  <div class="legal-container">
+    <h1>Questions Fr&eacute;quentes</h1>
+
+    <div class="faq-item">
+      <h3>Quels sont les d&eacute;lais de livraison ?</h3>
+      <p>Nous livrons en 3 &agrave; 5 jours ouvrables en France m&eacute;tropolitaine. Les commandes pass&eacute;es avant 14h sont exp&eacute;di&eacute;es le jour m&ecirc;me.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Quels sont les frais de livraison ?</h3>
+      <p>La livraison est offerte &agrave; partir de 39&euro; d'achat. En dessous, les frais de livraison sont de 5,90&euro;.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Les produits sont-ils fabriqu&eacute;s en France ?</h3>
+      <p>Oui, tous nos produits Pro Pure sont formul&eacute;s et fabriqu&eacute;s en France avec des ingr&eacute;dients de qualit&eacute; premium.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Comment fonctionne l'abonnement ?</h3>
+      <p>L'abonnement vous permet d'&eacute;conomiser 10% sur chaque livraison. Vous choisissez la fr&eacute;quence (tous les 2 ou 4 mois) et vous pouvez annuler &agrave; tout moment sans engagement.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Puis-je retourner un produit ?</h3>
+      <p>Oui, vous disposez de 14 jours apr&egrave;s r&eacute;ception pour retourner un produit non ouvert. Consultez nos <a href="cgv.html">CGV</a> pour les d&eacute;tails.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Les produits sont-ils test&eacute;s sur les animaux ?</h3>
+      <p>Non, aucun de nos produits n'est test&eacute; sur les animaux. Nous sommes engag&eacute;s dans une d&eacute;marche &eacute;thique et responsable.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Pourquoi le format 5L ?</h3>
+      <p>Le format 5L offre le meilleur rapport qualit&eacute;/prix et r&eacute;duit l'impact environnemental li&eacute; au packaging. Un bidon de 5L dure en moyenne 3 &agrave; 4 mois pour un usage r&eacute;gulier.</p>
+    </div>
+  </div>
+</section>
+
+<section class="legal-page" id="contact" style="padding-top: 2rem;">
+  <div class="legal-container">
+    <h1>Nous Contacter</h1>
+    <p>Une question, une suggestion ou un probl&egrave;me avec votre commande ? N'h&eacute;sitez pas &agrave; nous contacter.</p>
+
+    <div class="contact-info" style="margin-top: 2rem;">
+      <div class="faq-item">
+        <h3>Par email</h3>
+        <p><a href="mailto:contact@propure.fr" style="color: var(--gold);">contact@propure.fr</a></p>
+        <p>R&eacute;ponse sous 24-48h ouvr&eacute;es.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Par t&eacute;l&eacute;phone</h3>
+        <p>[Num&eacute;ro &agrave; compl&eacute;ter]</p>
+        <p>Du lundi au vendredi, 9h-18h.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>R&eacute;seaux sociaux</h3>
+        <p>Suivez-nous pour des astuces m&eacute;nage, des promotions et des nouveaut&eacute;s !</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img footer-logo-img"></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
+        <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
+        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="index.html#histoire">Notre Histoire</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="faq.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>L&eacute;gal</h4>
+      <ul>
+        <li><a href="mentions-legales.html">Mentions l&eacute;gales</a></li>
+        <li><a href="cgv.html">CGV</a></li>
+        <li><a href="confidentialite.html">Politique de confidentialit&eacute;</a></li>
+        <li><a href="cookies.html">Politique de cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
+<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
+<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
+<script src="js/shopify.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+</body>
+</html>

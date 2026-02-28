@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Politique de Cookies — Pro Pure</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar" role="navigation">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img" /></a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Accueil</a>
+    <a href="catalogue.html" class="nav-link">Catalogue</a>
+    <a href="index.html#histoire" class="nav-link">Notre Histoire</a>
+    <a href="index.html#avis" class="nav-link">Avis</a>
+  </div>
+  <div class="nav-actions">
+    <button class="cart-icon" onclick="toggleCart()" aria-label="Ouvrir le panier">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <button class="burger-menu" onclick="document.querySelector('.mobile-nav-overlay').classList.add('active')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav-overlay">
+  <button class="mobile-nav-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
+  <a href="index.html" class="mobile-nav-link">Accueil</a>
+  <a href="catalogue.html" class="mobile-nav-link">Catalogue</a>
+  <a href="index.html#histoire" class="mobile-nav-link">Notre Histoire</a>
+  <a href="index.html#avis" class="mobile-nav-link">Avis</a>
+</div>
+
+<main>
+<section class="legal-page">
+  <div class="legal-container">
+    <h1>Politique de Cookies</h1>
+    <p><em>Derni&egrave;re mise &agrave; jour : 28 f&eacute;vrier 2026</em></p>
+
+    <h2>Qu'est-ce qu'un cookie ?</h2>
+    <p>Un cookie est un petit fichier texte d&eacute;pos&eacute; sur votre appareil lors de votre visite sur notre site. Il permet de m&eacute;moriser vos pr&eacute;f&eacute;rences et d'am&eacute;liorer votre exp&eacute;rience de navigation.</p>
+
+    <h2>Cookies utilis&eacute;s</h2>
+
+    <h3>Cookies essentiels</h3>
+    <p>N&eacute;cessaires au fonctionnement du site : gestion du panier, session de navigation, s&eacute;curit&eacute;. Ces cookies ne peuvent pas &ecirc;tre d&eacute;sactiv&eacute;s.</p>
+
+    <h3>Cookies analytiques</h3>
+    <p>Nous permettent de comprendre comment les visiteurs utilisent le site (pages visit&eacute;es, dur&eacute;e de visite). Ces donn&eacute;es sont anonymis&eacute;es.</p>
+
+    <h3>Cookies marketing</h3>
+    <p>Utilis&eacute;s pour vous proposer des publicit&eacute;s pertinentes. Ces cookies ne sont d&eacute;pos&eacute;s qu'avec votre consentement.</p>
+
+    <h2>G&eacute;rer vos cookies</h2>
+    <p>Vous pouvez &agrave; tout moment modifier vos pr&eacute;f&eacute;rences en mati&egrave;re de cookies via les param&egrave;tres de votre navigateur. La d&eacute;sactivation de certains cookies peut affecter votre exp&eacute;rience sur le site.</p>
+
+    <h2>Dur&eacute;e de conservation</h2>
+    <p>Les cookies sont conserv&eacute;s pour une dur&eacute;e maximale de 13 mois conform&eacute;ment aux recommandations de la CNIL.</p>
+
+    <h2>En savoir plus</h2>
+    <p>Pour en savoir plus sur la gestion des cookies, consultez le site de la <a href="https://www.cnil.fr/fr/cookies-et-autres-traceurs" target="_blank" rel="noopener">CNIL</a>.</p>
+  </div>
+</section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img footer-logo-img"></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
+        <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
+        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="index.html#histoire">Notre Histoire</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="faq.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>L&eacute;gal</h4>
+      <ul>
+        <li><a href="mentions-legales.html">Mentions l&eacute;gales</a></li>
+        <li><a href="cgv.html">CGV</a></li>
+        <li><a href="confidentialite.html">Politique de confidentialit&eacute;</a></li>
+        <li><a href="cookies.html">Politique de cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
+<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
+<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
+<script src="js/shopify.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+</body>
+</html>

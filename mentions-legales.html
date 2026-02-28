@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentions L&eacute;gales — Pro Pure</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<nav class="navbar" role="navigation">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img" /></a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Accueil</a>
+    <a href="catalogue.html" class="nav-link">Catalogue</a>
+    <a href="index.html#histoire" class="nav-link">Notre Histoire</a>
+    <a href="index.html#avis" class="nav-link">Avis</a>
+  </div>
+  <div class="nav-actions">
+    <button class="cart-icon" onclick="toggleCart()" aria-label="Ouvrir le panier">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <button class="burger-menu" onclick="document.querySelector('.mobile-nav-overlay').classList.add('active')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-nav-overlay">
+  <button class="mobile-nav-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
+  <a href="index.html" class="mobile-nav-link">Accueil</a>
+  <a href="catalogue.html" class="mobile-nav-link">Catalogue</a>
+  <a href="index.html#histoire" class="mobile-nav-link">Notre Histoire</a>
+  <a href="index.html#avis" class="mobile-nav-link">Avis</a>
+</div>
+
+<main>
+<section class="legal-page">
+  <div class="legal-container">
+    <h1>Mentions L&eacute;gales</h1>
+
+    <h2>&Eacute;diteur du site</h2>
+    <p>Le site <strong>propure-site.vercel.app</strong> est &eacute;dit&eacute; par :</p>
+    <p>Pro Pure<br/>
+    Adresse : [&Agrave; compl&eacute;ter]<br/>
+    T&eacute;l&eacute;phone : [&Agrave; compl&eacute;ter]<br/>
+    Email : contact@propure.fr<br/>
+    SIRET : [&Agrave; compl&eacute;ter]</p>
+
+    <h2>Directeur de la publication</h2>
+    <p>[Nom du directeur de publication — &agrave; compl&eacute;ter]</p>
+
+    <h2>H&eacute;bergement</h2>
+    <p>Le site est h&eacute;berg&eacute; par :<br/>
+    Vercel Inc.<br/>
+    340 S Lemon Ave #4133, Walnut, CA 91789, USA<br/>
+    <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a></p>
+
+    <h2>Propri&eacute;t&eacute; intellectuelle</h2>
+    <p>L'ensemble du contenu du site (textes, images, logos, vid&eacute;os, graphismes) est la propri&eacute;t&eacute; exclusive de Pro Pure ou de ses partenaires. Toute reproduction, m&ecirc;me partielle, est interdite sans autorisation pr&eacute;alable &eacute;crite.</p>
+
+    <h2>Donn&eacute;es personnelles</h2>
+    <p>Les donn&eacute;es personnelles collect&eacute;es sur ce site sont trait&eacute;es conform&eacute;ment &agrave; notre <a href="confidentialite.html">Politique de confidentialit&eacute;</a>. Conform&eacute;ment au RGPD, vous disposez d'un droit d'acc&egrave;s, de rectification et de suppression de vos donn&eacute;es. Pour exercer ces droits, contactez-nous &agrave; contact@propure.fr.</p>
+
+    <h2>Cookies</h2>
+    <p>Ce site utilise des cookies pour am&eacute;liorer votre exp&eacute;rience. Pour en savoir plus, consultez notre <a href="cookies.html">Politique de cookies</a>.</p>
+
+    <h2>Litiges</h2>
+    <p>En cas de litige, le droit fran&ccedil;ais est applicable. Les tribunaux fran&ccedil;ais seront seuls comp&eacute;tents.</p>
+  </div>
+</section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img footer-logo-img"></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
+        <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
+        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="index.html#histoire">Notre Histoire</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="faq.html#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>L&eacute;gal</h4>
+      <ul>
+        <li><a href="mentions-legales.html">Mentions l&eacute;gales</a></li>
+        <li><a href="cgv.html">CGV</a></li>
+        <li><a href="confidentialite.html">Politique de confidentialit&eacute;</a></li>
+        <li><a href="cookies.html">Politique de cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
+<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
+<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
+<script src="js/shopify.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+</body>
+</html>

@@ -124,8 +124,12 @@ function updateProductsFromShopify(products) {
 }
 
 async function addToCart(variantId, title, price, imgSrc) {
-  // Show toast
+  // Show toast + auto-open cart
   showToast();
+  setTimeout(function() {
+    const drawer = document.getElementById('cartDrawer');
+    if (drawer && !drawer.classList.contains('open')) toggleCart();
+  }, 400);
 
   if (shopifyClient && shopifyCheckout) {
     try {
@@ -282,8 +286,16 @@ function addToCartStatic(btn) {
       suffix = ' (Abo ' + months + ' mois)';
     }
   }
-  addToCartLocal(title + suffix, finalPrice, '');
+  // Grab product image from the card
+  const imgEl = card.querySelector('.product-img img');
+  const imgSrc = imgEl ? imgEl.src : '';
+  addToCartLocal(title + suffix, finalPrice, imgSrc);
   showToast();
+  // Auto-open cart drawer after adding
+  setTimeout(function() {
+    const drawer = document.getElementById('cartDrawer');
+    if (drawer && !drawer.classList.contains('open')) toggleCart();
+  }, 400);
 }
 
 // ============ SUBSCRIPTION TOGGLE ============

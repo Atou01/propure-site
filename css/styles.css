@@ -516,6 +516,11 @@ body {
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
+.brand-story-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 18px;
+}
 .brand-visual-circle {
   width: 350px; height: 350px; border-radius: 50%;
   background: linear-gradient(135deg, var(--gold) 0%, var(--sage) 100%);

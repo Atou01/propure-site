@@ -108,6 +108,10 @@ function updateProductsFromShopify(products) {
     });
   }
 
+  // Hide loading skeleton
+  const skeleton = document.getElementById('catalogueSkeleton');
+  if (skeleton) skeleton.style.display = 'none';
+
   // Also update legacy carousel if exists
   const carousel = document.getElementById('productsCarousel');
   if (carousel) {
@@ -251,7 +255,9 @@ async function removeItem(index) {
 
 function toggleCart() {
   document.getElementById('cartDrawer').classList.toggle('open');
-  document.getElementById('cartOverlay').classList.toggle('open');
+  const overlay = document.getElementById('cartOverlay');
+  if (overlay) overlay.classList.toggle('open');
+  document.body.classList.toggle('cart-open');
 }
 
 function goToCheckout() {

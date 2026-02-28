@@ -85,8 +85,10 @@ document.addEventListener('click', function(e) {
   setTimeout(() => ripple.remove(), 600);
 });
 
-// --- 3D Tilt Effect on Product Cards ---
-document.querySelectorAll('.product-card').forEach(card => {
+// --- 3D Tilt Effect on Product Cards (event delegation for dynamic cards) ---
+function bindTiltToCard(card) {
+  if (card.dataset.tiltBound) return;
+  card.dataset.tiltBound = '1';
   card.addEventListener('mousemove', function(e) {
     const rect = this.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -104,7 +106,21 @@ document.querySelectorAll('.product-card').forEach(card => {
   card.addEventListener('mouseenter', function() {
     this.style.transition = 'transform 0.1s ease';
   });
+}
+// Bind to existing cards
+document.querySelectorAll('.product-card').forEach(bindTiltToCard);
+// Observe for dynamically added cards (Shopify)
+const tiltObserver = new MutationObserver(mutations => {
+  mutations.forEach(mutation => {
+    mutation.addedNodes.forEach(node => {
+      if (node.nodeType === 1) {
+        if (node.classList && node.classList.contains('product-card')) bindTiltToCard(node);
+        node.querySelectorAll && node.querySelectorAll('.product-card').forEach(bindTiltToCard);
+      }
+    });
+  });
 });
+tiltObserver.observe(document.body, { childList: true, subtree: true });
 
 // --- Cart Badge Bounce Animation ---
 const originalAddToCart = window.addToCartStatic;

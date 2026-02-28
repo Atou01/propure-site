@@ -48,7 +48,7 @@
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar" aria-label="Navigation principale">
-  <a href="#" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
   <ul class="nav-links">
     <li><a href="#produits">Produits</a></li>
     <li><a href="#gammes">Nos Gammes</a></li>
@@ -387,6 +387,7 @@
 <script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
 
 <!-- Cart Drawer -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Panier" aria-modal="true">
   <div class="cart-header">
     <h3>Votre Panier</h3>
@@ -414,5 +415,22 @@
 <script src="js/main.js"></script>
 <script src="js/animations.js"></script>
 
+<!-- Cookie Consent Banner -->
+<div class="cookie-banner" id="cookieBanner">
+  <p>Ce site utilise des cookies pour améliorer votre expérience. <a href="cookies.html">En savoir plus</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>
+    <button class="cookie-btn cookie-btn-accept" onclick="setCookieConsent(true)">Accepter</button>
+  </div>
+</div>
+<script>
+function setCookieConsent(accepted) {
+  localStorage.setItem("cookieConsent", accepted ? "accepted" : "refused");
+  document.getElementById("cookieBanner").classList.remove("show");
+}
+if (!localStorage.getItem("cookieConsent")) {
+  setTimeout(function() { document.getElementById("cookieBanner").classList.add("show"); }, 1500);
+}
+</script>
 </body>
 </html>

@@ -144,11 +144,29 @@
   </div>
 </footer>
 
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
 <div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
 <script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
 <script src="js/shopify.js"></script>
 <script src="js/main.js"></script>
 <script src="js/animations.js"></script>
+<!-- Cookie Consent Banner -->
+<div class="cookie-banner" id="cookieBanner">
+  <p>Ce site utilise des cookies pour améliorer votre expérience. <a href="cookies.html">En savoir plus</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>
+    <button class="cookie-btn cookie-btn-accept" onclick="setCookieConsent(true)">Accepter</button>
+  </div>
+</div>
+<script>
+function setCookieConsent(accepted) {
+  localStorage.setItem("cookieConsent", accepted ? "accepted" : "refused");
+  document.getElementById("cookieBanner").classList.remove("show");
+}
+if (!localStorage.getItem("cookieConsent")) {
+  setTimeout(function() { document.getElementById("cookieBanner").classList.add("show"); }, 1500);
+}
+</script>
 </body>
 </html>

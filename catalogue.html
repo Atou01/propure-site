@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Catalogue — Pro Pure | Tous Nos Produits</title>
 <meta name="description" content="Explorez le catalogue complet Pro Pure : lessives, adoucissants, nettoyants sols et produits d'entretien premium fabriqués en France." />
+<meta name="robots" content="index, follow" />
+<meta name="theme-color" content="#2C2C2C" />
+<meta property="og:title" content="Catalogue — Pro Pure" />
+<meta property="og:description" content="Découvrez tous nos produits ménagers premium fabriqués en France." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://propure-site.vercel.app/catalogue.html" />
+<meta property="og:image" content="https://propure-site.vercel.app/img/logo.png" />
+<meta name="twitter:card" content="summary" />
+<link rel="canonical" href="https://propure-site.vercel.app/catalogue.html" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,6 +73,14 @@
   <div class="catalogue-grid" id="catalogueGrid">
     <!-- Filled by JS from Shopify -->
   </div>
+  <div class="skeleton-grid" id="catalogueSkeleton">
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line medium"></div><div class="skeleton-line short"></div><div class="skeleton-line price"></div></div></div>
+  </div>
 </section>
 </main>
 
@@ -111,6 +128,7 @@
 <script src="https://sdks.shopifycdn.com/buy-button-storefront.min.js"></script>
 
 <!-- Cart Drawer -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Panier" aria-modal="true">
   <div class="cart-header">
     <h3>Votre Panier</h3>
@@ -175,5 +193,22 @@
 })();
 </script>
 
+<!-- Cookie Consent Banner -->
+<div class="cookie-banner" id="cookieBanner">
+  <p>Ce site utilise des cookies pour améliorer votre expérience. <a href="cookies.html">En savoir plus</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>
+    <button class="cookie-btn cookie-btn-accept" onclick="setCookieConsent(true)">Accepter</button>
+  </div>
+</div>
+<script>
+function setCookieConsent(accepted) {
+  localStorage.setItem("cookieConsent", accepted ? "accepted" : "refused");
+  document.getElementById("cookieBanner").classList.remove("show");
+}
+if (!localStorage.getItem("cookieConsent")) {
+  setTimeout(function() { document.getElementById("cookieBanner").classList.add("show"); }, 1500);
+}
+</script>
 </body>
 </html>

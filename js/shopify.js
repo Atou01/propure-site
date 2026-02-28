@@ -46,6 +46,7 @@ function buildProductCard(product, i, tagLabel) {
   const card = document.createElement('div');
   card.className = 'product-card reveal visible';
   card.setAttribute('data-base-price', price);
+  card.setAttribute('data-variant-id', variant.id);
   // Store product type for filtering
   const pType = (product.productType || '').toLowerCase();
   card.setAttribute('data-product-type', pType);
@@ -279,6 +280,7 @@ function addToCartStatic(btn) {
   const card = btn.closest('.product-card');
   const title = card.querySelector('.product-name').textContent;
   const basePrice = card.getAttribute('data-base-price');
+  const variantId = card.getAttribute('data-variant-id');
   const subToggle = card.querySelector('.sub-toggle');
   let finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
   let suffix = '';
@@ -295,13 +297,18 @@ function addToCartStatic(btn) {
   // Grab product image from the card
   const imgEl = card.querySelector('.product-img img');
   const imgSrc = imgEl ? imgEl.src : '';
-  addToCartLocal(title + suffix, finalPrice, imgSrc);
-  showToast();
-  // Auto-open cart drawer after adding
-  setTimeout(function() {
-    const drawer = document.getElementById('cartDrawer');
-    if (drawer && !drawer.classList.contains('open')) toggleCart();
-  }, 400);
+
+  // Use Shopify checkout if available (so "Passer Commande" works)
+  if (variantId && shopifyClient && shopifyCheckout) {
+    addToCart(variantId, title + suffix, finalPrice, imgSrc);
+  } else {
+    addToCartLocal(title + suffix, finalPrice, imgSrc);
+    showToast();
+    setTimeout(function() {
+      const drawer = document.getElementById('cartDrawer');
+      if (drawer && !drawer.classList.contains('open')) toggleCart();
+    }, 400);
+  }
 }
 
 // ============ SUBSCRIPTION TOGGLE ============
@@ -413,7 +420,7 @@ async function loadSingleProduct(handle) {
           <h1 class="product-title">${escapeHTML(product.title)}</h1>
           <div class="product-price-detail">${price} &euro;</div>
           <div class="product-description-full">${escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.')}</div>
-          <div class="product-card" data-base-price="${price}" style="background:none;box-shadow:none;padding:0;">
+          <div class="product-card" data-base-price="${price}" data-variant-id="${variant.id}" style="background:none;box-shadow:none;padding:0;">
             <span class="product-name" style="display:none">${escapeHTML(product.title)}</span>
             <div class="sub-toggle">
               <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>

@@ -5,19 +5,22 @@ const dots = document.querySelectorAll('.hero-dot');
 let autoplayInterval;
 
 function goToSlide(index) {
+  if (!slides.length) return;
   slides[currentSlide].classList.remove('active');
-  dots[currentSlide].classList.remove('active');
+  if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
   currentSlide = (index + slides.length) % slides.length;
   slides[currentSlide].classList.add('active');
-  dots[currentSlide].classList.add('active');
+  if (dots[currentSlide]) dots[currentSlide].classList.add('active');
 }
 
 function changeSlide(direction) {
+  if (!slides.length) return;
   goToSlide(currentSlide + direction);
   resetAutoplay();
 }
 
 function startAutoplay() {
+  if (!slides.length) return;
   autoplayInterval = setInterval(() => changeSlide(1), 5000);
 }
 
@@ -31,13 +34,15 @@ startAutoplay();
 // Touch/swipe support for hero
 let touchStartX = 0;
 const heroEl = document.getElementById('hero');
-heroEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
-heroEl.addEventListener('touchend', e => {
-  const diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) {
-    changeSlide(diff > 0 ? 1 : -1);
-  }
-});
+if (heroEl) {
+  heroEl.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
+  heroEl.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      changeSlide(diff > 0 ? 1 : -1);
+    }
+  });
+}
 
 // ============ NAVBAR SCROLL ============
 const navbar = document.getElementById('navbar');
@@ -118,8 +123,10 @@ document.addEventListener('mousemove', (e) => {
 // ============ SMOOTH ANCHOR SCROLL ============
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if (!href || href === '#') return; // Don't block empty links
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
+    const target = document.querySelector(href);
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Catalogue — Pro Pure | Tous Nos Produits</title>
+<meta name="description" content="Explorez le catalogue complet Pro Pure : lessives, adoucissants, nettoyants sols et produits d'entretien premium fabriqués en France." />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="index.html#produits">Best-Sellers</a></li>
+    <li><a href="catalogue.html" class="active">Catalogue</a></li>
+    <li><a href="index.html#gammes">Nos Gammes</a></li>
+    <li><a href="index.html#histoire">Notre Histoire</a></li>
+  </ul>
+  <button class="nav-cart" onclick="toggleCart()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <a href="index.html#produits" onclick="closeMobileNav()">Best-Sellers</a>
+  <a href="catalogue.html" onclick="closeMobileNav()">Catalogue</a>
+  <a href="index.html#gammes" onclick="closeMobileNav()">Nos Gammes</a>
+  <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
+</div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb" style="padding: 6rem 2rem 1rem; max-width: 1200px; margin: 0 auto;">
+  <a href="index.html" style="color: var(--gold); text-decoration: none;">Accueil</a>
+  <span style="color: var(--charcoal-light); margin: 0 0.5rem;">/</span>
+  <span style="color: var(--charcoal);" id="breadcrumbTitle">Catalogue</span>
+</div>
+
+<!-- CATALOGUE COMPLET -->
+<main id="main-content" role="main">
+<section class="catalogue-section" id="catalogue" style="padding-top: 1rem;">
+  <div class="section-header reveal">
+    <span class="section-label">Notre Catalogue</span>
+    <h2 class="section-title" id="catalogueTitle">Tous Nos Produits</h2>
+    <p class="section-subtitle">Explorez l'ensemble de notre gamme. Filtrez par cat&eacute;gorie pour trouver le produit id&eacute;al.</p>
+  </div>
+  <div class="catalogue-filters">
+    <button class="catalogue-filter-btn active" data-filter="all">Tous</button>
+    <button class="catalogue-filter-btn" data-filter="lessives">Lessives</button>
+    <button class="catalogue-filter-btn" data-filter="adoucissants">Adoucissants</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyant-luxe">Nettoyant Sols Luxe</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyant-classique">Nettoyant Sols Classique</button>
+    <button class="catalogue-filter-btn" data-filter="entretien">Produits d'Entretien</button>
+  </div>
+  <div class="catalogue-grid" id="catalogueGrid">
+    <!-- Filled by JS from Shopify -->
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img footer-logo-img"></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable. Qualit&eacute;, efficacit&eacute;, parfums d'exception.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
+        <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
+        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="index.html#histoire">Notre Histoire</a></li>
+        <li><a href="#">Livraison</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>L&eacute;gal</h4>
+      <ul>
+        <li><a href="#">Mentions l&eacute;gales</a></li>
+        <li><a href="#">CGV</a></li>
+        <li><a href="#">Politique de confidentialit&eacute;</a></li>
+        <li><a href="#">Politique de cookies</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Suivez-nous</h4>
+      <ul>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<!-- Shopify SDK -->
+<script src="https://sdks.shopifycdn.com/buy-button-storefront.min.js"></script>
+
+<!-- Cart Drawer -->
+<div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Panier" aria-modal="true">
+  <div class="cart-header">
+    <h3>Votre Panier</h3>
+    <button class="cart-close" onclick="toggleCart()" aria-label="Fermer le panier">&times;</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <p class="cart-empty">Votre panier est vide</p>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">0,00&euro;</span>
+    </div>
+    <button class="cart-checkout-btn" id="checkoutBtn" onclick="goToCheckout()">
+      Passer Commande
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
+
+<!-- Scripts -->
+<script src="js/shopify.js"></script>
+<script src="js/main.js"></script>
+<script src="js/animations.js"></script>
+
+<!-- Auto-apply filter from URL -->
+<script>
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const filter = params.get('filter');
+  if (filter) {
+    // Wait for DOM + Shopify products to load
+    const applyFilter = () => {
+      const btns = document.querySelectorAll('.catalogue-filter-btn');
+      btns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === filter) {
+          btn.classList.add('active');
+          btn.click();
+        }
+      });
+      // Update breadcrumb and title
+      const names = {
+        'lessives': 'Lessives',
+        'adoucissants': 'Adoucissants',
+        'nettoyant-luxe': 'Nettoyant Sols Luxe',
+        'nettoyant-classique': 'Nettoyant Sols Classique',
+        'entretien': "Produits d'Entretien"
+      };
+      if (names[filter]) {
+        const bc = document.getElementById('breadcrumbTitle');
+        const title = document.getElementById('catalogueTitle');
+        if (bc) bc.textContent = names[filter];
+        if (title) title.textContent = names[filter];
+      }
+    };
+    // Try after a short delay to let Shopify products load
+    setTimeout(applyFilter, 1500);
+    setTimeout(applyFilter, 3000);
+  }
+})();
+</script>
+
+</body>
+</html>

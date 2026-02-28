@@ -41,7 +41,9 @@ function buildProductCard(product, i, tagLabel) {
   const variant = product.variants[0];
   const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
   const imgSrc = product.images[0] ? product.images[0].src : '';
-  const saving = (parseFloat(price.replace(',', '.')) * 0.1).toFixed(2).replace('.', ',');
+  // Default discount is 15% (for "Tous les 2 mois" default frequency)
+  const defaultDiscount = 0.15;
+  const saving = (parseFloat(price.replace(',', '.')) * defaultDiscount).toFixed(2).replace('.', ',');
 
   const card = document.createElement('div');
   card.className = 'product-card reveal visible';
@@ -66,11 +68,11 @@ function buildProductCard(product, i, tagLabel) {
       <p class="product-desc">${escapeHTML((product.description || '').substring(0, 60))}</p>
       <div class="sub-toggle">
         <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-        <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+        <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
       </div>
       <div class="sub-freq" style="display:none">
-        <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
-        <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+        <button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,'2')">Tous les 2 mois (-15%)</button>
+        <button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,'4')">Tous les 4 mois (-10%)</button>
       </div>
       <div class="sub-discount" style="display:none">\u00c9conomisez ${saving}\u20ac par livraison</div>
       <div class="product-bottom">
@@ -145,20 +147,23 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
 
       // Pass subscription info as custom attributes on the line item
       if (subscriptionInfo) {
+        const discountPct = subscriptionInfo.frequency === '2' ? '15' : '10';
         lineItem.customAttributes = [
           { key: 'Mode', value: 'Abonnement' },
           { key: 'Fréquence', value: 'Tous les ' + subscriptionInfo.frequency + ' mois' },
           { key: 'Prix abonnement', value: subscriptionInfo.price + ' €' },
-          { key: 'Réduction', value: '-10%' }
+          { key: 'Réduction', value: '-' + discountPct + '%' }
         ];
       }
 
       shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [lineItem]);
 
-      // Apply discount code for subscriptions
+      // Apply discount code for subscriptions based on frequency
       if (subscriptionInfo) {
         try {
-          shopifyCheckout = await shopifyClient.checkout.addDiscount(shopifyCheckout.id, 'ABO10');
+          const discountCode = subscriptionInfo.frequency === '2' ? 'ABO15' : 'ABO10';
+          console.log('Applying discount code:', discountCode, 'for frequency:', subscriptionInfo.frequency);
+          shopifyCheckout = await shopifyClient.checkout.addDiscount(shopifyCheckout.id, discountCode);
         } catch (discountErr) {
           console.warn('Discount code error:', discountErr);
         }
@@ -331,9 +336,11 @@ function addToCartStatic(btn) {
     const subBtn = subToggle.querySelector('.sub-option');
     if (subBtn && subBtn.classList.contains('active')) {
       const numPrice = parseFloat(finalPrice.replace(',', '.'));
-      finalPrice = (numPrice * 0.9).toFixed(2).replace('.', ',');
       const freqBtn = card.querySelector('.sub-freq-btn.active');
       const months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
+      // 15% discount for 2 months, 10% for 4 months
+      const discountRate = months === '2' ? 0.15 : 0.10;
+      finalPrice = (numPrice * (1 - discountRate)).toFixed(2).replace('.', ',');
       suffix = ' (Abo ' + months + ' mois)';
       subscriptionInfo = { frequency: months, price: finalPrice };
     }
@@ -370,8 +377,13 @@ function setMode(btn, mode) {
   if (mode === 'sub') {
     freqDiv.style.display = 'flex';
     discountDiv.style.display = 'block';
-    const discounted = (basePrice * 0.9).toFixed(2).replace('.', ',');
-    const saving = (basePrice * 0.1).toFixed(2).replace('.', ',');
+    // Get active frequency to determine discount rate
+    const activeFreqBtn = card.querySelector('.sub-freq-btn.active');
+    const months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
+    const discountRate = months === '2' ? 0.15 : 0.10;
+    const discountPct = months === '2' ? '15' : '10';
+    const discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
+    const saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
     while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
     const oldPriceSpan = document.createElement('span');
     oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
@@ -379,6 +391,8 @@ function setMode(btn, mode) {
     priceEl.appendChild(oldPriceSpan);
     priceEl.appendChild(document.createTextNode(discounted + ' €'));
     discountDiv.textContent = 'Économisez ' + saving + ' € par livraison';
+    // Update the sub button label
+    btn.closest('.sub-toggle').querySelector('.sub-option').textContent = 'Abonnement -' + discountPct + '%';
   } else {
     freqDiv.style.display = 'none';
     discountDiv.style.display = 'none';
@@ -391,6 +405,34 @@ function setFreq(btn, months) {
   const freqBtns = card.querySelectorAll('.sub-freq-btn');
   freqBtns.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+
+  // Recalculate price based on new frequency
+  const basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
+  const discountRate = months === '2' ? 0.15 : 0.10;
+  const discountPct = months === '2' ? '15' : '10';
+  const discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
+  const saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
+
+  const priceEl = card.querySelector('.product-price');
+  const discountDiv = card.querySelector('.sub-discount');
+  const subToggle = card.querySelector('.sub-toggle');
+
+  // Update price display
+  while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
+  const oldPriceSpan = document.createElement('span');
+  oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
+  oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' €';
+  priceEl.appendChild(oldPriceSpan);
+  priceEl.appendChild(document.createTextNode(discounted + ' €'));
+
+  // Update discount text
+  if (discountDiv) discountDiv.textContent = 'Économisez ' + saving + ' € par livraison';
+
+  // Update subscription button label
+  if (subToggle) {
+    const subBtn = subToggle.querySelector('.sub-option');
+    if (subBtn) subBtn.textContent = 'Abonnement -' + discountPct + '%';
+  }
 }
 
 // ============ PRODUCT DETAIL PAGE ============
@@ -423,7 +465,7 @@ async function loadSingleProduct(handle) {
 
     const variant = product.variants[0];
     const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-    const saving = (parseFloat(price.replace(',', '.')) * 0.1).toFixed(2).replace('.', ',');
+    const saving = (parseFloat(price.replace(',', '.')) * 0.15).toFixed(2).replace('.', ',');
     const images = product.images || [];
     const mainImg = images[0] ? images[0].src : '';
     const pType = (product.productType || '').replace(/^\w/, c => c.toUpperCase());
@@ -468,11 +510,11 @@ async function loadSingleProduct(handle) {
             <span class="product-name" style="display:none">${escapeHTML(product.title)}</span>
             <div class="sub-toggle">
               <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-              <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+              <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
             </div>
             <div class="sub-freq" style="display:none">
-              <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
-              <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+              <button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,'2')">Tous les 2 mois (-15%)</button>
+              <button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,'4')">Tous les 4 mois (-10%)</button>
             </div>
             <div class="sub-discount" style="display:none">&Eacute;conomisez ${saving}&euro; par livraison</div>
             <div class="product-bottom" style="margin-top:1rem;">

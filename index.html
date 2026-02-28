@@ -1301,11 +1301,11 @@ body {
   </div>
   <div class="catalogue-filters">
     <button class="catalogue-filter-btn active" data-filter="all">Tous</button>
-    <button class="catalogue-filter-btn" data-filter="lessives-5l">Lessives 5L</button>
-    <button class="catalogue-filter-btn" data-filter="adoucissants-5l">Adoucissants 5L</button>
-    <button class="catalogue-filter-btn" data-filter="adoucissants-1l">Adoucissants 1L</button>
-    <button class="catalogue-filter-btn" data-filter="nettoyants-1l">Nettoyants 1L</button>
-    <button class="catalogue-filter-btn" data-filter="nouveau">Nouveaut&eacute;s</button>
+    <button class="catalogue-filter-btn" data-filter="lessives">Lessives</button>
+    <button class="catalogue-filter-btn" data-filter="adoucissants">Adoucissants</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyant-luxe">Nettoyant Sols Luxe</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyant-classique">Nettoyant Sols Classique</button>
+    <button class="catalogue-filter-btn" data-filter="entretien">Produits d'Entretien</button>
   </div>
   <div class="catalogue-grid" id="catalogueGrid">
     <!-- Filled by JS from Shopify (all products) -->
@@ -2236,11 +2236,11 @@ document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
       const tags = (card.getAttribute('data-tags') || '').toLowerCase();
       const title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
       let show = false;
-      if (filter === 'lessives-5l') show = pType.includes('lessive') || title.includes('lessive');
-      else if (filter === 'adoucissants-5l') show = (pType.includes('adoucissant') || title.includes('adoucissant')) && (title.includes('5l') || title.includes('5 l'));
-      else if (filter === 'adoucissants-1l') show = (pType.includes('adoucissant') || title.includes('adoucissant')) && (title.includes('1l') || title.includes('1 l'));
-      else if (filter === 'nettoyants-1l') show = pType.includes('nettoyant') || title.includes('nettoyant') || title.includes('dégraissant');
-      else if (filter === 'nouveau') show = tags.includes('new') || tags.includes('nouveau');
+      if (filter === 'lessives') show = pType.includes('lessive') || title.includes('lessive');
+      else if (filter === 'adoucissants') show = pType.includes('adoucissant') || title.includes('adoucissant');
+      else if (filter === 'nettoyant-luxe') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('luxe') || pType.includes('luxe'));
+      else if (filter === 'nettoyant-classique') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('classique') || pType.includes('classique'));
+      else if (filter === 'entretien') show = pType.includes('entretien') || title.includes('entretien') || title.includes('dégraissant') || pType.includes('nettoyant multi');
       card.style.display = show ? '' : 'none';
     });
   });

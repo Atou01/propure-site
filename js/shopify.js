@@ -1,7 +1,21 @@
-// ============ SHOPIFY BUY SDK ============
+// ============ SHOPIFY STOREFRONT API ============
 const SHOPIFY_DOMAIN = '2gchuh-tt.myshopify.com';
 const STOREFRONT_TOKEN = '53cac02ce08a74431eac8f362fc82686';
-let shopifyClient;
+const STOREFRONT_API_VERSION = '2024-10';
+
+let shopifyClient; // Keep SDK for product fetching only
+
+// --- Selling Plans (from Seal Subscriptions) ---
+// These are fetched dynamically at init, with fallback to known IDs
+let sellingPlanMap = {
+  '2': 'gid://shopify/SellingPlan/692066156877',  // 2 months, -15%
+  '4': 'gid://shopify/SellingPlan/692066189645'   // 4 months, -10%
+};
+
+// --- Cart State (GraphQL Cart API) ---
+let cartId = null;
+let cartCheckoutUrl = null;
+let cartItemsData = [];
 
 // --- Security: HTML escape utility ---
 function escapeHTML(str) {
@@ -9,78 +23,288 @@ function escapeHTML(str) {
   div.appendChild(document.createTextNode(str));
   return div.innerHTML;
 }
-let shopifyCheckout;
-let cartItemsData = [];
-let currentDiscountCode = null;
 
+// ============ STOREFRONT API GRAPHQL HELPER ============
+async function storefrontFetch(query, variables) {
+  const response = await fetch(
+    'https://' + SHOPIFY_DOMAIN + '/api/' + STOREFRONT_API_VERSION + '/graphql.json',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN,
+      },
+      body: JSON.stringify({ query: query, variables: variables || {} }),
+    }
+  );
+  const data = await response.json();
+  if (data.errors) {
+    console.error('Storefront API errors:', data.errors);
+  }
+  return data;
+}
+
+// ============ CART GRAPHQL FRAGMENTS ============
+const CART_FRAGMENT = `
+  fragment CartFields on Cart {
+    id
+    checkoutUrl
+    lines(first: 50) {
+      edges {
+        node {
+          id
+          quantity
+          merchandise {
+            ... on ProductVariant {
+              id
+              title
+              price { amount currencyCode }
+              image { url altText }
+              product { title handle }
+            }
+          }
+          sellingPlanAllocation {
+            sellingPlan { id name }
+            priceAdjustments {
+              price { amount currencyCode }
+              compareAtPrice { amount currencyCode }
+            }
+          }
+          attributes { key value }
+          cost {
+            totalAmount { amount currencyCode }
+            subtotalAmount { amount currencyCode }
+          }
+        }
+      }
+    }
+    cost {
+      totalAmount { amount currencyCode }
+      subtotalAmount { amount currencyCode }
+    }
+  }
+`;
+
+// ============ CART OPERATIONS ============
+async function createCart(lines) {
+  const mutation = `
+    mutation cartCreate($input: CartInput!) {
+      cartCreate(input: $input) {
+        cart { ...CartFields }
+        userErrors { field message }
+      }
+    }
+    ${CART_FRAGMENT}
+  `;
+  const result = await storefrontFetch(mutation, { input: { lines: lines || [] } });
+  if (result.data && result.data.cartCreate && result.data.cartCreate.cart) {
+    const cart = result.data.cartCreate.cart;
+    cartId = cart.id;
+    cartCheckoutUrl = cart.checkoutUrl;
+    syncCartFromGraphQL(cart);
+    console.log('Cart created:', cartId);
+    return cart;
+  }
+  if (result.data && result.data.cartCreate && result.data.cartCreate.userErrors.length > 0) {
+    console.error('Cart create errors:', result.data.cartCreate.userErrors);
+  }
+  return null;
+}
+
+async function cartLinesAdd(lines) {
+  if (!cartId) {
+    return createCart(lines);
+  }
+  const mutation = `
+    mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
+      cartLinesAdd(cartId: $cartId, lines: $lines) {
+        cart { ...CartFields }
+        userErrors { field message }
+      }
+    }
+    ${CART_FRAGMENT}
+  `;
+  const result = await storefrontFetch(mutation, { cartId: cartId, lines: lines });
+  if (result.data && result.data.cartLinesAdd && result.data.cartLinesAdd.cart) {
+    const cart = result.data.cartLinesAdd.cart;
+    cartCheckoutUrl = cart.checkoutUrl;
+    syncCartFromGraphQL(cart);
+    return cart;
+  }
+  return null;
+}
+
+async function cartLinesUpdate(linesUpdate) {
+  if (!cartId) return null;
+  const mutation = `
+    mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart { ...CartFields }
+        userErrors { field message }
+      }
+    }
+    ${CART_FRAGMENT}
+  `;
+  const result = await storefrontFetch(mutation, { cartId: cartId, lines: linesUpdate });
+  if (result.data && result.data.cartLinesUpdate && result.data.cartLinesUpdate.cart) {
+    const cart = result.data.cartLinesUpdate.cart;
+    cartCheckoutUrl = cart.checkoutUrl;
+    syncCartFromGraphQL(cart);
+    return cart;
+  }
+  return null;
+}
+
+async function cartLinesRemove(lineIds) {
+  if (!cartId) return null;
+  const mutation = `
+    mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+      cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+        cart { ...CartFields }
+        userErrors { field message }
+      }
+    }
+    ${CART_FRAGMENT}
+  `;
+  const result = await storefrontFetch(mutation, { cartId: cartId, lineIds: lineIds });
+  if (result.data && result.data.cartLinesRemove && result.data.cartLinesRemove.cart) {
+    const cart = result.data.cartLinesRemove.cart;
+    cartCheckoutUrl = cart.checkoutUrl;
+    syncCartFromGraphQL(cart);
+    return cart;
+  }
+  return null;
+}
+
+// ============ INIT ============
 async function initShopify() {
   if (typeof ShopifyBuy === 'undefined') {
     console.warn('Shopify Buy SDK not loaded, using static mode');
     return;
   }
   try {
+    // Init SDK for product fetching only
     shopifyClient = ShopifyBuy.buildClient({
       domain: SHOPIFY_DOMAIN,
       storefrontAccessToken: STOREFRONT_TOKEN,
     });
-    shopifyCheckout = await shopifyClient.checkout.create();
-    // Fetch real products and update the UI
+
+    // Create empty cart via GraphQL
+    await createCart([]);
+
+    // Fetch selling plans to confirm IDs
+    await fetchSellingPlans();
+
+    // Fetch products and update UI
     const products = await shopifyClient.product.fetchAll(20);
     if (products.length > 0) {
       updateProductsFromShopify(products);
     }
-    console.log('Shopify connected! ' + products.length + ' products loaded.');
+    console.log('Shopify connected! ' + products.length + ' products loaded. Cart API: GraphQL.');
   } catch (err) {
     console.warn('Shopify init error:', err);
   }
 }
 
-// Store all Shopify products for filtering
+async function fetchSellingPlans() {
+  try {
+    const result = await storefrontFetch(`{
+      products(first: 1) {
+        edges {
+          node {
+            sellingPlanGroups(first: 1) {
+              edges {
+                node {
+                  sellingPlans(first: 10) {
+                    edges {
+                      node {
+                        id
+                        name
+                        options { name value }
+                        priceAdjustments {
+                          adjustmentValue {
+                            ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage }
+                          }
+                          orderCount
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }`);
+
+    const productNode = result.data.products.edges[0];
+    if (productNode) {
+      const groups = productNode.node.sellingPlanGroups.edges;
+      if (groups.length > 0) {
+        const plans = groups[0].node.sellingPlans.edges;
+        plans.forEach(function(planEdge) {
+          var plan = planEdge.node;
+          var option = plan.options[0];
+          if (option && option.value) {
+            // Extract month number from option value like "2 months"
+            var monthMatch = option.value.match(/(\d+)/);
+            if (monthMatch) {
+              sellingPlanMap[monthMatch[1]] = plan.id;
+              console.log('Selling plan: ' + plan.name + ' (' + option.value + ') → ' + plan.id);
+            }
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch selling plans, using fallback IDs:', err);
+  }
+}
+
+// ============ PRODUCT CARDS ============
 let allShopifyProducts = [];
 
 function buildProductCard(product, i, tagLabel) {
-  const variant = product.variants[0];
-  const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-  const imgSrc = product.images[0] ? product.images[0].src : '';
-  // Default discount is 15% (for "Tous les 2 mois" default frequency)
-  const defaultDiscount = 0.15;
-  const saving = (parseFloat(price.replace(',', '.')) * defaultDiscount).toFixed(2).replace('.', ',');
+  var variant = product.variants[0];
+  var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+  var imgSrc = product.images[0] ? product.images[0].src : '';
+  var defaultDiscount = 0.15;
+  var saving = (parseFloat(price.replace(',', '.')) * defaultDiscount).toFixed(2).replace('.', ',');
 
-  const card = document.createElement('div');
+  var card = document.createElement('div');
   card.className = 'product-card reveal visible';
   card.setAttribute('data-base-price', price);
   card.setAttribute('data-variant-id', variant.id);
-  // Store product type for filtering
-  const pType = (product.productType || '').toLowerCase();
+  var pType = (product.productType || '').toLowerCase();
   card.setAttribute('data-product-type', pType);
-  const tags = product.tags || [];
+  var tags = product.tags || [];
   card.setAttribute('data-tags', tags.join(',').toLowerCase());
 
-  const handle = product.handle || '';
-  card.innerHTML = `
-    <a href="product.html?handle=${encodeURIComponent(handle)}" class="product-img" style="display:block;text-decoration:none;">
-      ${imgSrc
-        ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
-        : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>'}
-      ${tagLabel ? '<span class="product-tag">' + escapeHTML(tagLabel) + '</span>' : ''}
-    </a>
-    <div class="product-info">
-      <a href="product.html?handle=${encodeURIComponent(handle)}" class="product-name" style="text-decoration:none;color:inherit;display:block;">${escapeHTML(product.title)}</a>
-      <p class="product-desc">${escapeHTML((product.description || '').substring(0, 60))}</p>
-      <div class="sub-toggle">
-        <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-        <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
-      </div>
-      <div class="sub-freq" style="display:none">
-        <button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,'2')">Tous les 2 mois (-15%)</button>
-        <button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,'4')">Tous les 4 mois (-10%)</button>
-      </div>
-      <div class="sub-discount" style="display:none">\u00c9conomisez ${saving}\u20ac par livraison</div>
-      <div class="product-bottom">
-        <div class="product-price">${price} &euro;</div>
-        <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
-      </div>
-    </div>`;
+  var handle = product.handle || '';
+  card.innerHTML = '<a href="product.html?handle=' + encodeURIComponent(handle) + '" class="product-img" style="display:block;text-decoration:none;">'
+    + (imgSrc
+      ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
+      : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>')
+    + (tagLabel ? '<span class="product-tag">' + escapeHTML(tagLabel) + '</span>' : '')
+    + '</a>'
+    + '<div class="product-info">'
+    + '<a href="product.html?handle=' + encodeURIComponent(handle) + '" class="product-name" style="text-decoration:none;color:inherit;display:block;">' + escapeHTML(product.title) + '</a>'
+    + '<p class="product-desc">' + escapeHTML((product.description || '').substring(0, 60)) + '</p>'
+    + '<div class="sub-toggle">'
+    + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
+    + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement -15%</button>'
+    + '</div>'
+    + '<div class="sub-freq" style="display:none">'
+    + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
+    + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
+    + '</div>'
+    + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
+    + '<div class="product-bottom">'
+    + '<div class="product-price">' + price + ' &euro;</div>'
+    + '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>'
+    + '</div>'
+    + '</div>';
   return card;
 }
 
@@ -88,151 +312,147 @@ function updateProductsFromShopify(products) {
   allShopifyProducts = products;
 
   // --- BEST-SELLERS: Top 3 only ---
-  const bsGrid = document.getElementById('bestsellersGrid');
+  var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
     while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    const top3 = products.slice(0, 3);
-    const bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
-    top3.forEach((product, i) => {
-      const card = buildProductCard(product, i, bsLabels[i] || '');
+    var top3 = products.slice(0, 3);
+    var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
+    top3.forEach(function(product, i) {
+      var card = buildProductCard(product, i, bsLabels[i] || '');
       bsGrid.appendChild(card);
     });
   }
 
   // --- CATALOGUE: All products ---
-  const catGrid = document.getElementById('catalogueGrid');
+  var catGrid = document.getElementById('catalogueGrid');
   if (catGrid) {
     while (catGrid.firstChild) catGrid.removeChild(catGrid.firstChild);
-    products.forEach((product, i) => {
-      const tags = product.tags || [];
-      let tagLabel = '';
+    products.forEach(function(product, i) {
+      var tags = product.tags || [];
+      var tagLabel = '';
       if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
-      const card = buildProductCard(product, i, tagLabel);
+      var card = buildProductCard(product, i, tagLabel);
       catGrid.appendChild(card);
     });
   }
 
   // Hide loading skeleton
-  const skeleton = document.getElementById('catalogueSkeleton');
+  var skeleton = document.getElementById('catalogueSkeleton');
   if (skeleton) skeleton.style.display = 'none';
 
   // Also update legacy carousel if exists
-  const carousel = document.getElementById('productsCarousel');
+  var carousel = document.getElementById('productsCarousel');
   if (carousel) {
     while (carousel.firstChild) carousel.removeChild(carousel.firstChild);
-    products.forEach((product, i) => {
-      const tags = product.tags || [];
-      let tagLabel = '';
+    products.forEach(function(product, i) {
+      var tags = product.tags || [];
+      var tagLabel = '';
       if (i === 0) tagLabel = 'Best-seller';
       else if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
-      const card = buildProductCard(product, i, tagLabel);
+      var card = buildProductCard(product, i, tagLabel);
       carousel.appendChild(card);
     });
   }
 }
 
+// ============ ADD TO CART ============
 async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
   // Show toast + auto-open cart
   showToast();
   setTimeout(function() {
-    const drawer = document.getElementById('cartDrawer');
+    var drawer = document.getElementById('cartDrawer');
     if (drawer && !drawer.classList.contains('open')) toggleCart();
   }, 400);
 
-  if (shopifyClient && shopifyCheckout) {
-    try {
-      const lineItem = {
-        variantId: variantId,
-        quantity: 1
-      };
+  try {
+    var line = {
+      merchandiseId: variantId,
+      quantity: 1
+    };
 
-      // Pass subscription info as custom attributes on the line item
-      if (subscriptionInfo) {
-        const discountPct = subscriptionInfo.frequency === '2' ? '15' : '10';
-        lineItem.customAttributes = [
-          { key: 'Mode', value: 'Abonnement' },
-          { key: 'Fréquence', value: 'Tous les ' + subscriptionInfo.frequency + ' mois' },
-          { key: 'Prix abonnement', value: subscriptionInfo.price + ' €' },
-          { key: 'Réduction', value: '-' + discountPct + '%' }
-        ];
+    // If subscription, attach selling plan ID
+    if (subscriptionInfo && subscriptionInfo.frequency) {
+      var planId = sellingPlanMap[subscriptionInfo.frequency];
+      if (planId) {
+        line.sellingPlanId = planId;
+        console.log('Adding with selling plan:', planId, 'for frequency:', subscriptionInfo.frequency + ' months');
+      } else {
+        console.warn('No selling plan found for frequency:', subscriptionInfo.frequency);
       }
-
-      shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [lineItem]);
-
-      // Apply discount code for subscriptions based on frequency
-      if (subscriptionInfo) {
-        try {
-          const discountCode = subscriptionInfo.frequency === '2' ? 'ABO15' : 'ABO10';
-          currentDiscountCode = discountCode;
-          console.log('Applying discount code:', discountCode, 'for frequency:', subscriptionInfo.frequency);
-          shopifyCheckout = await shopifyClient.checkout.addDiscount(shopifyCheckout.id, discountCode);
-          console.log('Discount applied successfully, webUrl:', shopifyCheckout.webUrl);
-        } catch (discountErr) {
-          console.warn('Discount code error:', discountErr);
-        }
-      }
-
-      syncCartFromCheckout();
-    } catch (err) {
-      console.warn('Add to cart error:', err);
-      addToCartLocal(title, price, imgSrc);
+      // Also add custom attributes for display purposes
+      var discountPct = subscriptionInfo.frequency === '2' ? '15' : '10';
+      line.attributes = [
+        { key: 'Mode', value: 'Abonnement' },
+        { key: 'Fr\u00e9quence', value: 'Tous les ' + subscriptionInfo.frequency + ' mois' },
+        { key: 'R\u00e9duction', value: '-' + discountPct + '%' }
+      ];
     }
-  } else {
+
+    // Add to cart via GraphQL
+    await cartLinesAdd([line]);
+    console.log('Item added to cart successfully');
+
+  } catch (err) {
+    console.warn('Add to cart error:', err);
     addToCartLocal(title, price, imgSrc);
   }
 }
 
 function addToCartLocal(title, price, imgSrc) {
-  const existing = cartItemsData.find(item => item.title === title);
+  var existing = cartItemsData.find(function(item) { return item.title === title; });
   if (existing) {
     existing.qty += 1;
   } else {
-    cartItemsData.push({ title, price, imgSrc, qty: 1 });
+    cartItemsData.push({ title: title, price: price, imgSrc: imgSrc, qty: 1 });
   }
   renderCart();
 }
 
-function syncCartFromCheckout() {
-  if (!shopifyCheckout) return;
-  cartItemsData = shopifyCheckout.lineItems.map(item => {
-    // Check if this line item has subscription custom attributes
-    const attrs = item.customAttributes || [];
-    const isSubscription = attrs.some(a => a.key === 'Mode' && a.value === 'Abonnement');
-    const freqAttr = attrs.find(a => a.key === 'Fréquence');
-    const subPriceAttr = attrs.find(a => a.key === 'Prix abonnement');
+// ============ SYNC CART FROM GRAPHQL ============
+function syncCartFromGraphQL(cart) {
+  if (!cart || !cart.lines) return;
+  cartItemsData = cart.lines.edges.map(function(edge) {
+    var node = edge.node;
+    var merch = node.merchandise;
+    var productTitle = merch.product ? merch.product.title : merch.title;
 
-    let displayTitle = item.title;
-    let displayPrice = parseFloat(item.variant.price.amount || item.variant.price).toFixed(2).replace('.', ',');
+    // Check for selling plan allocation (subscription)
+    var isSubscription = !!node.sellingPlanAllocation;
+    var displayTitle = productTitle;
+    var displayPrice;
 
     if (isSubscription) {
-      const freq = freqAttr ? freqAttr.value : '';
-      displayTitle = item.title + ' (Abo - ' + freq + ')';
-      if (subPriceAttr) {
-        displayPrice = subPriceAttr.value.replace(' €', '').trim();
-      }
+      var planName = node.sellingPlanAllocation.sellingPlan.name;
+      displayTitle = productTitle + ' (Abo - ' + planName + ')';
+      // Use the discounted price from selling plan
+      var adj = node.sellingPlanAllocation.priceAdjustments[0];
+      displayPrice = parseFloat(adj.price.amount).toFixed(2).replace('.', ',');
+    } else {
+      displayPrice = parseFloat(merch.price.amount).toFixed(2).replace('.', ',');
     }
 
     return {
-      id: item.id,
+      id: node.id,
       title: displayTitle,
       price: displayPrice,
-      imgSrc: item.variant.image ? item.variant.image.src : '',
-      qty: item.quantity,
-      variantId: item.variant.id
+      imgSrc: merch.image ? merch.image.url : '',
+      qty: node.quantity,
+      variantId: merch.id
     };
   });
   renderCart();
 }
 
+// ============ RENDER CART ============
 function renderCart() {
-  const container = document.getElementById('cartItems');
-  const footer = document.getElementById('cartFooter');
-  const badge = document.getElementById('cartBadge');
-  const totalEl = document.getElementById('cartTotal');
+  var container = document.getElementById('cartItems');
+  var footer = document.getElementById('cartFooter');
+  var badge = document.getElementById('cartBadge');
+  var totalEl = document.getElementById('cartTotal');
 
   if (cartItemsData.length === 0) {
     while (container.firstChild) container.removeChild(container.firstChild);
-    const emptyMsg = document.createElement('p');
+    var emptyMsg = document.createElement('p');
     emptyMsg.className = 'cart-empty';
     emptyMsg.textContent = 'Votre panier est vide';
     container.appendChild(emptyMsg);
@@ -241,28 +461,27 @@ function renderCart() {
     return;
   }
 
-  let html = '';
-  let total = 0;
-  let totalQty = 0;
+  var html = '';
+  var total = 0;
+  var totalQty = 0;
 
-  cartItemsData.forEach((item, i) => {
-    const itemTotal = parseFloat(item.price.replace(',', '.')) * item.qty;
+  cartItemsData.forEach(function(item, i) {
+    var itemTotal = parseFloat(item.price.replace(',', '.')) * item.qty;
     total += itemTotal;
     totalQty += item.qty;
-    html += `
-      <div class="cart-item">
-        <div class="cart-item-img" style="background-image:url('${encodeURI(item.imgSrc)}');"></div>
-        <div class="cart-item-details">
-          <div class="cart-item-name">${escapeHTML(item.title)}</div>
-          <div class="cart-item-price">${escapeHTML(item.price)}&euro;</div>
-          <div class="cart-item-qty">
-            <button onclick="updateQty(${i}, -1)">&minus;</button>
-            <span>${item.qty}</span>
-            <button onclick="updateQty(${i}, 1)">+</button>
-          </div>
-        </div>
-        <button class="cart-item-remove" onclick="removeItem(${i})">&times;</button>
-      </div>`;
+    html += '<div class="cart-item">'
+      + '<div class="cart-item-img" style="background-image:url(\'' + encodeURI(item.imgSrc) + '\');"></div>'
+      + '<div class="cart-item-details">'
+      + '<div class="cart-item-name">' + escapeHTML(item.title) + '</div>'
+      + '<div class="cart-item-price">' + escapeHTML(item.price) + '\u20ac</div>'
+      + '<div class="cart-item-qty">'
+      + '<button onclick="updateQty(' + i + ', -1)">&minus;</button>'
+      + '<span>' + item.qty + '</span>'
+      + '<button onclick="updateQty(' + i + ', 1)">+</button>'
+      + '</div>'
+      + '</div>'
+      + '<button class="cart-item-remove" onclick="removeItem(' + i + ')">&times;</button>'
+      + '</div>';
   });
 
   container.innerHTML = html;
@@ -274,18 +493,16 @@ function renderCart() {
   }
 }
 
+// ============ CART ACTIONS ============
 async function updateQty(index, delta) {
-  if (shopifyCheckout && cartItemsData[index].id) {
-    const item = cartItemsData[index];
-    const newQty = item.qty + delta;
+  var item = cartItemsData[index];
+  if (cartId && item.id) {
+    var newQty = item.qty + delta;
     if (newQty <= 0) {
-      shopifyCheckout = await shopifyClient.checkout.removeLineItems(shopifyCheckout.id, [item.id]);
+      await cartLinesRemove([item.id]);
     } else {
-      shopifyCheckout = await shopifyClient.checkout.updateLineItems(shopifyCheckout.id, [{
-        id: item.id, quantity: newQty
-      }]);
+      await cartLinesUpdate([{ id: item.id, quantity: newQty }]);
     }
-    syncCartFromCheckout();
   } else {
     cartItemsData[index].qty += delta;
     if (cartItemsData[index].qty <= 0) cartItemsData.splice(index, 1);
@@ -294,9 +511,9 @@ async function updateQty(index, delta) {
 }
 
 async function removeItem(index) {
-  if (shopifyCheckout && cartItemsData[index].id) {
-    shopifyCheckout = await shopifyClient.checkout.removeLineItems(shopifyCheckout.id, [cartItemsData[index].id]);
-    syncCartFromCheckout();
+  var item = cartItemsData[index];
+  if (cartId && item.id) {
+    await cartLinesRemove([item.id]);
   } else {
     cartItemsData.splice(index, 1);
     renderCart();
@@ -305,68 +522,60 @@ async function removeItem(index) {
 
 function toggleCart() {
   document.getElementById('cartDrawer').classList.toggle('open');
-  const overlay = document.getElementById('cartOverlay');
+  var overlay = document.getElementById('cartOverlay');
   if (overlay) overlay.classList.toggle('open');
   document.body.classList.toggle('cart-open');
 }
 
 function goToCheckout() {
-  if (shopifyCheckout && shopifyCheckout.webUrl) {
-    let checkoutUrl = shopifyCheckout.webUrl;
-    // Append discount code to URL if cart has subscription items
-    const hasSubscription = cartItemsData.some(item => item.title && item.title.includes('Abo'));
-    if (hasSubscription && currentDiscountCode) {
-      const separator = checkoutUrl.includes('?') ? '&' : '?';
-      checkoutUrl += separator + 'discount=' + currentDiscountCode;
-    }
-    window.open(checkoutUrl, '_blank');
+  if (cartCheckoutUrl) {
+    window.open(cartCheckoutUrl, '_blank');
   } else {
     alert('Redirection vers le checkout Shopify...');
   }
 }
 
 function showToast() {
-  const toast = document.getElementById('cartToast');
+  var toast = document.getElementById('cartToast');
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
+  setTimeout(function() { toast.classList.remove('show'); }, 2000);
 }
 
-// Static product fallback (when SDK hasn't replaced products)
+// ============ STATIC PRODUCT FALLBACK ============
 function addToCartStatic(btn) {
-  const card = btn.closest('.product-card');
-  const title = card.querySelector('.product-name').textContent;
-  const basePrice = card.getAttribute('data-base-price');
-  const variantId = card.getAttribute('data-variant-id');
-  const subToggle = card.querySelector('.sub-toggle');
-  let finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
-  let suffix = '';
-  let subscriptionInfo = null;
+  var card = btn.closest('.product-card');
+  var title = card.querySelector('.product-name').textContent;
+  var basePrice = card.getAttribute('data-base-price');
+  var variantId = card.getAttribute('data-variant-id');
+  var subToggle = card.querySelector('.sub-toggle');
+  var finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
+  var suffix = '';
+  var subscriptionInfo = null;
 
   if (subToggle) {
-    const subBtn = subToggle.querySelector('.sub-option');
+    var subBtn = subToggle.querySelector('.sub-option');
     if (subBtn && subBtn.classList.contains('active')) {
-      const numPrice = parseFloat(finalPrice.replace(',', '.'));
-      const freqBtn = card.querySelector('.sub-freq-btn.active');
-      const months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
-      // 15% discount for 2 months, 10% for 4 months
-      const discountRate = months === '2' ? 0.15 : 0.10;
+      var numPrice = parseFloat(finalPrice.replace(',', '.'));
+      var freqBtn = card.querySelector('.sub-freq-btn.active');
+      var months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
+      var discountRate = months === '2' ? 0.15 : 0.10;
       finalPrice = (numPrice * (1 - discountRate)).toFixed(2).replace('.', ',');
       suffix = ' (Abo ' + months + ' mois)';
       subscriptionInfo = { frequency: months, price: finalPrice };
     }
   }
-  // Grab product image from the card
-  const imgEl = card.querySelector('.product-img img');
-  const imgSrc = imgEl ? imgEl.src : '';
 
-  // Use Shopify checkout if available (so "Passer Commande" works)
-  if (variantId && shopifyClient && shopifyCheckout) {
+  var imgEl = card.querySelector('.product-img img');
+  var imgSrc = imgEl ? imgEl.src : '';
+
+  // Use GraphQL cart if available
+  if (variantId && cartId !== null) {
     addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo);
   } else {
     addToCartLocal(title + suffix, finalPrice, imgSrc);
     showToast();
     setTimeout(function() {
-      const drawer = document.getElementById('cartDrawer');
+      var drawer = document.getElementById('cartDrawer');
       if (drawer && !drawer.classList.contains('open')) toggleCart();
     }, 400);
   }
@@ -374,87 +583,80 @@ function addToCartStatic(btn) {
 
 // ============ SUBSCRIPTION TOGGLE ============
 function setMode(btn, mode) {
-  const card = btn.closest('.product-card');
-  const toggleBtns = card.querySelectorAll('.sub-toggle-btn');
-  const freqDiv = card.querySelector('.sub-freq');
-  const discountDiv = card.querySelector('.sub-discount');
-  const priceEl = card.querySelector('.product-price');
-  const basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
+  var card = btn.closest('.product-card');
+  var toggleBtns = card.querySelectorAll('.sub-toggle-btn');
+  var freqDiv = card.querySelector('.sub-freq');
+  var discountDiv = card.querySelector('.sub-discount');
+  var priceEl = card.querySelector('.product-price');
+  var basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
 
-  toggleBtns.forEach(b => b.classList.remove('active'));
+  toggleBtns.forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
 
   if (mode === 'sub') {
     freqDiv.style.display = 'flex';
     discountDiv.style.display = 'block';
-    // Get active frequency to determine discount rate
-    const activeFreqBtn = card.querySelector('.sub-freq-btn.active');
-    const months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
-    const discountRate = months === '2' ? 0.15 : 0.10;
-    const discountPct = months === '2' ? '15' : '10';
-    const discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
-    const saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
+    var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
+    var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
+    var discountRate = months === '2' ? 0.15 : 0.10;
+    var discountPct = months === '2' ? '15' : '10';
+    var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
+    var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
     while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
-    const oldPriceSpan = document.createElement('span');
+    var oldPriceSpan = document.createElement('span');
     oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
-    oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' €';
+    oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
     priceEl.appendChild(oldPriceSpan);
-    priceEl.appendChild(document.createTextNode(discounted + ' €'));
-    discountDiv.textContent = 'Économisez ' + saving + ' € par livraison';
-    // Update the sub button label
+    priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
+    discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
     btn.closest('.sub-toggle').querySelector('.sub-option').textContent = 'Abonnement -' + discountPct + '%';
   } else {
     freqDiv.style.display = 'none';
     discountDiv.style.display = 'none';
-    priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' €';
+    priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
   }
 }
 
 function setFreq(btn, months) {
-  const card = btn.closest('.product-card');
-  const freqBtns = card.querySelectorAll('.sub-freq-btn');
-  freqBtns.forEach(b => b.classList.remove('active'));
+  var card = btn.closest('.product-card');
+  var freqBtns = card.querySelectorAll('.sub-freq-btn');
+  freqBtns.forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
 
-  // Recalculate price based on new frequency
-  const basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
-  const discountRate = months === '2' ? 0.15 : 0.10;
-  const discountPct = months === '2' ? '15' : '10';
-  const discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
-  const saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
+  var basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
+  var discountRate = months === '2' ? 0.15 : 0.10;
+  var discountPct = months === '2' ? '15' : '10';
+  var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
+  var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
 
-  const priceEl = card.querySelector('.product-price');
-  const discountDiv = card.querySelector('.sub-discount');
-  const subToggle = card.querySelector('.sub-toggle');
+  var priceEl = card.querySelector('.product-price');
+  var discountDiv = card.querySelector('.sub-discount');
+  var subToggle = card.querySelector('.sub-toggle');
 
-  // Update price display
   while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
-  const oldPriceSpan = document.createElement('span');
+  var oldPriceSpan = document.createElement('span');
   oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
-  oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' €';
+  oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
   priceEl.appendChild(oldPriceSpan);
-  priceEl.appendChild(document.createTextNode(discounted + ' €'));
+  priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
 
-  // Update discount text
-  if (discountDiv) discountDiv.textContent = 'Économisez ' + saving + ' € par livraison';
+  if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
 
-  // Update subscription button label
   if (subToggle) {
-    const subBtn = subToggle.querySelector('.sub-option');
+    var subBtn = subToggle.querySelector('.sub-option');
     if (subBtn) subBtn.textContent = 'Abonnement -' + discountPct + '%';
   }
 }
 
 // ============ PRODUCT DETAIL PAGE ============
 async function loadSingleProduct(handle) {
-  const container = document.getElementById('productDetailContainer');
+  var container = document.getElementById('productDetailContainer');
   if (!container) return;
 
-  // Show loading
   container.innerHTML = '<div class="product-loading"><div class="spinner"></div><p>Chargement du produit...</p></div>';
 
   if (typeof ShopifyBuy === 'undefined') {
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur de chargement</h2><p>Impossible de se connecter &agrave; la boutique.</p><a href="index.html">Retour &agrave; l\'accueil</a></div>';
+    container.innerHTML = '<div class="product-not-found"><h2>Erreur de chargement</h2><p>Impossible de se connecter \u00e0 la boutique.</p><a href="index.html">Retour \u00e0 l\'accueil</a></div>';
     return;
   }
 
@@ -464,128 +666,116 @@ async function loadSingleProduct(handle) {
         domain: SHOPIFY_DOMAIN,
         storefrontAccessToken: STOREFRONT_TOKEN,
       });
-      shopifyCheckout = await shopifyClient.checkout.create();
     }
 
-    const product = await shopifyClient.product.fetchByHandle(handle);
+    // Create cart if not exists
+    if (!cartId) {
+      await createCart([]);
+    }
+
+    // Fetch selling plans
+    await fetchSellingPlans();
+
+    var product = await shopifyClient.product.fetchByHandle(handle);
     if (!product) {
-      container.innerHTML = '<div class="product-not-found"><h2>Produit introuvable</h2><p>Ce produit n\'existe pas ou n\'est plus disponible.</p><a href="index.html">&larr; Retour &agrave; l\'accueil</a></div>';
+      container.innerHTML = '<div class="product-not-found"><h2>Produit introuvable</h2><p>Ce produit n\'existe pas ou n\'est plus disponible.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
       return;
     }
 
-    const variant = product.variants[0];
-    const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-    const saving = (parseFloat(price.replace(',', '.')) * 0.15).toFixed(2).replace('.', ',');
-    const images = product.images || [];
-    const mainImg = images[0] ? images[0].src : '';
-    const pType = (product.productType || '').replace(/^\w/, c => c.toUpperCase());
+    var variant = product.variants[0];
+    var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+    var saving = (parseFloat(price.replace(',', '.')) * 0.15).toFixed(2).replace('.', ',');
+    var images = product.images || [];
+    var mainImg = images[0] ? images[0].src : '';
+    var pType = (product.productType || '').replace(/^\w/, function(c) { return c.toUpperCase(); });
 
-    // Build breadcrumb
-    const breadcrumb = document.getElementById('productBreadcrumb');
+    var breadcrumb = document.getElementById('productBreadcrumb');
     if (breadcrumb) {
       breadcrumb.innerHTML = '<a href="index.html">Accueil</a><span>&rsaquo;</span><a href="index.html#catalogue">Catalogue</a><span>&rsaquo;</span>' + escapeHTML(product.title);
     }
-    const breadcrumbCurrent = document.getElementById('breadcrumbProduct');
+    var breadcrumbCurrent = document.getElementById('breadcrumbProduct');
     if (breadcrumbCurrent) {
       breadcrumbCurrent.textContent = product.title;
     }
-    // Update page title
-    document.title = product.title + ' — Pro Pure';
+    document.title = product.title + ' \u2014 Pro Pure';
 
-    // Build gallery
-    let thumbsHtml = '';
+    var thumbsHtml = '';
     if (images.length > 1) {
-      images.forEach((img, i) => {
+      images.forEach(function(img, i) {
         thumbsHtml += '<div class="product-gallery-thumb' + (i === 0 ? ' active' : '') + '" onclick="changeMainImage(this, \'' + encodeURI(img.src) + '\')">'
           + '<img src="' + encodeURI(img.src) + '" alt="' + escapeHTML(product.title) + ' ' + (i+1) + '" loading="lazy" />'
           + '</div>';
       });
     }
 
-    // Build detail HTML
-    container.innerHTML = `
-      <div class="product-detail">
-        <div class="product-gallery">
-          <div class="product-gallery-main">
-            <img id="mainProductImage" src="${encodeURI(mainImg)}" alt="${escapeHTML(product.title)}" />
-          </div>
-          ${thumbsHtml ? '<div class="product-gallery-thumbs">' + thumbsHtml + '</div>' : ''}
-        </div>
-        <div class="product-info">
-          ${pType ? '<div class="product-category">' + escapeHTML(pType) + '</div>' : ''}
-          <h1 class="product-title">${escapeHTML(product.title)}</h1>
-          <div class="product-price-detail">${price} &euro;</div>
-          <div class="product-description-full">${escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.')}</div>
-          <div class="product-card" data-base-price="${price}" data-variant-id="${variant.id}" style="background:none;box-shadow:none;padding:0;">
-            <span class="product-name" style="display:none">${escapeHTML(product.title)}</span>
-            <div class="sub-toggle">
-              <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-              <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
-            </div>
-            <div class="sub-freq" style="display:none">
-              <button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,'2')">Tous les 2 mois (-15%)</button>
-              <button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,'4')">Tous les 4 mois (-10%)</button>
-            </div>
-            <div class="sub-discount" style="display:none">&Eacute;conomisez ${saving}&euro; par livraison</div>
-            <div class="product-bottom" style="margin-top:1rem;">
-              <div class="product-price" style="font-size:1.3rem;">${price} &euro;</div>
-            </div>
-            <div class="product-actions" style="margin-top:1.5rem;">
-              <button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                Ajouter au panier
-              </button>
-            </div>
-          </div>
-          <div class="product-meta">
-            <div class="product-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              Livraison rapide en 48h
-            </div>
-            <div class="product-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Formule professionnelle
-            </div>
-            <div class="product-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Fabriqu&eacute; en France
-            </div>
-          </div>
-        </div>
-      </div>`;
+    container.innerHTML = '<div class="product-detail">'
+      + '<div class="product-gallery">'
+      + '<div class="product-gallery-main">'
+      + '<img id="mainProductImage" src="' + encodeURI(mainImg) + '" alt="' + escapeHTML(product.title) + '" />'
+      + '</div>'
+      + (thumbsHtml ? '<div class="product-gallery-thumbs">' + thumbsHtml + '</div>' : '')
+      + '</div>'
+      + '<div class="product-info">'
+      + (pType ? '<div class="product-category">' + escapeHTML(pType) + '</div>' : '')
+      + '<h1 class="product-title">' + escapeHTML(product.title) + '</h1>'
+      + '<div class="product-price-detail">' + price + ' &euro;</div>'
+      + '<div class="product-description-full">' + escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.') + '</div>'
+      + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" style="background:none;box-shadow:none;padding:0;">'
+      + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
+      + '<div class="sub-toggle">'
+      + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
+      + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement -15%</button>'
+      + '</div>'
+      + '<div class="sub-freq" style="display:none">'
+      + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
+      + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
+      + '</div>'
+      + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
+      + '<div class="product-bottom" style="margin-top:1rem;">'
+      + '<div class="product-price" style="font-size:1.3rem;">' + price + ' &euro;</div>'
+      + '</div>'
+      + '<div class="product-actions" style="margin-top:1.5rem;">'
+      + '<button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">'
+      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
+      + ' Ajouter au panier'
+      + '</button>'
+      + '</div>'
+      + '</div>'
+      + '<div class="product-meta">'
+      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Livraison rapide en 48h</div>'
+      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Formule professionnelle</div>'
+      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Fabriqu\u00e9 en France</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
 
-    // Load related products
     loadRelatedProducts(product);
 
   } catch (err) {
     console.error('Error loading product:', err);
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><a href="index.html">&larr; Retour &agrave; l\'accueil</a></div>';
+    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
 
 function changeMainImage(thumb, src) {
   document.getElementById('mainProductImage').src = src;
-  document.querySelectorAll('.product-gallery-thumb').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.product-gallery-thumb').forEach(function(t) { t.classList.remove('active'); });
   thumb.classList.add('active');
 }
 
 async function loadRelatedProducts(currentProduct) {
-  const container = document.getElementById('relatedProducts');
+  var container = document.getElementById('relatedProducts');
   if (!container) return;
 
   try {
-    const allProducts = await shopifyClient.product.fetchAll(20);
-    const related = allProducts
-      .filter(p => p.id !== currentProduct.id)
-      .filter(p => {
-        const sameType = p.productType === currentProduct.productType;
-        return sameType;
-      })
+    var allProducts = await shopifyClient.product.fetchAll(20);
+    var related = allProducts
+      .filter(function(p) { return p.id !== currentProduct.id; })
+      .filter(function(p) { return p.productType === currentProduct.productType; })
       .slice(0, 4);
 
     if (related.length === 0) {
-      // If no same-type products, show random ones
-      const random = allProducts.filter(p => p.id !== currentProduct.id).slice(0, 4);
+      var random = allProducts.filter(function(p) { return p.id !== currentProduct.id; }).slice(0, 4);
       if (random.length === 0) { container.parentElement.style.display = 'none'; return; }
       renderRelatedGrid(container, random);
     } else {
@@ -599,38 +789,36 @@ async function loadRelatedProducts(currentProduct) {
 
 function renderRelatedGrid(container, products) {
   container.innerHTML = '';
-  products.forEach((product, i) => {
-    const variant = product.variants[0];
-    const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-    const imgSrc = product.images[0] ? product.images[0].src : '';
-    const handle = product.handle || '';
+  products.forEach(function(product, i) {
+    var variant = product.variants[0];
+    var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+    var imgSrc = product.images[0] ? product.images[0].src : '';
+    var handle = product.handle || '';
 
-    const card = document.createElement('a');
+    var card = document.createElement('a');
     card.href = 'product.html?handle=' + encodeURIComponent(handle);
     card.className = 'product-card-link';
-    card.innerHTML = `
-      <div class="product-card reveal visible" data-base-price="${price}">
-        <div class="product-img">
-          ${imgSrc
-            ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
-            : '<div class="product-img-placeholder"></div>'}
-        </div>
-        <div class="product-info">
-          <h3 class="product-name">${escapeHTML(product.title)}</h3>
-          <div class="product-bottom">
-            <div class="product-price">${price} &euro;</div>
-          </div>
-        </div>
-      </div>`;
+    card.innerHTML = '<div class="product-card reveal visible" data-base-price="' + price + '">'
+      + '<div class="product-img">'
+      + (imgSrc
+        ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
+        : '<div class="product-img-placeholder"></div>')
+      + '</div>'
+      + '<div class="product-info">'
+      + '<h3 class="product-name">' + escapeHTML(product.title) + '</h3>'
+      + '<div class="product-bottom">'
+      + '<div class="product-price">' + price + ' &euro;</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
     container.appendChild(card);
   });
 }
 
-// Init Shopify on load
+// ============ INIT ON LOAD ============
 window.addEventListener('DOMContentLoaded', function() {
-  // Check if we're on the product detail page
-  const urlParams = new URLSearchParams(window.location.search);
-  const handle = urlParams.get('handle');
+  var urlParams = new URLSearchParams(window.location.search);
+  var handle = urlParams.get('handle');
   if (handle && document.getElementById('productDetailContainer')) {
     loadSingleProduct(handle);
   } else {

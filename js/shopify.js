@@ -128,7 +128,7 @@ function updateProductsFromShopify(products) {
   }
 }
 
-async function addToCart(variantId, title, price, imgSrc) {
+async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
   // Show toast + auto-open cart
   showToast();
   setTimeout(function() {
@@ -138,10 +138,22 @@ async function addToCart(variantId, title, price, imgSrc) {
 
   if (shopifyClient && shopifyCheckout) {
     try {
-      shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [{
+      const lineItem = {
         variantId: variantId,
         quantity: 1
-      }]);
+      };
+
+      // Pass subscription info as custom attributes on the line item
+      if (subscriptionInfo) {
+        lineItem.customAttributes = [
+          { key: 'Mode', value: 'Abonnement' },
+          { key: 'Fréquence', value: 'Tous les ' + subscriptionInfo.frequency + ' mois' },
+          { key: 'Prix abonnement', value: subscriptionInfo.price + ' €' },
+          { key: 'Réduction', value: '-10%' }
+        ];
+      }
+
+      shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [lineItem]);
       syncCartFromCheckout();
     } catch (err) {
       console.warn('Add to cart error:', err);
@@ -164,14 +176,33 @@ function addToCartLocal(title, price, imgSrc) {
 
 function syncCartFromCheckout() {
   if (!shopifyCheckout) return;
-  cartItemsData = shopifyCheckout.lineItems.map(item => ({
-    id: item.id,
-    title: item.title,
-    price: parseFloat(item.variant.price.amount || item.variant.price).toFixed(2).replace('.', ','),
-    imgSrc: item.variant.image ? item.variant.image.src : '',
-    qty: item.quantity,
-    variantId: item.variant.id
-  }));
+  cartItemsData = shopifyCheckout.lineItems.map(item => {
+    // Check if this line item has subscription custom attributes
+    const attrs = item.customAttributes || [];
+    const isSubscription = attrs.some(a => a.key === 'Mode' && a.value === 'Abonnement');
+    const freqAttr = attrs.find(a => a.key === 'Fréquence');
+    const subPriceAttr = attrs.find(a => a.key === 'Prix abonnement');
+
+    let displayTitle = item.title;
+    let displayPrice = parseFloat(item.variant.price.amount || item.variant.price).toFixed(2).replace('.', ',');
+
+    if (isSubscription) {
+      const freq = freqAttr ? freqAttr.value : '';
+      displayTitle = item.title + ' (Abo - ' + freq + ')';
+      if (subPriceAttr) {
+        displayPrice = subPriceAttr.value.replace(' €', '').trim();
+      }
+    }
+
+    return {
+      id: item.id,
+      title: displayTitle,
+      price: displayPrice,
+      imgSrc: item.variant.image ? item.variant.image.src : '',
+      qty: item.quantity,
+      variantId: item.variant.id
+    };
+  });
   renderCart();
 }
 
@@ -284,6 +315,8 @@ function addToCartStatic(btn) {
   const subToggle = card.querySelector('.sub-toggle');
   let finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
   let suffix = '';
+  let subscriptionInfo = null;
+
   if (subToggle) {
     const subBtn = subToggle.querySelector('.sub-option');
     if (subBtn && subBtn.classList.contains('active')) {
@@ -292,6 +325,7 @@ function addToCartStatic(btn) {
       const freqBtn = card.querySelector('.sub-freq-btn.active');
       const months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
       suffix = ' (Abo ' + months + ' mois)';
+      subscriptionInfo = { frequency: months, price: finalPrice };
     }
   }
   // Grab product image from the card
@@ -300,7 +334,7 @@ function addToCartStatic(btn) {
 
   // Use Shopify checkout if available (so "Passer Commande" works)
   if (variantId && shopifyClient && shopifyCheckout) {
-    addToCart(variantId, title + suffix, finalPrice, imgSrc);
+    addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo);
   } else {
     addToCartLocal(title + suffix, finalPrice, imgSrc);
     showToast();

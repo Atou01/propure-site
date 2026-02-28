@@ -9,12 +9,15 @@ function updateScrollProgress() {
 }
 window.addEventListener('scroll', updateScrollProgress, { passive: true });
 
-// --- Floating Particles ---
+// --- Floating Particles (disabled on mobile for performance) ---
 function createParticles() {
   const container = document.getElementById('particles');
   if (!container) return;
+  // Skip particles on mobile (< 768px) for performance
+  if (window.innerWidth < 768) { container.style.display = 'none'; return; }
   const colors = ['rgba(193,167,111,0.15)', 'rgba(193,167,111,0.1)', 'rgba(44,62,80,0.06)', 'rgba(173,216,230,0.12)'];
-  for (let i = 0; i < 20; i++) {
+  const particleCount = window.innerWidth < 1024 ? 10 : 20;
+  for (let i = 0; i < particleCount; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     const size = Math.random() * 12 + 4;
@@ -85,10 +88,12 @@ document.addEventListener('click', function(e) {
   setTimeout(() => ripple.remove(), 600);
 });
 
-// --- 3D Tilt Effect on Product Cards (event delegation for dynamic cards) ---
+// --- 3D Tilt Effect on Product Cards (desktop only, disabled on touch devices) ---
 function bindTiltToCard(card) {
   if (card.dataset.tiltBound) return;
   card.dataset.tiltBound = '1';
+  // Skip tilt on touch/mobile devices
+  if ('ontouchstart' in window || window.innerWidth < 768) return;
   card.addEventListener('mousemove', function(e) {
     const rect = this.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -137,8 +142,9 @@ if (typeof addToCartStatic === 'function') {
   };
 }
 
-// --- Parallax Effect on Scroll ---
+// --- Parallax Effect on Scroll (desktop only) ---
 let ticking = false;
+if (window.innerWidth < 768) { /* skip parallax on mobile */ } else
 window.addEventListener('scroll', function() {
   if (!ticking) {
     requestAnimationFrame(function() {

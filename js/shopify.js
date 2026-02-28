@@ -196,7 +196,7 @@ async function initShopify() {
     await fetchSellingPlans();
 
     // Fetch products and update UI
-    const products = await shopifyClient.product.fetchAll(20);
+    const products = await shopifyClient.product.fetchAll(50);
     if (products.length > 0) {
       updateProductsFromShopify(products);
     }

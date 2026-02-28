@@ -93,10 +93,10 @@ document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
       const title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
       let show = false;
       if (filter === 'lessives') show = pType.includes('lessive') || title.includes('lessive');
-      else if (filter === 'adoucissants') show = pType.includes('adoucissant') || title.includes('adoucissant');
+      else if (filter === 'adoucissants') show = pType.includes('adoucissant') || pType.includes('adoucisant') || title.includes('adoucissant');
       else if (filter === 'nettoyant-luxe') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('luxe') || pType.includes('luxe'));
-      else if (filter === 'nettoyant-classique') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('classique') || pType.includes('classique'));
-      else if (filter === 'entretien') show = pType.includes('entretien') || title.includes('entretien') || title.includes('dégraissant') || pType.includes('nettoyant multi');
+      else if (filter === 'nettoyant-classique') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('classique') || pType.includes('classique') || pType.includes('classic'));
+      else if (filter === 'entretien') show = pType.includes('entretien') || title.includes('entretien') || title.includes('dégraissant') || pType.includes('nettoyant multi') || pType.includes('détac');
       card.style.display = show ? '' : 'none';
     });
   });

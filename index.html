@@ -680,8 +680,8 @@ body {
   background: var(--cream);
 }
 .gammes-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 2rem; margin-top: 3rem;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem; margin-top: 3rem;
 }
 .gamme-card {
   background: white; border-radius: 24px;
@@ -883,6 +883,7 @@ body {
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   .bestsellers-grid { grid-template-columns: repeat(3, 1fr); padding: 1rem 2rem 2rem; gap: 1.5rem; }
   .catalogue-grid { padding: 1rem 2rem 3rem; }
+  .gammes-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ====== MOBILE (max 768px) ====== */
@@ -1505,25 +1506,37 @@ body {
   <div class="section-header reveal">
     <span class="section-label">Explorez</span>
     <h2 class="section-title">Nos Gammes</h2>
-    <p class="section-subtitle">Trois univers de produits pour r&eacute;pondre &agrave; tous vos besoins d'entretien.</p>
+    <p class="section-subtitle">Cinq univers de produits pour r&eacute;pondre &agrave; tous vos besoins d'entretien.</p>
   </div>
   <div class="gammes-grid stagger-anim reveal-up">
     <div class="gamme-card reveal">
       <div class="gamme-icon lessives">&#129531;</div>
       <h3 class="gamme-title">Lessives</h3>
-      <p class="gamme-count">5 parfums — Format 5L</p>
+      <p class="gamme-count">Formules concentr&eacute;es — Format 5L</p>
       <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
     </div>
     <div class="gamme-card reveal">
       <div class="gamme-icon adoucissants">&#127800;</div>
       <h3 class="gamme-title">Adoucissants</h3>
-      <p class="gamme-count">Plus de 20 parfums — 1L &amp; 5L</p>
+      <p class="gamme-count">Parfums d'exception — 1L &amp; 5L</p>
       <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
     </div>
     <div class="gamme-card reveal">
       <div class="gamme-icon nettoyants">&#10024;</div>
-      <h3 class="gamme-title">Nettoyants</h3>
-      <p class="gamme-count">5 produits — Format 1L</p>
+      <h3 class="gamme-title">Nettoyant Sols Luxe</h3>
+      <p class="gamme-count">Finitions haut de gamme</p>
+      <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
+    </div>
+    <div class="gamme-card reveal">
+      <div class="gamme-icon nettoyants">&#128167;</div>
+      <h3 class="gamme-title">Nettoyant Sols Classique</h3>
+      <p class="gamme-count">Efficacit&eacute; au quotidien</p>
+      <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
+    </div>
+    <div class="gamme-card reveal">
+      <div class="gamme-icon nettoyants">&#128171;</div>
+      <h3 class="gamme-title">Produits d'Entretien</h3>
+      <p class="gamme-count">Nettoyage &amp; d&eacute;graissage</p>
       <a href="#" class="gamme-link">D&eacute;couvrir &rarr;</a>
     </div>
   </div>
@@ -1585,10 +1598,11 @@ body {
     <div class="footer-col">
       <h4>Produits</h4>
       <ul>
-        <li><a href="#">Lessives 5L</a></li>
-        <li><a href="#">Adoucissants 5L</a></li>
-        <li><a href="#">Adoucissants 1L</a></li>
-        <li><a href="#">Nettoyants 1L</a></li>
+        <li><a href="#">Lessives</a></li>
+        <li><a href="#">Adoucissants</a></li>
+        <li><a href="#">Nettoyant Sols Luxe</a></li>
+        <li><a href="#">Nettoyant Sols Classique</a></li>
+        <li><a href="#">Produits d'Entretien</a></li>
       </ul>
     </div>
     <div class="footer-col">

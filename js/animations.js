@@ -209,5 +209,49 @@ if (heroCta) {
   heroCta.style.position = 'relative';
 }
 
+// --- Force Video Autoplay on Mobile ---
+(function() {
+  const video = document.getElementById('heroVideo');
+  if (!video) return;
+
+  function tryPlay() {
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(function() {
+        // Autoplay blocked — retry on first user interaction
+        function playOnInteraction() {
+          video.play().catch(function(){});
+          document.removeEventListener('touchstart', playOnInteraction);
+          document.removeEventListener('click', playOnInteraction);
+          document.removeEventListener('scroll', playOnInteraction);
+        }
+        document.addEventListener('touchstart', playOnInteraction, { once: true, passive: true });
+        document.addEventListener('click', playOnInteraction, { once: true });
+        document.addEventListener('scroll', playOnInteraction, { once: true, passive: true });
+      });
+    }
+  }
+
+  // Try immediately
+  if (document.readyState === 'complete') {
+    tryPlay();
+  } else {
+    window.addEventListener('load', tryPlay);
+  }
+
+  // Also retry when video data is loaded
+  video.addEventListener('loadeddata', function() {
+    if (video.paused) tryPlay();
+  });
+})();
+
+// --- Fix mobile viewport height (100vh bug with address bar) ---
+function setMobileVH() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+setMobileVH();
+window.addEventListener('resize', setMobileVH, { passive: true });
+
 console.log('Pro Pure animations loaded ✨');
 

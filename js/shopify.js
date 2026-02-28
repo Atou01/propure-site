@@ -154,6 +154,16 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
       }
 
       shopifyCheckout = await shopifyClient.checkout.addLineItems(shopifyCheckout.id, [lineItem]);
+
+      // Apply discount code for subscriptions
+      if (subscriptionInfo) {
+        try {
+          shopifyCheckout = await shopifyClient.checkout.addDiscount(shopifyCheckout.id, 'ABO10');
+        } catch (discountErr) {
+          console.warn('Discount code error:', discountErr);
+        }
+      }
+
       syncCartFromCheckout();
     } catch (err) {
       console.warn('Add to cart error:', err);

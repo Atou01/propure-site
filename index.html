@@ -462,10 +462,57 @@ body {
   margin: 0 auto; line-height: 1.7;
 }
 
-/* ============ PRODUCT CAROUSEL ============ */
+/* ============ BEST-SELLERS GRID ============ */
+.bestsellers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding: 1rem 3rem 3rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ============ CATALOGUE SECTION ============ */
+.catalogue-section {
+  padding: 5rem 0 2rem;
+  background: var(--cream);
+}
+.catalogue-filters {
+  display: flex; gap: 0.75rem; justify-content: center;
+  flex-wrap: wrap; padding: 0 2rem 2rem;
+}
+.catalogue-filter-btn {
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  border: 1.5px solid var(--cream-dark);
+  background: white;
+  font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 0.5px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.3s;
+  color: var(--charcoal);
+  font-family: var(--font-body);
+}
+.catalogue-filter-btn:hover {
+  border-color: var(--gold); color: var(--gold);
+}
+.catalogue-filter-btn.active {
+  background: var(--charcoal); color: white;
+  border-color: var(--charcoal);
+}
+.catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem 3rem 4rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+/* ============ PRODUCT CAROUSEL (legacy) ============ */
 .products-carousel-wrapper {
   padding: 0 3rem 5rem;
   position: relative;
+  display: none;
 }
 .products-carousel {
   display: flex; gap: 1.5rem;
@@ -834,6 +881,8 @@ body {
   .brand-story { grid-template-columns: 1fr; }
   .brand-story-img { min-height: 300px; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .bestsellers-grid { grid-template-columns: repeat(3, 1fr); padding: 1rem 2rem 2rem; gap: 1.5rem; }
+  .catalogue-grid { padding: 1rem 2rem 3rem; }
 }
 
 /* ====== MOBILE (max 768px) ====== */
@@ -860,6 +909,10 @@ body {
   .categories-section { padding: 2.5rem 1rem 1.5rem; }
   .categories-section .cat-btn { font-size: 0.75rem; padding: 0.5rem 1rem; }
 
+  .bestsellers-grid { grid-template-columns: 1fr; padding: 1rem 1.5rem 2rem; gap: 1.5rem; }
+  .catalogue-grid { grid-template-columns: 1fr; padding: 1rem 1.5rem 3rem; gap: 1.5rem; }
+  .catalogue-filters { gap: 0.5rem; padding: 0 1rem 1.5rem; }
+  .catalogue-filter-btn { font-size: 0.7rem; padding: 0.5rem 1rem; }
   .products-carousel-wrapper { padding: 0 1rem 2.5rem; }
   .products-carousel { gap: 1rem; }
   .product-card { min-width: 260px; }
@@ -1163,26 +1216,106 @@ body {
   </div>
 </section>
 
-<!-- CATEGORIES PILLS -->
+<!-- BEST-SELLERS (3 produits, grille fixe) -->
 <main id="main-content" role="main">
-<section class="categories-section reveal" id="categories">
-  <div class="categories-scroll">
-    <button class="cat-pill active">Tous les Produits</button>
-    <button class="cat-pill">Lessives 5L</button>
-    <button class="cat-pill">Adoucissants 5L</button>
-    <button class="cat-pill">Adoucissants 1L</button>
-    <button class="cat-pill">Nettoyants 1L</button>
-    <button class="cat-pill">Nouveaut&eacute;s</button>
-    <button class="cat-pill">Best-sellers</button>
+<section id="produits">
+  <div class="section-header reveal">
+    <span class="section-label">Les Plus Aim&eacute;s</span>
+    <h2 class="section-title">Nos Best-Sellers</h2>
+    <p class="section-subtitle">Les 3 produits pr&eacute;f&eacute;r&eacute;s de nos clients, s&eacute;lectionn&eacute;s pour leur efficacit&eacute; et leur parfum unique.</p>
+  </div>
+  <div class="bestsellers-grid" id="bestsellersGrid">
+    <!-- Static fallback: Top 3 best-sellers -->
+    <div class="product-card reveal" data-base-price="24.90">
+      <div class="product-img">
+        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>
+        <span class="product-tag">Best-seller</span>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">Adoucissant Myst&egrave;re</h3>
+        <p class="product-desc">Fragrance envoutante et myst&eacute;rieuse — 5L</p>
+        <div class="sub-toggle">
+          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+        </div>
+        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
+        <div class="sub-discount">&eacute;conomisez 2,49&euro; par livraison</div>
+        <div class="product-bottom">
+          <div class="product-price">24,90&euro; <span>/ 5L</span></div>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-base-price="26.90">
+      <div class="product-img">
+        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #F5F0E0 0%, #C8B480 100%);"></div>
+        <span class="product-tag">Populaire</span>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">Adoucissant Prestige</h3>
+        <p class="product-desc">L'excellence du parfum premium — 5L</p>
+        <div class="sub-toggle">
+          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+        </div>
+        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
+        <div class="sub-discount">&eacute;conomisez 2,69&euro; par livraison</div>
+        <div class="product-bottom">
+          <div class="product-price">26,90&euro; <span>/ 5L</span></div>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-base-price="22.90">
+      <div class="product-img">
+        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E0E8F0 0%, #96B8D4 100%);"></div>
+        <span class="product-tag">Top vente</span>
+      </div>
+      <div class="product-info">
+        <h3 class="product-name">Lessive Marine</h3>
+        <p class="product-desc">Fra&icirc;cheur oc&eacute;anique longue dur&eacute;e — 5L</p>
+        <div class="sub-toggle">
+          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+        </div>
+        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
+        <div class="sub-discount">&eacute;conomisez 2,29&euro; par livraison</div>
+        <div class="product-bottom">
+          <div class="product-price">22,90&euro; <span>/ 5L</span></div>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:1rem 0 2rem;">
+    <a href="#catalogue" class="hero-cta ripple-btn" style="font-size:0.85rem;padding:0.9rem 2.5rem;text-decoration:none;display:inline-block;">Voir tout le catalogue &rarr;</a>
   </div>
 </section>
 
-<!-- PRODUCTS CAROUSEL -->
-<section id="produits">
+<!-- CATALOGUE COMPLET -->
+<section class="catalogue-section" id="catalogue">
   <div class="section-header reveal">
-    <span class="section-label">Notre S&eacute;lection</span>
-    <h2 class="section-title">Produits Best-Sellers</h2>
-    <p class="section-subtitle">D&eacute;couvrez nos produits les plus aim&eacute;s, s&eacute;lectionn&eacute;s pour leur efficacit&eacute; et leur parfum unique.</p>
+    <span class="section-label">Notre Catalogue</span>
+    <h2 class="section-title">Tous Nos Produits</h2>
+    <p class="section-subtitle">Explorez l'ensemble de notre gamme. Filtrez par cat&eacute;gorie pour trouver le produit id&eacute;al.</p>
+  </div>
+  <div class="catalogue-filters">
+    <button class="catalogue-filter-btn active" data-filter="all">Tous</button>
+    <button class="catalogue-filter-btn" data-filter="lessives-5l">Lessives 5L</button>
+    <button class="catalogue-filter-btn" data-filter="adoucissants-5l">Adoucissants 5L</button>
+    <button class="catalogue-filter-btn" data-filter="adoucissants-1l">Adoucissants 1L</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyants-1l">Nettoyants 1L</button>
+    <button class="catalogue-filter-btn" data-filter="nouveau">Nouveaut&eacute;s</button>
+  </div>
+  <div class="catalogue-grid" id="catalogueGrid">
+    <!-- Filled by JS from Shopify (all products) -->
+  </div>
+</section>
+
+<!-- Legacy carousel (hidden, kept for reference) -->
+<section style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">Legacy</h2>
   </div>
   <div class="products-carousel-wrapper">
     <div class="products-carousel stagger" id="productsCarousel">
@@ -1722,49 +1855,92 @@ async function initShopify() {
   }
 }
 
-function updateProductsFromShopify(products) {
-  const carousel = document.getElementById('productsCarousel');
-  if (!carousel) return;
-  while (carousel.firstChild) carousel.removeChild(carousel.firstChild);
-  products.forEach((product, i) => {
-    const variant = product.variants[0];
-    const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-    const imgSrc = product.images[0] ? product.images[0].src : '';
-    const tags = product.tags || [];
-    let tagLabel = '';
-    if (i === 0) tagLabel = 'Best-seller';
-    else if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
+// Store all Shopify products for filtering
+let allShopifyProducts = [];
 
-    const card = document.createElement('div');
-    card.className = 'product-card reveal visible';
-    card.setAttribute('data-base-price', price);
-    const saving = (parseFloat(price.replace(',', '.')) * 0.1).toFixed(2).replace('.', ',');
-    card.innerHTML = `
-      <div class="product-img">
-        ${imgSrc
-          ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
-          : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>'}
-        ${tagLabel ? '<span class="product-tag">' + escapeHTML(tagLabel) + '</span>' : ''}
+function buildProductCard(product, i, tagLabel) {
+  const variant = product.variants[0];
+  const price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+  const imgSrc = product.images[0] ? product.images[0].src : '';
+  const saving = (parseFloat(price.replace(',', '.')) * 0.1).toFixed(2).replace('.', ',');
+
+  const card = document.createElement('div');
+  card.className = 'product-card reveal visible';
+  card.setAttribute('data-base-price', price);
+  // Store product type for filtering
+  const pType = (product.productType || '').toLowerCase();
+  card.setAttribute('data-product-type', pType);
+  const tags = product.tags || [];
+  card.setAttribute('data-tags', tags.join(',').toLowerCase());
+
+  card.innerHTML = `
+    <div class="product-img">
+      ${imgSrc
+        ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
+        : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>'}
+      ${tagLabel ? '<span class="product-tag">' + escapeHTML(tagLabel) + '</span>' : ''}
+    </div>
+    <div class="product-info">
+      <h3 class="product-name">${escapeHTML(product.title)}</h3>
+      <p class="product-desc">${escapeHTML((product.description || '').substring(0, 60))}</p>
+      <div class="sub-toggle">
+        <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
+        <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
       </div>
-      <div class="product-info">
-        <h3 class="product-name">${escapeHTML(product.title)}</h3>
-        <p class="product-desc">${escapeHTML((product.description || '').substring(0, 60))}</p>
-        <div class="sub-toggle">
-          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
-        </div>
-        <div class="sub-freq" style="display:none">
-          <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
-          <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
-        </div>
-        <div class="sub-discount" style="display:none">\u00c9conomisez ${saving}\u20ac par livraison</div>
-        <div class="product-bottom">
-          <div class="product-price">${price} &euro;</div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
-        </div>
-      </div>`;
-    carousel.appendChild(card);
-  });
+      <div class="sub-freq" style="display:none">
+        <button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button>
+        <button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button>
+      </div>
+      <div class="sub-discount" style="display:none">\u00c9conomisez ${saving}\u20ac par livraison</div>
+      <div class="product-bottom">
+        <div class="product-price">${price} &euro;</div>
+        <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+      </div>
+    </div>`;
+  return card;
+}
+
+function updateProductsFromShopify(products) {
+  allShopifyProducts = products;
+
+  // --- BEST-SELLERS: Top 3 only ---
+  const bsGrid = document.getElementById('bestsellersGrid');
+  if (bsGrid) {
+    while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
+    const top3 = products.slice(0, 3);
+    const bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
+    top3.forEach((product, i) => {
+      const card = buildProductCard(product, i, bsLabels[i] || '');
+      bsGrid.appendChild(card);
+    });
+  }
+
+  // --- CATALOGUE: All products ---
+  const catGrid = document.getElementById('catalogueGrid');
+  if (catGrid) {
+    while (catGrid.firstChild) catGrid.removeChild(catGrid.firstChild);
+    products.forEach((product, i) => {
+      const tags = product.tags || [];
+      let tagLabel = '';
+      if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
+      const card = buildProductCard(product, i, tagLabel);
+      catGrid.appendChild(card);
+    });
+  }
+
+  // Also update legacy carousel if exists
+  const carousel = document.getElementById('productsCarousel');
+  if (carousel) {
+    while (carousel.firstChild) carousel.removeChild(carousel.firstChild);
+    products.forEach((product, i) => {
+      const tags = product.tags || [];
+      let tagLabel = '';
+      if (i === 0) tagLabel = 'Best-seller';
+      else if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';
+      const card = buildProductCard(product, i, tagLabel);
+      carousel.appendChild(card);
+    });
+  }
 }
 
 async function addToCart(variantId, title, price, imgSrc) {
@@ -2044,7 +2220,33 @@ function scrollCarousel(direction) {
   });
 }
 
-// ============ CATEGORY PILLS ============
+// ============ CATALOGUE FILTER BUTTONS ============
+document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.catalogue-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.getAttribute('data-filter');
+    const cards = document.querySelectorAll('#catalogueGrid .product-card');
+    cards.forEach(card => {
+      if (filter === 'all') {
+        card.style.display = '';
+        return;
+      }
+      const pType = (card.getAttribute('data-product-type') || '').toLowerCase();
+      const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+      const title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
+      let show = false;
+      if (filter === 'lessives-5l') show = pType.includes('lessive') || title.includes('lessive');
+      else if (filter === 'adoucissants-5l') show = (pType.includes('adoucissant') || title.includes('adoucissant')) && (title.includes('5l') || title.includes('5 l'));
+      else if (filter === 'adoucissants-1l') show = (pType.includes('adoucissant') || title.includes('adoucissant')) && (title.includes('1l') || title.includes('1 l'));
+      else if (filter === 'nettoyants-1l') show = pType.includes('nettoyant') || title.includes('nettoyant') || title.includes('dégraissant');
+      else if (filter === 'nouveau') show = tags.includes('new') || tags.includes('nouveau');
+      card.style.display = show ? '' : 'none';
+    });
+  });
+});
+
+// Legacy cat-pill support (if any remain)
 document.querySelectorAll('.cat-pill').forEach(pill => {
   pill.addEventListener('click', () => {
     document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));

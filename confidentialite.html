@@ -5,35 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Politique de Confidentialit&eacute; — Pro Pure</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-<nav class="navbar" role="navigation">
-  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img" /></a>
-  <div class="nav-links">
-    <a href="index.html" class="nav-link">Accueil</a>
-    <a href="catalogue.html" class="nav-link">Catalogue</a>
-    <a href="index.html#histoire" class="nav-link">Notre Histoire</a>
-    <a href="index.html#avis" class="nav-link">Avis</a>
-  </div>
-  <div class="nav-actions">
-    <button class="cart-icon" onclick="toggleCart()" aria-label="Ouvrir le panier">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      <span class="cart-badge" id="cartBadge">0</span>
-    </button>
-    <button class="burger-menu" onclick="document.querySelector('.mobile-nav-overlay').classList.add('active')" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
+<nav class="navbar" id="navbar" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="index.html#produits">Best-Sellers</a></li>
+    <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="index.html#gammes">Nos Gammes</a></li>
+    <li><a href="index.html#histoire">Notre Histoire</a></li>
+  </ul>
+  <button class="nav-cart" onclick="toggleCart()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
-
-<div class="mobile-nav-overlay">
-  <button class="mobile-nav-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
-  <a href="index.html" class="mobile-nav-link">Accueil</a>
-  <a href="catalogue.html" class="mobile-nav-link">Catalogue</a>
-  <a href="index.html#histoire" class="mobile-nav-link">Notre Histoire</a>
-  <a href="index.html#avis" class="mobile-nav-link">Avis</a>
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <a href="index.html#produits" onclick="closeMobileNav()">Best-Sellers</a>
+  <a href="catalogue.html" onclick="closeMobileNav()">Catalogue</a>
+  <a href="index.html#gammes" onclick="closeMobileNav()">Nos Gammes</a>
+  <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
 </div>
 
 <main>

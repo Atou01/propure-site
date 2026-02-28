@@ -2,10 +2,12 @@
 
 // --- Scroll Progress Bar ---
 function updateScrollProgress() {
+  const el = document.getElementById('scrollProgress');
+  if (!el) return;
   const scrollTop = window.scrollY;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
   const progress = (scrollTop / docHeight) * 100;
-  document.getElementById('scrollProgress').style.width = progress + '%';
+  el.style.width = progress + '%';
 }
 window.addEventListener('scroll', updateScrollProgress, { passive: true });
 

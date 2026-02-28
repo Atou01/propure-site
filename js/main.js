@@ -152,3 +152,15 @@ function closeMobileNav() {
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) closeMobileNav();
 });
+
+// ============ GAMME CARDS — WHOLE CARD CLICKABLE ============
+document.querySelectorAll('.gamme-card').forEach(card => {
+  card.addEventListener('click', function(e) {
+    // If user clicked the link itself, let it work naturally
+    if (e.target.closest('.gamme-link')) return;
+    const link = this.querySelector('.gamme-link');
+    if (link && link.href) {
+      window.location.href = link.href;
+    }
+  });
+});

@@ -600,6 +600,7 @@ body {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(196, 168, 124, 0.05), rgba(168, 181, 160, 0.05));
   opacity: 0; transition: opacity 0.5s;
+  pointer-events: none;
 }
 .gamme-card:hover::before { opacity: 1; }
 .gamme-card:hover {
@@ -630,6 +631,7 @@ body {
   font-weight: 500; color: var(--gold-dark);
   text-decoration: none; letter-spacing: 1px;
   text-transform: uppercase;
+  position: relative; z-index: 2;
 }
 
 /* ============ TESTIMONIALS ============ */

@@ -11,6 +11,7 @@ function escapeHTML(str) {
 }
 let shopifyCheckout;
 let cartItemsData = [];
+let currentDiscountCode = null;
 
 async function initShopify() {
   if (typeof ShopifyBuy === 'undefined') {
@@ -162,8 +163,10 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
       if (subscriptionInfo) {
         try {
           const discountCode = subscriptionInfo.frequency === '2' ? 'ABO15' : 'ABO10';
+          currentDiscountCode = discountCode;
           console.log('Applying discount code:', discountCode, 'for frequency:', subscriptionInfo.frequency);
           shopifyCheckout = await shopifyClient.checkout.addDiscount(shopifyCheckout.id, discountCode);
+          console.log('Discount applied successfully, webUrl:', shopifyCheckout.webUrl);
         } catch (discountErr) {
           console.warn('Discount code error:', discountErr);
         }
@@ -309,7 +312,14 @@ function toggleCart() {
 
 function goToCheckout() {
   if (shopifyCheckout && shopifyCheckout.webUrl) {
-    window.open(shopifyCheckout.webUrl, '_blank');
+    let checkoutUrl = shopifyCheckout.webUrl;
+    // Append discount code to URL if cart has subscription items
+    const hasSubscription = cartItemsData.some(item => item.title && item.title.includes('Abo'));
+    if (hasSubscription && currentDiscountCode) {
+      const separator = checkoutUrl.includes('?') ? '&' : '?';
+      checkoutUrl += separator + 'discount=' + currentDiscountCode;
+    }
+    window.open(checkoutUrl, '_blank');
   } else {
     alert('Redirection vers le checkout Shopify...');
   }

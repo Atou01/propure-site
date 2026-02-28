@@ -142,10 +142,18 @@ body {
 /* ============ HERO CAROUSEL ============ */
 .hero {
   position: relative; height: 100vh; overflow: hidden;
-  background: var(--cream);
+  background: #111;
+}
+.hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+.hero-video-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.55) 100%);
 }
 .hero-slides {
-  position: relative; height: 100%; width: 100%;
+  position: relative; height: 100%; width: 100%; z-index: 2;
 }
 .hero-slide {
   position: absolute; inset: 0;
@@ -166,41 +174,47 @@ body {
 }
 .hero-badge {
   display: inline-block; padding: 0.5rem 1.5rem;
-  background: rgba(196, 168, 124, 0.15);
-  border: 1px solid rgba(196, 168, 124, 0.3);
+  background: rgba(196, 168, 124, 0.25);
+  border: 1px solid rgba(196, 168, 124, 0.5);
   border-radius: 50px; font-size: 0.75rem;
   letter-spacing: 3px; text-transform: uppercase;
-  color: var(--gold-dark); margin-bottom: 1.5rem;
+  color: var(--gold); margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
 }
 .hero-title {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 6vw, 5rem);
   font-weight: 600; line-height: 1.1;
-  color: var(--charcoal); margin-bottom: 1rem;
+  color: #fff; margin-bottom: 1rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 .hero-subtitle {
   font-size: 1.15rem; font-weight: 300;
-  color: var(--charcoal-light); max-width: 500px;
+  color: rgba(255,255,255,0.9); max-width: 500px;
   margin: 0 auto 2rem; line-height: 1.7;
+  text-shadow: 0 1px 10px rgba(0,0,0,0.3);
 }
 .hero-cta {
   display: inline-flex; align-items: center; gap: 0.75rem;
   padding: 1rem 2.5rem;
-  background: var(--charcoal); color: white;
+  background: rgba(255,255,255,0.15); color: white;
+  border: 1px solid rgba(255,255,255,0.4);
   font-size: 0.85rem; font-weight: 500;
   letter-spacing: 2px; text-transform: uppercase;
   text-decoration: none; border-radius: 50px;
+  backdrop-filter: blur(10px);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .hero-cta:hover {
-  background: var(--gold); transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(196, 168, 124, 0.3);
+  background: rgba(255,255,255,0.3); transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.6);
 }
 .hero-cta svg { transition: transform 0.3s; }
 .hero-cta:hover svg { transform: translateX(4px); }
 
 .hero-bg-gradient {
-  position: absolute; inset: 0; z-index: 0;
+  display: none;
 }
 .hero-bg-gradient.slide-1 {
   background: radial-gradient(ellipse at 30% 50%, rgba(196, 168, 124, 0.15) 0%, transparent 60%),
@@ -218,10 +232,9 @@ body {
               var(--cream);
 }
 
-/* Floating product images in hero */
+/* Floating product images in hero — hidden with video bg */
 .hero-floating {
-  position: absolute; z-index: 1;
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  display: none;
 }
 .hero-float-1 {
   width: 180px; height: 280px; background: linear-gradient(135deg, var(--cream-dark), var(--gold) 80%);
@@ -255,7 +268,7 @@ body {
 }
 .hero-dot {
   width: 12px; height: 12px; border-radius: 50%;
-  background: rgba(44, 44, 44, 0.2);
+  background: rgba(255, 255, 255, 0.4);
   cursor: pointer; transition: all 0.4s;
   border: none;
 }
@@ -269,16 +282,16 @@ body {
   position: absolute; top: 50%; z-index: 10;
   transform: translateY(-50%);
   width: 50px; height: 50px; border-radius: 50%;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.15);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(196, 168, 124, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.3s;
-  color: var(--charcoal);
+  color: #fff;
 }
 .hero-arrow:hover {
-  background: var(--gold); color: white;
-  box-shadow: 0 5px 20px rgba(196, 168, 124, 0.3);
+  background: rgba(255,255,255,0.3); color: white;
+  box-shadow: 0 5px 20px rgba(255,255,255,0.15);
 }
 .hero-arrow.prev { left: 2rem; }
 .hero-arrow.next { right: 2rem; }
@@ -999,6 +1012,11 @@ body {
 
 <!-- HERO CAROUSEL -->
 <section class="hero" id="hero">
+  <!-- Video Background -->
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="hero-bg.mp4" type="video/mp4">
+  </video>
+  <div class="hero-video-overlay"></div>
   <div class="hero-slides">
     <!-- Slide 1 -->
     <div class="hero-slide active" data-slide="0">

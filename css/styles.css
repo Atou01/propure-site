@@ -575,6 +575,9 @@ body {
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 0.75rem; font-size: 1.5rem;
 }
+.value-icon img {
+  width: 28px; height: 28px; object-fit: contain;
+}
 .value-label {
   font-size: 0.8rem; font-weight: 500;
   letter-spacing: 1px; text-transform: uppercase;

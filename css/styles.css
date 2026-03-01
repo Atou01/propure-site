@@ -611,15 +611,16 @@ body {
   transform: translateY(-10px);
   box-shadow: 0 25px 50px rgba(0,0,0,0.08);
 }
-.gamme-icon {
-  width: 100px; height: 100px; border-radius: 50%;
+.gamme-img {
+  width: 140px; height: 140px;
+  object-fit: contain;
   margin: 0 auto 1.5rem;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.5rem;
+  border-radius: 16px;
+  transition: transform 0.4s ease;
 }
-.gamme-icon.lessives { background: linear-gradient(135deg, #E8E0F0, #D4C5E8); }
-.gamme-icon.adoucissants { background: linear-gradient(135deg, #E0E8F0, #C5D4E8); }
-.gamme-icon.nettoyants { background: linear-gradient(135deg, #E0F0E8, #C5E8D4); }
+.gamme-card:hover .gamme-img {
+  transform: scale(1.08);
+}
 .gamme-title {
   font-family: var(--font-display);
   font-size: 1.4rem; font-weight: 600;
@@ -858,7 +859,7 @@ body {
   .gammes-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
   .gamme-card { padding: 1.5rem 1rem; border-radius: 18px; }
   .gamme-card:hover { transform: none; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
-  .gamme-icon { width: 70px; height: 70px; font-size: 1.8rem; margin-bottom: 1rem; }
+  .gamme-img { width: 110px; height: 110px; margin-bottom: 1rem; }
   .gamme-title { font-size: 1.1rem; }
   .gamme-count { font-size: 0.75rem; }
   .gamme-link { font-size: 0.75rem; margin-top: 1rem; }
@@ -920,7 +921,7 @@ body {
   .section-subtitle { font-size: 0.8rem; }
   .cta-banner .section-title { font-size: 1.2rem; }
   .gamme-card { padding: 1.2rem 0.8rem; }
-  .gamme-icon { width: 55px; height: 55px; font-size: 1.5rem; }
+  .gamme-img { width: 90px; height: 90px; }
   .gamme-title { font-size: 0.95rem; }
   .gamme-link { font-size: 0.7rem; }
   .nav-logo-img { height: 32px; }

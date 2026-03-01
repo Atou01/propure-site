@@ -668,6 +668,7 @@ function setMode(btn, mode) {
   var toggleBtns = card.querySelectorAll('.sub-toggle-btn');
   var freqDiv = card.querySelector('.sub-freq');
   var discountDiv = card.querySelector('.sub-discount');
+  var savingBox = card.querySelector('.sub-saving-box');
   var explainerDiv = card.querySelector('.sub-explainer');
   var priceEl = card.querySelector('.product-price');
   var basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
@@ -676,32 +677,43 @@ function setMode(btn, mode) {
   btn.classList.add('active');
 
   if (mode === 'sub') {
-    freqDiv.style.display = 'flex';
-    discountDiv.style.display = 'block';
-    if (explainerDiv) explainerDiv.style.display = 'block';
+    if (freqDiv) freqDiv.style.display = '';
+    if (discountDiv) discountDiv.style.display = 'block';
+    if (savingBox) savingBox.style.display = '';
+    if (explainerDiv) explainerDiv.style.display = '';
     var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
     var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
     var discountRate = months === '2' ? 0.15 : 0.10;
     var discountPct = months === '2' ? '15' : '10';
     var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
     var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
+    var deliveriesPerYear = months === '2' ? 6 : 3;
+    var annualSaving = (basePrice * discountRate * deliveriesPerYear).toFixed(0);
     while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
     var oldPriceSpan = document.createElement('span');
     oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
     oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
     priceEl.appendChild(oldPriceSpan);
     priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
-    discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
+    if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
+    // Update saving box
+    var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
+    if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison';
+    var annualEl = card.querySelector('#subAnnualSaving');
+    if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
     var subOptionBtn = btn.closest('.sub-toggle').querySelector('.sub-option');
-    var badgeEl = subOptionBtn.querySelector('.sub-option-badge');
-    if (badgeEl) {
-      badgeEl.textContent = '-' + discountPct + '%';
-    } else {
-      subOptionBtn.textContent = 'Abonnement -' + discountPct + '%';
+    if (subOptionBtn) {
+      var badgeEl = subOptionBtn.querySelector('.sub-option-badge');
+      if (badgeEl) {
+        badgeEl.textContent = '-' + discountPct + '%';
+      } else {
+        subOptionBtn.textContent = 'Abonnement -' + discountPct + '%';
+      }
     }
   } else {
-    freqDiv.style.display = 'none';
-    discountDiv.style.display = 'none';
+    if (freqDiv) freqDiv.style.display = 'none';
+    if (discountDiv) discountDiv.style.display = 'none';
+    if (savingBox) savingBox.style.display = 'none';
     if (explainerDiv) explainerDiv.style.display = 'none';
     priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
   }
@@ -718,6 +730,8 @@ function setFreq(btn, months) {
   var discountPct = months === '2' ? '15' : '10';
   var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
   var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
+  var deliveriesPerYear = months === '2' ? 6 : 3;
+  var annualSaving = (basePrice * discountRate * deliveriesPerYear).toFixed(0);
 
   var priceEl = card.querySelector('.product-price');
   var discountDiv = card.querySelector('.sub-discount');
@@ -731,6 +745,16 @@ function setFreq(btn, months) {
   priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
 
   if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
+
+  // Update saving box
+  var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
+  if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison';
+  var annualEl = card.querySelector('#subAnnualSaving');
+  if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
+
+  // Update btn price display
+  var subBtnPrice = card.querySelector('.sub-option .sub-btn-price');
+  if (subBtnPrice) subBtnPrice.textContent = discounted + ' \u20ac';
 
   if (subToggle) {
     var subBtn = subToggle.querySelector('.sub-option');
@@ -833,25 +857,42 @@ async function loadSingleProduct(handle) {
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
       + '<div class="sub-section-detail">'
+      + '<div class="sub-section-header">'
+      + '<span class="sub-section-title">Choisissez votre formule</span>'
+      + '<span class="sub-recommended-tag">Le + populaire : Abonnement</span>'
+      + '</div>'
       + '<div class="sub-toggle sub-toggle-detail">'
-      + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
+      + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">'
+      + '<span class="sub-btn-title">Achat unique</span>'
+      + '<span class="sub-btn-price">' + price + ' \u20ac</span>'
+      + '</button>'
       + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">'
-      + '<span class="sub-option-label">Abonnement</span>'
-      + '<span class="sub-option-badge">-15%</span>'
+      + '<span class="sub-btn-title">Abonnement <span class="sub-option-badge">-15%</span></span>'
+      + '<span class="sub-btn-price">' + (basePrice * 0.85).toFixed(2).replace('.', ',') + ' \u20ac</span>'
       + '</button>'
       + '</div>'
       + '<div class="sub-freq" style="display:none">'
-      + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
-      + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
+      + '<span class="sub-freq-label">Fr\u00e9quence de livraison :</span>'
+      + '<div class="sub-freq-options">'
+      + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois <strong>-15%</strong></button>'
+      + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois <strong>-10%</strong></button>'
       + '</div>'
-      + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
+      + '</div>'
+      + '<div class="sub-saving-box" style="display:none">'
+      + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison</div>'
+      + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + (basePrice * 0.15 * 6).toFixed(0) + ' \u20ac</strong> d\'\u00e9conomie par an</div>'
+      + '</div>'
       + '<div class="sub-explainer" style="display:none">'
-      + '<p><strong>Comment \u00e7a marche ?</strong></p>'
-      + '<ul>'
-      + '<li>Livraison automatique \u00e0 la fr\u00e9quence choisie</li>'
-      + '<li>Modifiez, suspendez ou annulez \u00e0 tout moment</li>'
-      + '<li>Jusqu\'\u00e0 15% de r\u00e9duction sur chaque livraison</li>'
-      + '</ul>'
+      + '<div class="sub-explainer-title">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+      + ' Comment fonctionne l\u2019abonnement ?'
+      + '</div>'
+      + '<div class="sub-explainer-grid">'
+      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u2795</span><strong>Recevez automatiquement</strong> votre produit \u00e0 la fr\u00e9quence choisie, sans y penser</div>'
+      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u270f\ufe0f</span><strong>100% flexible</strong> : modifiez la fr\u00e9quence, suspendez ou annulez en 1 clic depuis votre espace client</div>'
+      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\udcb0</span><strong>Prix r\u00e9duit garanti</strong> sur chaque livraison, jusqu\'\u00e0 15% d\'\u00e9conomie</div>'
+      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\ude9a</span><strong>Aucun engagement</strong> : sans dur\u00e9e minimum, arr\u00eatez quand vous voulez</div>'
+      + '</div>'
       + '</div>'
       + '</div>'
       + '<div class="product-bottom" style="margin-top:1rem;">'

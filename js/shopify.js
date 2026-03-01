@@ -37,10 +37,10 @@ async function storefrontFetch(query, variables) {
       body: JSON.stringify({ query: query, variables: variables || {} }),
     }
   );
-  const data = await response.json();
-  if (data.errors) {
-    console.error('Storefront API errors:', data.errors);
+  if (!response.ok) {
+    throw new Error('Storefront API HTTP error: ' + response.status);
   }
+  var data = await response.json();
   return data;
 }
 
@@ -102,11 +102,7 @@ async function createCart(lines) {
     cartId = cart.id;
     cartCheckoutUrl = cart.checkoutUrl;
     syncCartFromGraphQL(cart);
-    console.log('Cart created:', cartId);
     return cart;
-  }
-  if (result.data && result.data.cartCreate && result.data.cartCreate.userErrors.length > 0) {
-    console.error('Cart create errors:', result.data.cartCreate.userErrors);
   }
   return null;
 }
@@ -179,7 +175,6 @@ async function cartLinesRemove(lineIds) {
 // ============ INIT ============
 async function initShopify() {
   if (typeof ShopifyBuy === 'undefined') {
-    console.warn('Shopify Buy SDK not loaded, using static mode');
     return;
   }
   try {
@@ -200,9 +195,8 @@ async function initShopify() {
     if (products.length > 0) {
       updateProductsFromShopify(products);
     }
-    console.log('Shopify connected! ' + products.length + ' products loaded. Cart API: GraphQL.');
   } catch (err) {
-    console.warn('Shopify init error:', err);
+    // Shopify init failed — static fallback active
   }
 }
 
@@ -251,14 +245,13 @@ async function fetchSellingPlans() {
             var monthMatch = option.value.match(/(\d+)/);
             if (monthMatch) {
               sellingPlanMap[monthMatch[1]] = plan.id;
-              console.log('Selling plan: ' + plan.name + ' (' + option.value + ') → ' + plan.id);
             }
           }
         });
       }
     }
   } catch (err) {
-    console.warn('Could not fetch selling plans, using fallback IDs:', err);
+    // Using fallback selling plan IDs
   }
 }
 
@@ -302,7 +295,7 @@ function buildProductCard(product, i, tagLabel) {
     + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
     + '<div class="product-bottom">'
     + '<div class="product-price">' + price + ' &euro;</div>'
-    + '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>'
+    + '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier">+</button>'
     + '</div>'
     + '</div>';
   return card;
@@ -375,9 +368,6 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
       var planId = sellingPlanMap[subscriptionInfo.frequency];
       if (planId) {
         line.sellingPlanId = planId;
-        console.log('Adding with selling plan:', planId, 'for frequency:', subscriptionInfo.frequency + ' months');
-      } else {
-        console.warn('No selling plan found for frequency:', subscriptionInfo.frequency);
       }
       // Also add custom attributes for display purposes
       var discountPct = subscriptionInfo.frequency === '2' ? '15' : '10';
@@ -390,20 +380,21 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
 
     // Add to cart via GraphQL
     await cartLinesAdd([line]);
-    console.log('Item added to cart successfully');
 
   } catch (err) {
-    console.warn('Add to cart error:', err);
     addToCartLocal(title, price, imgSrc);
   }
 }
 
 function addToCartLocal(title, price, imgSrc) {
-  var existing = cartItemsData.find(function(item) { return item.title === title; });
-  if (existing) {
-    existing.qty += 1;
+  var existingIndex = cartItemsData.findIndex(function(item) { return item.title === title; });
+  if (existingIndex >= 0) {
+    cartItemsData = cartItemsData.map(function(item, i) {
+      if (i === existingIndex) return { title: item.title, price: item.price, imgSrc: item.imgSrc, qty: item.qty + 1 };
+      return item;
+    });
   } else {
-    cartItemsData.push({ title: title, price: price, imgSrc: imgSrc, qty: 1 });
+    cartItemsData = cartItemsData.concat([{ title: title, price: price, imgSrc: imgSrc, qty: 1 }]);
   }
   renderCart();
 }
@@ -461,7 +452,7 @@ function renderCart() {
     return;
   }
 
-  var html = '';
+  while (container.firstChild) container.removeChild(container.firstChild);
   var total = 0;
   var totalQty = 0;
 
@@ -469,22 +460,56 @@ function renderCart() {
     var itemTotal = parseFloat(item.price.replace(',', '.')) * item.qty;
     total += itemTotal;
     totalQty += item.qty;
-    html += '<div class="cart-item">'
-      + '<div class="cart-item-img" style="background-image:url(\'' + encodeURI(item.imgSrc) + '\');"></div>'
-      + '<div class="cart-item-details">'
-      + '<div class="cart-item-name">' + escapeHTML(item.title) + '</div>'
-      + '<div class="cart-item-price">' + escapeHTML(item.price) + '\u20ac</div>'
-      + '<div class="cart-item-qty">'
-      + '<button onclick="updateQty(' + i + ', -1)">&minus;</button>'
-      + '<span>' + item.qty + '</span>'
-      + '<button onclick="updateQty(' + i + ', 1)">+</button>'
-      + '</div>'
-      + '</div>'
-      + '<button class="cart-item-remove" onclick="removeItem(' + i + ')">&times;</button>'
-      + '</div>';
-  });
 
-  container.innerHTML = html;
+    var row = document.createElement('div');
+    row.className = 'cart-item';
+
+    var imgDiv = document.createElement('div');
+    imgDiv.className = 'cart-item-img';
+    imgDiv.style.backgroundImage = 'url(\'' + encodeURI(item.imgSrc) + '\')';
+    row.appendChild(imgDiv);
+
+    var details = document.createElement('div');
+    details.className = 'cart-item-details';
+
+    var nameDiv = document.createElement('div');
+    nameDiv.className = 'cart-item-name';
+    nameDiv.textContent = item.title;
+    details.appendChild(nameDiv);
+
+    var priceDiv = document.createElement('div');
+    priceDiv.className = 'cart-item-price';
+    priceDiv.textContent = item.price + '\u20ac';
+    details.appendChild(priceDiv);
+
+    var qtyDiv = document.createElement('div');
+    qtyDiv.className = 'cart-item-qty';
+    var minusBtn = document.createElement('button');
+    minusBtn.innerHTML = '&minus;';
+    minusBtn.setAttribute('aria-label', 'Diminuer la quantit\u00e9');
+    minusBtn.addEventListener('click', (function(idx) { return function() { updateQty(idx, -1); }; })(i));
+    var qtySpan = document.createElement('span');
+    qtySpan.textContent = item.qty;
+    var plusBtn = document.createElement('button');
+    plusBtn.textContent = '+';
+    plusBtn.setAttribute('aria-label', 'Augmenter la quantit\u00e9');
+    plusBtn.addEventListener('click', (function(idx) { return function() { updateQty(idx, 1); }; })(i));
+    qtyDiv.appendChild(minusBtn);
+    qtyDiv.appendChild(qtySpan);
+    qtyDiv.appendChild(plusBtn);
+    details.appendChild(qtyDiv);
+
+    row.appendChild(details);
+
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'cart-item-remove';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.setAttribute('aria-label', 'Retirer du panier');
+    removeBtn.addEventListener('click', (function(idx) { return function() { removeItem(idx); }; })(i));
+    row.appendChild(removeBtn);
+
+    container.appendChild(row);
+  });
   footer.style.display = 'block';
   totalEl.textContent = total.toFixed(2).replace('.', ',') + '\u20AC';
   if (badge) {
@@ -529,9 +554,7 @@ function toggleCart() {
 
 function goToCheckout() {
   if (cartCheckoutUrl) {
-    window.open(cartCheckoutUrl, '_blank');
-  } else {
-    alert('Redirection vers le checkout Shopify...');
+    window.location.href = cartCheckoutUrl;
   }
 }
 
@@ -752,7 +775,6 @@ async function loadSingleProduct(handle) {
     loadRelatedProducts(product);
 
   } catch (err) {
-    console.error('Error loading product:', err);
     container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
@@ -782,7 +804,6 @@ async function loadRelatedProducts(currentProduct) {
       renderRelatedGrid(container, related);
     }
   } catch (err) {
-    console.warn('Could not load related products:', err);
     container.parentElement.style.display = 'none';
   }
 }

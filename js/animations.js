@@ -255,5 +255,4 @@ function setMobileVH() {
 setMobileVH();
 window.addEventListener('resize', setMobileVH, { passive: true });
 
-console.log('Pro Pure animations loaded ✨');
 

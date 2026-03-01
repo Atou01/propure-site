@@ -4,8 +4,9 @@
   --cream: #F5F0EB;
   --cream-light: #FAF7F4;
   --cream-dark: #EDE5DB;
-  --gold: #C4A87C;
-  --gold-dark: #A8895E;
+  --gold: #8C6B30;
+  --gold-light: #C4A87C;
+  --gold-dark: #6F5525;
   --charcoal: #2C2C2C;
   --charcoal-light: #4A4A4A;
   --sage: #A8B5A0;
@@ -1659,3 +1660,15 @@ body.cart-open { overflow: hidden; }
   font-weight: 500; transition: all 0.3s ease;
 }
 .page-404 a:hover { background: var(--gold-dark); transform: translateY(-2px); }
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-video { display: none; }
+  .particle { display: none; }
+}

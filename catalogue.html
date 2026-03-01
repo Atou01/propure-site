@@ -59,7 +59,7 @@
 <section class="catalogue-section" id="catalogue" style="padding-top: 1rem;">
   <div class="section-header reveal">
     <span class="section-label">Notre Catalogue</span>
-    <h2 class="section-title" id="catalogueTitle">Tous Nos Produits</h2>
+    <h1 class="section-title" id="catalogueTitle">Tous Nos Produits</h1>
     <p class="section-subtitle">Explorez l'ensemble de notre gamme. Filtrez par cat&eacute;gorie pour trouver le produit id&eacute;al.</p>
   </div>
   <div class="catalogue-filters">
@@ -158,37 +158,44 @@
 <!-- Auto-apply filter from URL -->
 <script>
 (function() {
-  const params = new URLSearchParams(window.location.search);
-  const filter = params.get('filter');
+  var params = new URLSearchParams(window.location.search);
+  var filter = params.get('filter');
   if (filter) {
-    // Wait for DOM + Shopify products to load
-    const applyFilter = () => {
-      const btns = document.querySelectorAll('.catalogue-filter-btn');
-      btns.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.filter === filter) {
-          btn.classList.add('active');
-          btn.click();
+    var names = {
+      'lessives': 'Lessives',
+      'adoucissants': 'Adoucissants',
+      'nettoyant-luxe': 'Nettoyant Sols Luxe',
+      'nettoyant-classique': 'Nettoyant Sols Classique',
+      'entretien': "Produits d'Entretien"
+    };
+
+    // Update breadcrumb and title immediately
+    if (names[filter]) {
+      var bc = document.getElementById('breadcrumbTitle');
+      var title = document.getElementById('catalogueTitle');
+      if (bc) bc.textContent = names[filter];
+      if (title) title.textContent = names[filter];
+    }
+
+    // Watch for products to be added to the grid, then apply filter
+    var grid = document.getElementById('catalogueGrid');
+    if (grid) {
+      var filterObserver = new MutationObserver(function() {
+        var cards = grid.querySelectorAll('.product-card');
+        if (cards.length > 0) {
+          filterObserver.disconnect();
+          var btns = document.querySelectorAll('.catalogue-filter-btn');
+          btns.forEach(function(btn) {
+            btn.classList.remove('active');
+            if (btn.dataset.filter === filter) {
+              btn.classList.add('active');
+              btn.click();
+            }
+          });
         }
       });
-      // Update breadcrumb and title
-      const names = {
-        'lessives': 'Lessives',
-        'adoucissants': 'Adoucissants',
-        'nettoyant-luxe': 'Nettoyant Sols Luxe',
-        'nettoyant-classique': 'Nettoyant Sols Classique',
-        'entretien': "Produits d'Entretien"
-      };
-      if (names[filter]) {
-        const bc = document.getElementById('breadcrumbTitle');
-        const title = document.getElementById('catalogueTitle');
-        if (bc) bc.textContent = names[filter];
-        if (title) title.textContent = names[filter];
-      }
-    };
-    // Try after a short delay to let Shopify products load
-    setTimeout(applyFilter, 1500);
-    setTimeout(applyFilter, 3000);
+      filterObserver.observe(grid, { childList: true });
+    }
   }
 })();
 </script>

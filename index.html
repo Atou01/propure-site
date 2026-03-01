@@ -59,7 +59,7 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <span class="cart-badge" id="cartBadge">0</span>
   </button>
-  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()">
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()" aria-label="Menu de navigation" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -76,7 +76,7 @@
 <!-- HERO CAROUSEL -->
 <section class="hero" id="hero">
   <!-- Video Background -->
-  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="auto">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="none">
     <source src="hero-bg.mp4" type="video/mp4">
   </video>
   <div class="hero-video-overlay"></div>
@@ -166,13 +166,13 @@
         <p class="product-desc">Fragrance envo&ucirc;tante et myst&eacute;rieuse — 5L</p>
         <div class="sub-toggle">
           <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
         </div>
         <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
         <div class="sub-discount">&eacute;conomisez 2,49&euro; par livraison</div>
         <div class="product-bottom">
           <div class="product-price">24,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Adoucissant Myst&egrave;re au panier">+</button>
         </div>
       </div>
     </div>
@@ -186,13 +186,13 @@
         <p class="product-desc">L'excellence du parfum premium — 5L</p>
         <div class="sub-toggle">
           <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
         </div>
         <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
         <div class="sub-discount">&eacute;conomisez 2,69&euro; par livraison</div>
         <div class="product-bottom">
           <div class="product-price">26,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Adoucissant Prestige au panier">+</button>
         </div>
       </div>
     </div>
@@ -206,13 +206,13 @@
         <p class="product-desc">Fra&icirc;cheur oc&eacute;anique longue dur&eacute;e — 5L</p>
         <div class="sub-toggle">
           <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -10%</button>
+          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
         </div>
         <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
         <div class="sub-discount">&eacute;conomisez 2,29&euro; par livraison</div>
         <div class="product-bottom">
           <div class="product-price">22,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">+</button>
+          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Lessive Marine au panier">+</button>
         </div>
       </div>
     </div>
@@ -415,7 +415,7 @@
 <script src="js/animations.js"></script>
 
 <!-- Cookie Consent Banner -->
-<div class="cookie-banner" id="cookieBanner">
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Consentement cookies">
   <p>Ce site utilise des cookies pour améliorer votre expérience. <a href="cookies.html">En savoir plus</a></p>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>

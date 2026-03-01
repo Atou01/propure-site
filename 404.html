@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Page introuvable — Pro Pure</title>
-<meta name="description" content="La page que vous recherchez n'existe pas ou a été déplacée." />
+<title>Page introuvable &mdash; Pro Pure</title>
+<meta name="description" content="La page que vous recherchez n'existe pas ou a &eacute;t&eacute; d&eacute;plac&eacute;e." />
+<meta name="robots" content="noindex, follow" />
 <link rel="icon" type="image/png" href="/img/logo.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,21 +17,34 @@
 <nav class="navbar scrolled" id="navbar" aria-label="Navigation principale">
   <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
   <ul class="nav-links">
-    <li><a href="index.html#produits">Produits</a></li>
+    <li><a href="index.html#produits">Best-Sellers</a></li>
     <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="index.html#gammes">Nos Gammes</a></li>
     <li><a href="index.html#histoire">Notre Histoire</a></li>
   </ul>
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()" aria-label="Menu de navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <a href="index.html#produits" onclick="closeMobileNav()">Best-Sellers</a>
+  <a href="catalogue.html" onclick="closeMobileNav()">Catalogue</a>
+  <a href="index.html#gammes" onclick="closeMobileNav()">Nos Gammes</a>
+  <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
+</div>
 
+<main>
 <div class="page-404">
   <h1>404</h1>
   <h2>Page introuvable</h2>
-  <p>La page que vous recherchez n'existe pas, a été déplacée ou est temporairement indisponible.</p>
-  <a href="index.html">
+  <p>La page que vous recherchez n'existe pas, a &eacute;t&eacute; d&eacute;plac&eacute;e ou est temporairement indisponible.</p>
+  <a href="index.html" class="hero-cta ripple-btn" style="margin-top:1rem;display:inline-flex;text-decoration:none;">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    Retour à l'accueil
+    Retour &agrave; l'accueil
   </a>
 </div>
+</main>
 
+<script src="js/main.js"></script>
 </body>
 </html>

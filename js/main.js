@@ -21,15 +21,30 @@ function changeSlide(direction) {
 
 function startAutoplay() {
   if (!slides.length) return;
+  // Respect reduced motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   autoplayInterval = setInterval(() => changeSlide(1), 5000);
 }
 
-function resetAutoplay() {
+function stopAutoplay() {
   clearInterval(autoplayInterval);
+}
+
+function resetAutoplay() {
+  stopAutoplay();
   startAutoplay();
 }
 
 startAutoplay();
+
+// Pause autoplay on hover/focus
+const heroSection = document.getElementById('hero');
+if (heroSection) {
+  heroSection.addEventListener('mouseenter', stopAutoplay);
+  heroSection.addEventListener('mouseleave', resetAutoplay);
+  heroSection.addEventListener('focusin', stopAutoplay);
+  heroSection.addEventListener('focusout', resetAutoplay);
+}
 
 // Touch/swipe support for hero
 let touchStartX = 0;
@@ -50,21 +65,7 @@ window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// ============ SCROLL REVEAL ANIMATIONS ============
-const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
-
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, {
-  threshold: 0.15,
-  rootMargin: '0px 0px -50px 0px'
-});
-
-revealElements.forEach(el => revealObserver.observe(el));
+// Scroll reveal handled by animations.js (enhanced observer with unobserve + stagger)
 
 // ============ PRODUCTS CAROUSEL SCROLL ============
 function scrollCarousel(direction) {
@@ -110,15 +111,7 @@ document.querySelectorAll('.cat-pill').forEach(pill => {
   });
 });
 
-// ============ PARALLAX FLOATING ELEMENTS ============
-document.addEventListener('mousemove', (e) => {
-  const x = (e.clientX / window.innerWidth - 0.5) * 20;
-  const y = (e.clientY / window.innerHeight - 0.5) * 20;
-  document.querySelectorAll('.hero-floating').forEach((el, i) => {
-    const speed = (i + 1) * 0.5;
-    el.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
-  });
-});
+// Parallax on hero floating elements handled by animations.js
 
 // ============ SMOOTH ANCHOR SCROLL ============
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -137,20 +130,71 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 function toggleMobileNav() {
   const burger = document.getElementById('burgerMenu');
   const overlay = document.getElementById('mobileNavOverlay');
+  const isOpen = !overlay.classList.contains('active');
   burger.classList.toggle('active');
   overlay.classList.toggle('active');
-  document.body.style.overflow = overlay.classList.contains('active') ? 'hidden' : '';
+  burger.setAttribute('aria-expanded', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+  if (isOpen) {
+    var firstLink = overlay.querySelector('a');
+    if (firstLink) firstLink.focus();
+  }
 }
 function closeMobileNav() {
   const burger = document.getElementById('burgerMenu');
   const overlay = document.getElementById('mobileNavOverlay');
   burger.classList.remove('active');
   overlay.classList.remove('active');
+  burger.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
 }
 // Close mobile nav on resize to desktop
 window.addEventListener('resize', () => {
   if (window.innerWidth > 768) closeMobileNav();
+});
+
+// ============ KEYBOARD ACCESSIBILITY ============
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    // Close cart drawer
+    var cartDrawer = document.getElementById('cartDrawer');
+    if (cartDrawer && cartDrawer.classList.contains('open')) {
+      toggleCart();
+      var cartBtn = document.querySelector('.nav-cart');
+      if (cartBtn) cartBtn.focus();
+      return;
+    }
+    // Close mobile nav
+    var mobileNav = document.getElementById('mobileNavOverlay');
+    if (mobileNav && mobileNav.classList.contains('active')) {
+      closeMobileNav();
+      var burger = document.getElementById('burgerMenu');
+      if (burger) burger.focus();
+      return;
+    }
+    // Close cookie banner
+    var cookieBanner = document.getElementById('cookieBanner');
+    if (cookieBanner && cookieBanner.classList.contains('show')) {
+      cookieBanner.classList.remove('show');
+      return;
+    }
+  }
+
+  // Focus trap for cart drawer
+  if (e.key === 'Tab') {
+    var drawer = document.getElementById('cartDrawer');
+    if (drawer && drawer.classList.contains('open')) {
+      var focusable = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+  }
 });
 
 // ============ GAMME CARDS — WHOLE CARD CLICKABLE ============

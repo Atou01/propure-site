@@ -1366,23 +1366,30 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 1rem 2.5rem;
-  background: var(--gold);
+  width: 100%;
+  padding: 1.1rem 2.5rem;
+  background: var(--charcoal);
   color: white;
   border: none;
   border-radius: 50px;
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
+  letter-spacing: 0.03em;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(44, 44, 44, 0.3);
 }
 .product-add-btn:hover {
-  background: #b39a6e;
+  background: var(--gold-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(196, 168, 124, 0.4);
+  box-shadow: 0 8px 25px rgba(44, 44, 44, 0.4);
+}
+.product-add-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.3);
 }
 
 .product-meta {

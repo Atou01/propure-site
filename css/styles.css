@@ -1830,104 +1830,53 @@ body.cart-open { overflow: hidden; }
 /* ============ SUBSCRIPTION CTA SECTION ============ */
 .sub-cta-section {
   padding: 5rem 2rem;
-  background: var(--cream);
-}
-.sub-cta-content {
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
-}
-.sub-cta-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-  color: var(--charcoal);
-  margin-bottom: 1rem;
-  line-height: 1.2;
-}
-.sub-cta-subtitle {
-  font-family: var(--font-body);
-  font-size: 1.05rem;
-  color: var(--charcoal-light);
-  max-width: 600px;
-  margin: 0 auto 3rem;
-  line-height: 1.7;
+  background: var(--cream-light);
 }
 .sub-cta-benefits {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
 }
-.sub-cta-benefit {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem 1.5rem;
+.sub-cta-card {
   text-align: center;
-  border: 1px solid var(--cream-dark);
-  transition: transform 0.3s, box-shadow 0.3s;
+  padding: 2rem 1rem;
 }
-.sub-cta-benefit:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+.sub-cta-icon {
+  margin-bottom: 1.5rem;
 }
-.sub-cta-benefit-icon {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(140, 107, 48, 0.08);
-  border-radius: 12px;
+.sub-cta-icon img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
 }
-.sub-cta-benefit-icon svg {
-  width: 24px;
-  height: 24px;
-  color: var(--gold);
-}
-.sub-cta-benefit h4 {
+.sub-cta-card h3 {
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
   color: var(--charcoal);
-  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
 }
-.sub-cta-benefit p {
+.sub-cta-card p {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--charcoal-light);
   line-height: 1.6;
 }
-.sub-cta-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2.5rem;
-  background: var(--charcoal);
-  color: white;
-  text-decoration: none;
-  border-radius: 50px;
-  font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(44, 44, 44, 0.3);
-}
-.sub-cta-btn:hover {
-  background: var(--gold-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(44, 44, 44, 0.4);
-}
 @media (max-width: 768px) {
   .sub-cta-section { padding: 3rem 1rem; }
-  .sub-cta-benefits { grid-template-columns: 1fr 1fr; gap: 1rem; }
-  .sub-cta-benefit { padding: 1.5rem 1rem; }
-  .sub-cta-subtitle { font-size: 0.95rem; margin-bottom: 2rem; }
+  .sub-cta-benefits { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .sub-cta-icon img { width: 80px; height: 80px; }
 }
 @media (max-width: 480px) {
-  .sub-cta-benefits { grid-template-columns: 1fr; }
-  .sub-cta-benefit { padding: 1.2rem 1rem; }
-  .sub-cta-btn { padding: 0.9rem 2rem; font-size: 0.9rem; }
+  .sub-cta-benefits { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .sub-cta-card { padding: 1.2rem 0.5rem; }
+  .sub-cta-icon img { width: 70px; height: 70px; }
+  .sub-cta-card h3 { font-size: 0.85rem; }
+  .sub-cta-card p { font-size: 0.8rem; }
 }
 
 /* ============ NEWSLETTER ============ */

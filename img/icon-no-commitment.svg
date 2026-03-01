@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Unlocked padlock body -->
+  <rect x="28" y="48" width="50" height="40" rx="4" stroke-width="2.5"/>
+  <!-- Padlock shackle (open) -->
+  <path d="M40 48 L40 32 A13 13 0 0 1 66 32 L66 38" stroke-width="2.5"/>
+  <!-- Checkmark inside padlock -->
+  <path d="M42 68 L50 76 L66 60" stroke-width="3" stroke="#2C2C2C"/>
+  <!-- Shield with X -->
+  <path d="M82 58 L100 64 L100 82 Q100 94 90 100 Q80 94 80 82 L80 64 Z" stroke-width="2" fill="white"/>
+  <path d="M86 74 L96 84 M96 74 L86 84" stroke-width="2.5"/>
+</svg>

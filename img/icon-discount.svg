@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 140" fill="none" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Price tag body -->
+  <path d="M60 8 L95 28 L95 90 L60 110 L25 90 L25 28 Z" stroke-width="2.5"/>
+  <!-- Tag hole -->
+  <circle cx="60" cy="22" r="6" stroke-width="2"/>
+  <!-- Tag ring -->
+  <path d="M56 16 Q48 8 52 4" stroke-width="2"/>
+  <!-- -15% text -->
+  <text x="60" y="62" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="18" fill="#2C2C2C" stroke="none">-15%</text>
+  <!-- Down arrow -->
+  <path d="M60 78 L60 105" stroke-width="2.5"/>
+  <path d="M50 95 L60 105 L70 95" stroke-width="2.5"/>
+</svg>

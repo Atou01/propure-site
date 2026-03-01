@@ -17,6 +17,32 @@ let cartId = null;
 let cartCheckoutUrl = null;
 let cartItemsData = [];
 
+// --- Cart Persistence ---
+function saveCartId() {
+  if (cartId) {
+    localStorage.setItem('propure_cartId', cartId);
+  }
+}
+function getSavedCartId() {
+  return localStorage.getItem('propure_cartId');
+}
+function clearSavedCart() {
+  localStorage.removeItem('propure_cartId');
+}
+
+async function restoreCart(savedId) {
+  var query = '{ cart(id: "' + savedId + '") { ...CartFields } } ' + CART_FRAGMENT;
+  var result = await storefrontFetch(query);
+  if (result.data && result.data.cart && result.data.cart.id) {
+    var cart = result.data.cart;
+    cartId = cart.id;
+    cartCheckoutUrl = cart.checkoutUrl;
+    syncCartFromGraphQL(cart);
+    return cart;
+  }
+  return null;
+}
+
 // --- Security: HTML escape utility ---
 function escapeHTML(str) {
   const div = document.createElement('div');
@@ -101,6 +127,7 @@ async function createCart(lines) {
     const cart = result.data.cartCreate.cart;
     cartId = cart.id;
     cartCheckoutUrl = cart.checkoutUrl;
+    saveCartId();
     syncCartFromGraphQL(cart);
     return cart;
   }
@@ -184,8 +211,20 @@ async function initShopify() {
       storefrontAccessToken: STOREFRONT_TOKEN,
     });
 
-    // Create empty cart via GraphQL
-    await createCart([]);
+    // Restore cart from localStorage or create new one
+    var savedId = getSavedCartId();
+    var restored = false;
+    if (savedId) {
+      try {
+        var cart = await restoreCart(savedId);
+        if (cart) restored = true;
+      } catch (e) {
+        clearSavedCart();
+      }
+    }
+    if (!restored) {
+      await createCart([]);
+    }
 
     // Fetch selling plans to confirm IDs
     await fetchSellingPlans();
@@ -264,6 +303,7 @@ function buildProductCard(product, i, tagLabel) {
   var imgSrc = product.images[0] ? product.images[0].src : '';
   var defaultDiscount = 0.15;
   var saving = (parseFloat(price.replace(',', '.')) * defaultDiscount).toFixed(2).replace('.', ',');
+  var inStock = product.availableForSale !== false;
 
   var card = document.createElement('div');
   card.className = 'product-card reveal visible';
@@ -295,9 +335,12 @@ function buildProductCard(product, i, tagLabel) {
     + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
     + '<div class="product-bottom">'
     + '<div class="product-price">' + price + ' &euro;</div>'
-    + '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier">+</button>'
+    + (inStock
+      ? '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier">+</button>'
+      : '<span class="out-of-stock-label">Rupture</span>')
     + '</div>'
     + '</div>';
+  if (!inStock) card.classList.add('out-of-stock');
   return card;
 }
 
@@ -348,8 +391,18 @@ function updateProductsFromShopify(products) {
   }
 }
 
+// ============ QUANTITY SELECTOR (product detail page) ============
+function changeDetailQty(btn, delta) {
+  var selector = btn.closest('.qty-selector');
+  var qtyEl = selector.querySelector('span');
+  var current = parseInt(qtyEl.textContent) || 1;
+  var newQty = Math.max(1, Math.min(10, current + delta));
+  qtyEl.textContent = newQty;
+  selector.setAttribute('data-qty', newQty);
+}
+
 // ============ ADD TO CART ============
-async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
+async function addToCart(variantId, title, price, imgSrc, subscriptionInfo, qty) {
   // Show toast + auto-open cart
   showToast();
   setTimeout(function() {
@@ -360,7 +413,7 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo) {
   try {
     var line = {
       merchandiseId: variantId,
-      quantity: 1
+      quantity: qty || 1
     };
 
     // If subscription, attach selling plan ID
@@ -554,6 +607,7 @@ function toggleCart() {
 
 function goToCheckout() {
   if (cartCheckoutUrl) {
+    clearSavedCart();
     window.location.href = cartCheckoutUrl;
   }
 }
@@ -591,9 +645,13 @@ function addToCartStatic(btn) {
   var imgEl = card.querySelector('.product-img img');
   var imgSrc = imgEl ? imgEl.src : '';
 
+  // Read quantity from detail page selector (if present)
+  var qtySelector = card.querySelector('.qty-selector');
+  var qty = qtySelector ? parseInt(qtySelector.getAttribute('data-qty')) || 1 : 1;
+
   // Use GraphQL cart if available
   if (variantId && cartId !== null) {
-    addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo);
+    addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo, qty);
   } else {
     addToCartLocal(title + suffix, finalPrice, imgSrc);
     showToast();
@@ -691,9 +749,21 @@ async function loadSingleProduct(handle) {
       });
     }
 
-    // Create cart if not exists
+    // Restore cart from localStorage or create new one
     if (!cartId) {
-      await createCart([]);
+      var savedId = getSavedCartId();
+      var restored = false;
+      if (savedId) {
+        try {
+          var c = await restoreCart(savedId);
+          if (c) restored = true;
+        } catch (e) {
+          clearSavedCart();
+        }
+      }
+      if (!restored) {
+        await createCart([]);
+      }
     }
 
     // Fetch selling plans
@@ -711,6 +781,7 @@ async function loadSingleProduct(handle) {
     var images = product.images || [];
     var mainImg = images[0] ? images[0].src : '';
     var pType = (product.productType || '').replace(/^\w/, function(c) { return c.toUpperCase(); });
+    var inStock = product.availableForSale !== false;
 
     var breadcrumb = document.getElementById('productBreadcrumb');
     if (breadcrumb) {
@@ -757,26 +828,70 @@ async function loadSingleProduct(handle) {
       + '<div class="product-bottom" style="margin-top:1rem;">'
       + '<div class="product-price" style="font-size:1.3rem;">' + price + ' &euro;</div>'
       + '</div>'
-      + '<div class="product-actions" style="margin-top:1.5rem;">'
-      + '<button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">'
-      + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
-      + ' Ajouter au panier'
-      + '</button>'
+      + (inStock
+        ? '<div class="qty-selector" data-qty="1">'
+          + '<button type="button" onclick="changeDetailQty(this,-1)" aria-label="Diminuer la quantit\u00e9">&minus;</button>'
+          + '<span id="detailQty">1</span>'
+          + '<button type="button" onclick="changeDetailQty(this,1)" aria-label="Augmenter la quantit\u00e9">+</button>'
+          + '</div>'
+        : '')
+      + '<div class="product-actions" style="margin-top:0.5rem;">'
+      + (inStock
+        ? '<button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">'
+          + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
+          + ' Ajouter au panier'
+          + '</button>'
+        : '<div class="out-of-stock-banner">Produit temporairement indisponible</div>')
       + '</div>'
       + '</div>'
-      + '<div class="product-meta">'
-      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Livraison rapide en 48h</div>'
-      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Formule professionnelle</div>'
-      + '<div class="product-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Fabriqu\u00e9 en France</div>'
+      + '<div class="trust-badges">'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Fabriqu\u00e9 en France</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison 48h</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Formule Pro</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Non test\u00e9 sur animaux</span></div>'
       + '</div>'
+      + '<div class="delivery-estimate" id="deliveryEstimate"></div>'
       + '</div>'
       + '</div>';
+
+    // Calculate estimated delivery date
+    updateDeliveryEstimate();
 
     loadRelatedProducts(product);
 
   } catch (err) {
     container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
+}
+
+function updateDeliveryEstimate() {
+  var el = document.getElementById('deliveryEstimate');
+  if (!el) return;
+  var now = new Date();
+  var orderHour = now.getHours();
+  // If ordered before 14h, ships today; otherwise tomorrow
+  var shipDate = new Date(now);
+  if (orderHour >= 14) shipDate.setDate(shipDate.getDate() + 1);
+  // Skip weekends for shipping
+  if (shipDate.getDay() === 0) shipDate.setDate(shipDate.getDate() + 1);
+  if (shipDate.getDay() === 6) shipDate.setDate(shipDate.getDate() + 2);
+  // Delivery = ship date + 2 business days
+  var deliveryMin = new Date(shipDate);
+  deliveryMin.setDate(deliveryMin.getDate() + 1);
+  if (deliveryMin.getDay() === 0) deliveryMin.setDate(deliveryMin.getDate() + 1);
+  if (deliveryMin.getDay() === 6) deliveryMin.setDate(deliveryMin.getDate() + 2);
+  var deliveryMax = new Date(shipDate);
+  deliveryMax.setDate(deliveryMax.getDate() + 3);
+  if (deliveryMax.getDay() === 0) deliveryMax.setDate(deliveryMax.getDate() + 1);
+  if (deliveryMax.getDay() === 6) deliveryMax.setDate(deliveryMax.getDate() + 2);
+
+  var jours = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  var mois = ['janvier','f\u00e9vrier','mars','avril','mai','juin','juillet','ao\u00fbt','septembre','octobre','novembre','d\u00e9cembre'];
+  var minStr = jours[deliveryMin.getDay()] + ' ' + deliveryMin.getDate() + ' ' + mois[deliveryMin.getMonth()];
+  var maxStr = jours[deliveryMax.getDay()] + ' ' + deliveryMax.getDate() + ' ' + mois[deliveryMax.getMonth()];
+
+  el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
+    + '<span>Commandez maintenant, livr\u00e9 entre <strong>' + minStr + '</strong> et <strong>' + maxStr + '</strong></span>';
 }
 
 function changeMainImage(thumb, src) {

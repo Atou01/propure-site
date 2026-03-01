@@ -1661,6 +1661,278 @@ body.cart-open { overflow: hidden; }
 }
 .page-404 a:hover { background: var(--gold-dark); transform: translateY(-2px); }
 
+/* ============ OUT OF STOCK ============ */
+.product-card.out-of-stock .product-img {
+  opacity: 0.5;
+  filter: grayscale(40%);
+}
+.product-card.out-of-stock .sub-toggle,
+.product-card.out-of-stock .sub-freq,
+.product-card.out-of-stock .sub-discount {
+  display: none !important;
+}
+.out-of-stock-label {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #c0392b;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid #c0392b;
+  border-radius: 30px;
+}
+.out-of-stock-banner {
+  text-align: center;
+  padding: 1rem 2rem;
+  background: #fdf2f2;
+  color: #c0392b;
+  border: 1.5px solid #e8c4c4;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* ============ SEARCH BAR ============ */
+.search-bar-wrapper {
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  padding: 0 2rem;
+  position: relative;
+}
+.search-bar {
+  width: 100%;
+  padding: 0.8rem 1.2rem 0.8rem 3rem;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: 30px;
+  background: white;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--charcoal);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  outline: none;
+}
+.search-bar::placeholder {
+  color: #aaa;
+}
+.search-bar:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(140, 107, 48, 0.1);
+}
+.search-bar-icon {
+  position: absolute;
+  left: calc(2rem + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  color: #aaa;
+  pointer-events: none;
+}
+.search-bar:focus ~ .search-bar-icon {
+  color: var(--gold);
+}
+.search-no-results {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--charcoal-light);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  display: none;
+}
+
+/* ============ QUANTITY SELECTOR ============ */
+.qty-selector {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  width: fit-content;
+}
+.qty-selector button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: var(--cream-light);
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--charcoal);
+  transition: background 0.2s;
+  font-family: var(--font-body);
+}
+.qty-selector button:hover {
+  background: var(--cream-dark);
+}
+.qty-selector span {
+  width: 48px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  line-height: 40px;
+  background: white;
+}
+
+/* ============ NEWSLETTER ============ */
+.newsletter-section {
+  background: var(--charcoal);
+  padding: 4rem 2rem;
+  text-align: center;
+}
+.newsletter-section h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--white);
+  margin-bottom: 0.75rem;
+}
+.newsletter-section p {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.newsletter-form {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.newsletter-input {
+  flex: 1;
+  padding: 0.85rem 1.2rem;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.newsletter-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+.newsletter-input:focus {
+  border-color: var(--gold);
+}
+.newsletter-submit {
+  padding: 0.85rem 1.8rem;
+  background: var(--gold);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+.newsletter-submit:hover {
+  background: var(--gold-dark);
+}
+.newsletter-success {
+  color: var(--sage-light);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  display: none;
+}
+@media (max-width: 480px) {
+  .newsletter-form {
+    flex-direction: column;
+  }
+}
+
+/* ============ SOCIAL LINKS ============ */
+.footer-social {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+.footer-social a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--cream-light);
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+}
+.footer-social a:hover {
+  background: var(--gold);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+.footer-social svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============ TRUST BADGES ============ */
+.trust-badges {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--cream-light);
+  border-radius: 8px;
+  border: 1px solid var(--cream-dark);
+}
+.trust-badge svg {
+  width: 20px;
+  height: 20px;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.trust-badge span {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  letter-spacing: 0.3px;
+}
+
+/* ============ DELIVERY ESTIMATE ============ */
+.delivery-estimate {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: #f0f7f0;
+  border: 1px solid #d4e8d4;
+  border-radius: 10px;
+}
+.delivery-estimate svg {
+  flex-shrink: 0;
+  color: #2d7a2d;
+  margin-top: 2px;
+}
+.delivery-estimate span {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: #2d5a2d;
+  line-height: 1.5;
+}
+.delivery-estimate strong {
+  color: #1a4a1a;
+}
+
 /* ============ REDUCED MOTION ============ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

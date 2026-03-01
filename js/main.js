@@ -77,9 +77,55 @@ function scrollCarousel(direction) {
   });
 }
 
+// ============ CATALOGUE SEARCH ============
+var catalogueSearchInput = document.getElementById('catalogueSearch');
+if (catalogueSearchInput) {
+  var searchDebounce;
+  catalogueSearchInput.addEventListener('input', function() {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(function() {
+      var query = catalogueSearchInput.value.trim().toLowerCase();
+      var cards = document.querySelectorAll('#catalogueGrid .product-card');
+      var noResults = document.getElementById('searchNoResults');
+      var visibleCount = 0;
+
+      // Reset filter to "Tous" when searching
+      if (query.length > 0) {
+        document.querySelectorAll('.catalogue-filter-btn').forEach(function(b) {
+          b.classList.remove('active');
+          if (b.getAttribute('data-filter') === 'all') b.classList.add('active');
+        });
+      }
+
+      cards.forEach(function(card) {
+        if (query.length === 0) {
+          card.style.display = '';
+          visibleCount++;
+          return;
+        }
+        var title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
+        var desc = (card.querySelector('.product-desc')?.textContent || '').toLowerCase();
+        var pType = (card.getAttribute('data-product-type') || '').toLowerCase();
+        var tags = (card.getAttribute('data-tags') || '').toLowerCase();
+        var match = title.includes(query) || desc.includes(query) || pType.includes(query) || tags.includes(query);
+        card.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
+      });
+
+      if (noResults) noResults.style.display = (query.length > 0 && visibleCount === 0) ? 'block' : 'none';
+    }, 250);
+  });
+}
+
 // ============ CATALOGUE FILTER BUTTONS ============
 document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    // Clear search when clicking filter
+    var searchInput = document.getElementById('catalogueSearch');
+    if (searchInput) searchInput.value = '';
+    var noResults = document.getElementById('searchNoResults');
+    if (noResults) noResults.style.display = 'none';
+
     document.querySelectorAll('.catalogue-filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const filter = btn.getAttribute('data-filter');
@@ -196,6 +242,18 @@ document.addEventListener('keydown', function(e) {
     }
   }
 });
+
+// ============ NEWSLETTER ============
+function handleNewsletter(e) {
+  e.preventDefault();
+  var form = document.getElementById('newsletterForm');
+  var success = document.getElementById('newsletterSuccess');
+  if (form && success) {
+    form.style.display = 'none';
+    success.style.display = 'block';
+  }
+  return false;
+}
 
 // ============ GAMME CARDS — WHOLE CARD CLICKABLE ============
 document.querySelectorAll('.gamme-card').forEach(card => {

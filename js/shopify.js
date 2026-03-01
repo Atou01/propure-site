@@ -668,6 +668,7 @@ function setMode(btn, mode) {
   var toggleBtns = card.querySelectorAll('.sub-toggle-btn');
   var freqDiv = card.querySelector('.sub-freq');
   var discountDiv = card.querySelector('.sub-discount');
+  var explainerDiv = card.querySelector('.sub-explainer');
   var priceEl = card.querySelector('.product-price');
   var basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
 
@@ -677,6 +678,7 @@ function setMode(btn, mode) {
   if (mode === 'sub') {
     freqDiv.style.display = 'flex';
     discountDiv.style.display = 'block';
+    if (explainerDiv) explainerDiv.style.display = 'block';
     var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
     var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
     var discountRate = months === '2' ? 0.15 : 0.10;
@@ -690,10 +692,17 @@ function setMode(btn, mode) {
     priceEl.appendChild(oldPriceSpan);
     priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
     discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
-    btn.closest('.sub-toggle').querySelector('.sub-option').textContent = 'Abonnement -' + discountPct + '%';
+    var subOptionBtn = btn.closest('.sub-toggle').querySelector('.sub-option');
+    var badgeEl = subOptionBtn.querySelector('.sub-option-badge');
+    if (badgeEl) {
+      badgeEl.textContent = '-' + discountPct + '%';
+    } else {
+      subOptionBtn.textContent = 'Abonnement -' + discountPct + '%';
+    }
   } else {
     freqDiv.style.display = 'none';
     discountDiv.style.display = 'none';
+    if (explainerDiv) explainerDiv.style.display = 'none';
     priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
   }
 }
@@ -725,7 +734,14 @@ function setFreq(btn, months) {
 
   if (subToggle) {
     var subBtn = subToggle.querySelector('.sub-option');
-    if (subBtn) subBtn.textContent = 'Abonnement -' + discountPct + '%';
+    if (subBtn) {
+      var badgeEl = subBtn.querySelector('.sub-option-badge');
+      if (badgeEl) {
+        badgeEl.textContent = '-' + discountPct + '%';
+      } else {
+        subBtn.textContent = 'Abonnement -' + discountPct + '%';
+      }
+    }
   }
 }
 
@@ -816,15 +832,28 @@ async function loadSingleProduct(handle) {
       + '<div class="product-description-full">' + escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.') + '</div>'
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
-      + '<div class="sub-toggle">'
+      + '<div class="sub-section-detail">'
+      + '<div class="sub-toggle sub-toggle-detail">'
       + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
-      + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement -15%</button>'
+      + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">'
+      + '<span class="sub-option-label">Abonnement</span>'
+      + '<span class="sub-option-badge">-15%</span>'
+      + '</button>'
       + '</div>'
       + '<div class="sub-freq" style="display:none">'
       + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
       + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
       + '</div>'
       + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
+      + '<div class="sub-explainer" style="display:none">'
+      + '<p><strong>Comment \u00e7a marche ?</strong></p>'
+      + '<ul>'
+      + '<li>Livraison automatique \u00e0 la fr\u00e9quence choisie</li>'
+      + '<li>Modifiez, suspendez ou annulez \u00e0 tout moment</li>'
+      + '<li>Jusqu\'\u00e0 15% de r\u00e9duction sur chaque livraison</li>'
+      + '</ul>'
+      + '</div>'
+      + '</div>'
       + '<div class="product-bottom" style="margin-top:1rem;">'
       + '<div class="product-price" style="font-size:1.3rem;">' + price + ' &euro;</div>'
       + '</div>'

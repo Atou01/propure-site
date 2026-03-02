@@ -740,7 +740,7 @@ function setMode(btn, mode) {
 
   if (mode === 'sub') {
     if (freqDiv) { freqDiv.style.display = ''; freqDiv.classList.add('visible'); }
-    if (discountDiv) discountDiv.style.display = 'block';
+    if (discountDiv) { discountDiv.style.display = ''; discountDiv.classList.add('visible'); }
     if (savingBox) { savingBox.style.display = ''; savingBox.classList.add('visible'); }
     if (explainerDiv) { explainerDiv.style.display = ''; explainerDiv.classList.add('visible'); }
     var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
@@ -774,7 +774,7 @@ function setMode(btn, mode) {
     }
   } else {
     if (freqDiv) { freqDiv.style.display = 'none'; freqDiv.classList.remove('visible'); }
-    if (discountDiv) discountDiv.style.display = 'none';
+    if (discountDiv) { discountDiv.style.display = ''; discountDiv.classList.remove('visible'); }
     if (savingBox) { savingBox.style.display = 'none'; savingBox.classList.remove('visible'); }
     if (explainerDiv) { explainerDiv.style.display = 'none'; explainerDiv.classList.remove('visible'); }
     priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
@@ -806,13 +806,21 @@ function setFreq(btn, months) {
   priceEl.appendChild(oldPriceSpan);
   priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
 
-  if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
+  if (discountDiv) {
+    discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
+    discountDiv.style.display = '';
+    discountDiv.classList.add('visible');
+  }
 
-  // Update saving box
+  // Update saving box and ensure visibility
+  var savingBox = card.querySelector('.sub-saving-box');
+  var explainerDiv = card.querySelector('.sub-explainer');
   var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
   if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit';
   var annualEl = card.querySelector('#subAnnualSaving');
   if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
+  if (savingBox) { savingBox.style.display = ''; savingBox.classList.add('visible'); }
+  if (explainerDiv) { explainerDiv.style.display = ''; explainerDiv.classList.add('visible'); }
 
   // Update btn price display
   var subBtnPrice = card.querySelector('.sub-option .sub-btn-price');

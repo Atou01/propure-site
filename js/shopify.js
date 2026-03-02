@@ -930,7 +930,8 @@ async function loadSingleProduct(handle) {
     loadRelatedProducts(product);
 
   } catch (err) {
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
+    console.error('[ProPure] Product load error:', err, err.stack);
+    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><p style="font-size:0.75rem;color:#999;margin-top:1rem;">' + err.message + '</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
 

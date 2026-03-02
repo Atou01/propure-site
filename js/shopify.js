@@ -385,7 +385,10 @@ function updateProductsFromShopify(products) {
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
     while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var top3 = products.filter(function(p) { return p.availableForSale !== false; }).slice(0, 3);
+    var bsHandles = ['charnel', 'marine-5l', 'detachant-textile-1l'];
+    var top3 = bsHandles.map(function(h) {
+      return products.find(function(p) { return p.handle === h; });
+    }).filter(Boolean);
     var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
     top3.forEach(function(product, i) {
       var card = buildProductCard(product, i, bsLabels[i] || '');

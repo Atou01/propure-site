@@ -782,13 +782,6 @@ async function loadSingleProduct(handle) {
   }
 
   try {
-    if (!shopifyClient) {
-      shopifyClient = ShopifyBuy.buildClient({
-        domain: SHOPIFY_DOMAIN,
-        storefrontAccessToken: STOREFRONT_TOKEN,
-      });
-    }
-
     // Restore cart from localStorage or create new one
     if (!cartId) {
       var savedId = getSavedCartId();
@@ -809,15 +802,39 @@ async function loadSingleProduct(handle) {
     // Fetch selling plans
     await fetchSellingPlans();
 
-    var product = await shopifyClient.product.fetchByHandle(handle);
-    if (!product) {
+    // Fetch product via direct GraphQL (more reliable than SDK)
+    var productResult = await storefrontFetch(`{
+      productByHandle(handle: "` + handle + `") {
+        id title handle description productType availableForSale
+        variants(first: 10) {
+          edges { node { id title price { amount currencyCode } availableForSale } }
+        }
+        images(first: 10) {
+          edges { node { url altText } }
+        }
+      }
+    }`);
+    var productData = productResult.data && productResult.data.productByHandle;
+    if (!productData) {
       container.innerHTML = '<div class="product-not-found"><h2>Produit introuvable</h2><p>Ce produit n\'existe pas ou n\'est plus disponible.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
       return;
     }
 
+    // Normalize product object to match expected structure
+    var product = {
+      id: productData.id,
+      title: productData.title,
+      handle: productData.handle,
+      description: productData.description,
+      productType: productData.productType,
+      availableForSale: productData.availableForSale,
+      variants: productData.variants.edges.map(function(e) { return e.node; }),
+      images: productData.images.edges.map(function(e) { return { src: e.node.url, altText: e.node.altText }; })
+    };
+
     var variant = product.variants[0];
-    var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
-    var saving = (parseFloat(price.replace(',', '.')) * 0.15).toFixed(2).replace('.', ',');
+    var price = parseFloat(variant.price.amount).toFixed(2).replace('.', ',');
+    var saving = (parseFloat(variant.price.amount) * 0.15).toFixed(2).replace('.', ',');
     var images = product.images || [];
     var mainImg = images[0] ? images[0].src : '';
     var pType = (product.productType || '').replace(/^\w/, function(c) { return c.toUpperCase(); });
@@ -972,25 +989,44 @@ function changeMainImage(thumb, src) {
 }
 
 async function loadRelatedProducts(currentProduct) {
-  var container = document.getElementById('relatedProducts');
-  if (!container) return;
+  var section = document.getElementById('relatedProducts');
+  if (!section) return;
+  var grid = document.getElementById('relatedGrid');
+  if (!grid) return;
 
   try {
-    var allProducts = await shopifyClient.product.fetchAll(20);
+    var result = await storefrontFetch(`{
+      products(first: 20) {
+        edges { node {
+          id title handle productType availableForSale
+          variants(first: 1) { edges { node { id title price { amount } } } }
+          images(first: 1) { edges { node { url altText } } }
+        } }
+      }
+    }`);
+    var allProducts = result.data.products.edges.map(function(e) {
+      var n = e.node;
+      return {
+        id: n.id, title: n.title, handle: n.handle, productType: n.productType,
+        availableForSale: n.availableForSale,
+        variants: n.variants.edges.map(function(v) { return v.node; }),
+        images: n.images.edges.map(function(img) { return { src: img.node.url }; })
+      };
+    });
+
     var related = allProducts
       .filter(function(p) { return p.id !== currentProduct.id; })
       .filter(function(p) { return p.productType === currentProduct.productType; })
       .slice(0, 4);
 
     if (related.length === 0) {
-      var random = allProducts.filter(function(p) { return p.id !== currentProduct.id; }).slice(0, 4);
-      if (random.length === 0) { container.parentElement.style.display = 'none'; return; }
-      renderRelatedGrid(container, random);
-    } else {
-      renderRelatedGrid(container, related);
+      related = allProducts.filter(function(p) { return p.id !== currentProduct.id; }).slice(0, 4);
     }
+    if (related.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = '';
+    renderRelatedGrid(grid, related);
   } catch (err) {
-    container.parentElement.style.display = 'none';
+    section.style.display = 'none';
   }
 }
 
@@ -998,7 +1034,7 @@ function renderRelatedGrid(container, products) {
   container.innerHTML = '';
   products.forEach(function(product, i) {
     var variant = product.variants[0];
-    var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
+    var price = parseFloat(variant.price.amount).toFixed(2).replace('.', ',');
     var imgSrc = product.images[0] ? product.images[0].src : '';
     var handle = product.handle || '';
 

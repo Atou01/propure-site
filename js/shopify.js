@@ -677,10 +677,10 @@ function setMode(btn, mode) {
   btn.classList.add('active');
 
   if (mode === 'sub') {
-    if (freqDiv) freqDiv.style.display = '';
+    if (freqDiv) { freqDiv.style.display = ''; freqDiv.classList.add('visible'); }
     if (discountDiv) discountDiv.style.display = 'block';
-    if (savingBox) savingBox.style.display = '';
-    if (explainerDiv) explainerDiv.style.display = '';
+    if (savingBox) { savingBox.style.display = ''; savingBox.classList.add('visible'); }
+    if (explainerDiv) { explainerDiv.style.display = ''; explainerDiv.classList.add('visible'); }
     var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
     var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
     var discountRate = months === '2' ? 0.15 : 0.10;
@@ -711,10 +711,10 @@ function setMode(btn, mode) {
       }
     }
   } else {
-    if (freqDiv) freqDiv.style.display = 'none';
+    if (freqDiv) { freqDiv.style.display = 'none'; freqDiv.classList.remove('visible'); }
     if (discountDiv) discountDiv.style.display = 'none';
-    if (savingBox) savingBox.style.display = 'none';
-    if (explainerDiv) explainerDiv.style.display = 'none';
+    if (savingBox) { savingBox.style.display = 'none'; savingBox.classList.remove('visible'); }
+    if (explainerDiv) { explainerDiv.style.display = 'none'; explainerDiv.classList.remove('visible'); }
     priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
   }
 }

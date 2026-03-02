@@ -2109,7 +2109,8 @@ body.cart-open { overflow: hidden; }
   background: white;
   color: var(--gold-dark);
 }
-.sub-section-detail .sub-freq {
+.sub-section-detail .sub-freq.visible {
+  display: flex;
   margin-top: 1rem;
   flex-direction: column;
   gap: 0.5rem;

@@ -332,7 +332,7 @@ function buildProductCard(product, i, tagLabel) {
     + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
     + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
     + '</div>'
-    + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac par livraison</div>'
+    + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac sur le produit</div>'
     + '<div class="product-bottom">'
     + '<div class="product-price">' + price + ' &euro;</div>'
     + (inStock
@@ -695,10 +695,10 @@ function setMode(btn, mode) {
     oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
     priceEl.appendChild(oldPriceSpan);
     priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
-    if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
+    if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
     // Update saving box
     var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
-    if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison';
+    if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit';
     var annualEl = card.querySelector('#subAnnualSaving');
     if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
     var subOptionBtn = btn.closest('.sub-toggle').querySelector('.sub-option');
@@ -744,11 +744,11 @@ function setFreq(btn, months) {
   priceEl.appendChild(oldPriceSpan);
   priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
 
-  if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac par livraison';
+  if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
 
   // Update saving box
   var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
-  if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison';
+  if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit';
   var annualEl = card.querySelector('#subAnnualSaving');
   if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
 
@@ -895,7 +895,7 @@ async function loadSingleProduct(handle) {
       + '</div>'
       + '</div>'
       + '<div class="sub-saving-box" style="display:none">'
-      + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> par livraison</div>'
+      + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit</div>'
       + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + (basePrice * 0.15 * 6).toFixed(0) + ' \u20ac</strong> d\'\u00e9conomie par an</div>'
       + '</div>'
       + '<div class="sub-explainer" style="display:none">'
@@ -906,7 +906,7 @@ async function loadSingleProduct(handle) {
       + '<div class="sub-explainer-grid">'
       + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u2795</span><strong>Recevez automatiquement</strong> votre produit \u00e0 la fr\u00e9quence choisie, sans y penser</div>'
       + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u270f\ufe0f</span><strong>100% flexible</strong> : modifiez la fr\u00e9quence, suspendez ou annulez en 1 clic depuis votre espace client</div>'
-      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\udcb0</span><strong>Prix r\u00e9duit garanti</strong> sur chaque livraison, jusqu\'\u00e0 15% d\'\u00e9conomie</div>'
+      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\udcb0</span><strong>Prix r\u00e9duit garanti</strong> sur chaque produit, jusqu\'\u00e0 15% d\'\u00e9conomie</div>'
       + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\ude9a</span><strong>Aucun engagement</strong> : sans dur\u00e9e minimum, arr\u00eatez quand vous voulez</div>'
       + '</div>'
       + '</div>'

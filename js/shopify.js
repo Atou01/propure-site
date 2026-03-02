@@ -31,8 +31,8 @@ function clearSavedCart() {
 }
 
 async function restoreCart(savedId) {
-  var query = '{ cart(id: "' + savedId + '") { ...CartFields } } ' + CART_FRAGMENT;
-  var result = await storefrontFetch(query);
+  var query = 'query getCart($cartId: ID!) { cart(id: $cartId) { ...CartFields } } ' + CART_FRAGMENT;
+  var result = await storefrontFetch(query, { cartId: savedId });
   if (result.data && result.data.cart && result.data.cart.id) {
     var cart = result.data.cart;
     cartId = cart.id;
@@ -798,17 +798,20 @@ async function loadSingleProduct(handle) {
     await fetchSellingPlans();
 
     // Fetch product via direct GraphQL (more reliable than SDK)
-    var productResult = await storefrontFetch(`{
-      productByHandle(handle: "` + handle + `") {
-        id title handle description productType availableForSale
-        variants(first: 10) {
-          edges { node { id title price { amount currencyCode } availableForSale } }
+    var productResult = await storefrontFetch(
+      `query getProductByHandle($handle: String!) {
+        productByHandle(handle: $handle) {
+          id title handle description productType availableForSale
+          variants(first: 10) {
+            edges { node { id title price { amount currencyCode } availableForSale } }
+          }
+          images(first: 10) {
+            edges { node { url altText } }
+          }
         }
-        images(first: 10) {
-          edges { node { url altText } }
-        }
-      }
-    }`);
+      }`,
+      { handle: handle }
+    );
     var productData = productResult.data && productResult.data.productByHandle;
     if (!productData) {
       container.innerHTML = '<div class="product-not-found"><h2>Produit introuvable</h2><p>Ce produit n\'existe pas ou n\'est plus disponible.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
@@ -828,8 +831,9 @@ async function loadSingleProduct(handle) {
     };
 
     var variant = product.variants[0];
-    var price = parseFloat(variant.price.amount).toFixed(2).replace('.', ',');
-    var saving = (parseFloat(variant.price.amount) * 0.15).toFixed(2).replace('.', ',');
+    var basePrice = parseFloat(variant.price.amount);
+    var price = basePrice.toFixed(2).replace('.', ',');
+    var saving = (basePrice * 0.15).toFixed(2).replace('.', ',');
     var images = product.images || [];
     var mainImg = images[0] ? images[0].src : '';
     var pType = (product.productType || '').replace(/^\w/, function(c) { return c.toUpperCase(); });
@@ -942,8 +946,7 @@ async function loadSingleProduct(handle) {
     loadRelatedProducts(product);
 
   } catch (err) {
-    console.error('[ProPure] Product load error:', err, err.stack);
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement.</p><p style="font-size:0.75rem;color:#999;margin-top:1rem;">' + err.message + '</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
+    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement du produit.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
 

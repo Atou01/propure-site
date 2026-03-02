@@ -209,7 +209,7 @@ async function initShopify() {
       savedCartId ? restoreCart(savedCartId).catch(function() { clearSavedCart(); return null; }) : createCart([]),
       fetchSellingPlans(),
       storefrontFetch(
-        'query { products(first: 50) { edges { node { id title handle description productType availableForSale sellingPlanGroups(first: 5) { edges { node { sellingPlans(first: 5) { edges { node { id name options { name value } priceAdjustments { adjustmentValue { ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage } } } } } } } } } variants(first: 10) { edges { node { id title price { amount currencyCode } availableForSale } } } images(first: 5) { edges { node { url altText } } } } } }'
+        'query { products(first: 50) { edges { node { id title handle description productType availableForSale sellingPlanGroups(first: 5) { edges { node { sellingPlans(first: 5) { edges { node { id name options { name value } priceAdjustments { adjustmentValue { ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage } } } } } } } } } variants(first: 10) { edges { node { id title price { amount currencyCode } availableForSale } } } images(first: 5) { edges { node { url altText } } } } } } }'
       )
     ]);
 

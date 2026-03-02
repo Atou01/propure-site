@@ -385,7 +385,7 @@ function updateProductsFromShopify(products) {
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
     while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var top3 = products.slice(0, 3);
+    var top3 = products.filter(function(p) { return p.availableForSale !== false; }).slice(0, 3);
     var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
     top3.forEach(function(product, i) {
       var card = buildProductCard(product, i, bsLabels[i] || '');

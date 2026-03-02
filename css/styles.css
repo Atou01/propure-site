@@ -1344,6 +1344,16 @@ body {
 .product-info {
   padding-top: 1rem;
 }
+.product-info .product-card {
+  flex: none;
+  width: 100%;
+  overflow: visible;
+  cursor: default;
+}
+.product-info .product-card:hover {
+  transform: none;
+  box-shadow: none;
+}
 .product-info .product-category {
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;

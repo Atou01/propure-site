@@ -17,6 +17,7 @@
 <meta property="og:url" content="https://propure-site.vercel.app/" />
 <meta property="og:site_name" content="Pro Pure" />
 <meta property="og:locale" content="fr_FR" />
+<meta property="og:image" content="https://propure-site.vercel.app/img/logo.png" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
@@ -25,7 +26,19 @@
 
 <!-- Schema.org -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Organization","name":"Pro Pure","url":"https://propure-site.vercel.app","description":"Produits ménagers premium fabriqués en France","brand":{"@type":"Brand","name":"Pro Pure"}}
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Pro Pure",
+  "url": "https://propure-site.vercel.app",
+  "logo": "https://propure-site.vercel.app/img/logo.png",
+  "description": "Produits ménagers premium fabriqués en France avec des parfums d'exception.",
+  "sameAs": [
+    "https://instagram.com/propure.fr",
+    "https://tiktok.com/@propure.fr",
+    "https://facebook.com/propure.fr"
+  ]
+}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"Pro Pure","url":"https://propure-site.vercel.app"}
@@ -33,29 +46,31 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://2gchuh-tt.myshopify.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="css/styles.css" />
 </head>
 
 <body>
 
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
 <!-- SCROLL PROGRESS BAR -->
 <div class="scroll-progress" id="scrollProgress"></div>
 
 <!-- FLOATING PARTICLES -->
-<a href="#main-content" class="skip-link">Aller au contenu principal</a>
 <div class="particles-container" id="particles" aria-hidden="true"></div>
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar" aria-label="Navigation principale">
   <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
   <ul class="nav-links">
-    <li><a href="#produits">Produits</a></li>
-    <li><a href="#gammes">Nos Gammes</a></li>
-    <li><a href="#histoire">Notre Histoire</a></li>
-    <li><a href="#avis">Avis</a></li>
+    <li><a href="index.html#produits">Best-Sellers</a></li>
+    <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="index.html#gammes">Nos Gammes</a></li>
+    <li><a href="index.html#histoire">Notre Histoire</a></li>
   </ul>
-  <button class="nav-cart" onclick="toggleCart()">
+  <button class="nav-cart" onclick="toggleCart()" aria-label="Panier">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <span class="cart-badge" id="cartBadge">0</span>
   </button>
@@ -65,10 +80,10 @@
 </nav>
 <!-- MOBILE NAV OVERLAY -->
 <div class="mobile-nav-overlay" id="mobileNavOverlay">
-  <a href="#produits" onclick="closeMobileNav()">Produits</a>
-  <a href="#gammes" onclick="closeMobileNav()">Nos Gammes</a>
-  <a href="#histoire" onclick="closeMobileNav()">Notre Histoire</a>
-  <a href="#avis" onclick="closeMobileNav()">Avis</a>
+  <a href="index.html#produits" onclick="closeMobileNav()">Best-Sellers</a>
+  <a href="catalogue.html" onclick="closeMobileNav()">Catalogue</a>
+  <a href="index.html#gammes" onclick="closeMobileNav()">Nos Gammes</a>
+  <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
 </div>
 
 
@@ -76,7 +91,7 @@
 <!-- HERO CAROUSEL -->
 <section class="hero" id="hero">
   <!-- Video Background -->
-  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="none">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="none" aria-hidden="true">
     <source src="hero-bg.mp4" type="video/mp4">
   </video>
   <div class="hero-video-overlay"></div>
@@ -301,7 +316,7 @@
 <!-- BRAND STORY -->
 <section class="brand-story" id="histoire">
   <div class="brand-story-visual reveal-scale">
-        <video src="img/brand-story-video.mp4" class="brand-story-img" autoplay muted loop playsinline preload="metadata"></video>
+        <video src="img/brand-story-video.mp4" class="brand-story-img" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
   </div>
   <div class="brand-story-content">
     <span class="section-label reveal">Notre Histoire</span>
@@ -375,7 +390,7 @@
 
 <!-- NEWSLETTER -->
 <section class="newsletter-section reveal">
-  <h3>Restez Inform&eacute;</h3>
+  <h2>Restez Inform&eacute;</h2>
   <p>Recevez nos offres exclusives, nouveaut&eacute;s et conseils d'entretien.</p>
   <form class="newsletter-form" id="newsletterForm" onsubmit="return handleNewsletter(event)">
     <input type="email" class="newsletter-input" placeholder="Votre adresse email" required aria-label="Adresse email pour la newsletter">
@@ -430,11 +445,6 @@
   </div>
 </footer>
 
-<!-- Shopify Buy SDK -->
-
-<!-- Shopify SDK -->
-<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
-
 <!-- Cart Drawer -->
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer" role="dialog" aria-label="Panier" aria-modal="true">
@@ -457,12 +467,12 @@
   </div>
 </div>
 
-<div class="cart-toast" id="cartToast">Produit ajouté au panier !</div>
+<div class="cart-toast" id="cartToast" role="status" aria-live="polite">Produit ajouté au panier !</div>
 
 <!-- Scripts -->
-<script src="js/shopify.js"></script>
-<script src="js/main.js"></script>
-<script src="js/animations.js"></script>
+<script src="js/shopify.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/animations.js" defer></script>
 
 <!-- Cookie Consent Banner -->
 <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Consentement cookies">

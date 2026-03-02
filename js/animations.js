@@ -127,32 +127,29 @@ const tiltObserver = new MutationObserver(mutations => {
     });
   });
 });
-tiltObserver.observe(document.body, { childList: true, subtree: true });
+const tiltGrids = document.querySelectorAll('#bestsellersGrid, #catalogueGrid, #productsCarousel, #relatedGrid');
+tiltGrids.forEach(function(grid) {
+  tiltObserver.observe(grid, { childList: true });
+});
 
 // --- Cart Badge Bounce Animation ---
-const originalAddToCart = window.addToCartStatic;
-if (typeof addToCartStatic === 'function') {
-  const origFunc = addToCartStatic;
-  window.addToCartStatic = function() {
-    origFunc.apply(this, arguments);
-    const badge = document.getElementById('cartBadge');
-    if (badge) {
-      badge.classList.remove('bounce');
-      void badge.offsetWidth; // reflow
-      badge.classList.add('bounce');
-    }
-  };
-}
+document.addEventListener('cart:itemAdded', function() {
+  const badge = document.querySelector('.cart-badge');
+  if (badge) {
+    badge.style.transform = 'scale(1.5)';
+    setTimeout(() => { badge.style.transform = 'scale(1)'; }, 300);
+  }
+});
 
 // --- Parallax Effect on Scroll (desktop only) ---
 let ticking = false;
+const heroFloats = document.querySelectorAll('.hero-float-1, .hero-float-2, .hero-float-3');
 if (window.innerWidth < 768) { /* skip parallax on mobile */ } else
 window.addEventListener('scroll', function() {
   if (!ticking) {
     requestAnimationFrame(function() {
       const scrolled = window.scrollY;
-      // Subtle parallax on hero floating elements
-      document.querySelectorAll('.hero-float-1, .hero-float-2, .hero-float-3').forEach((el, i) => {
+      heroFloats.forEach((el, i) => {
         const speed = 0.3 + (i * 0.1);
         el.style.transform = `translateY(${scrolled * speed * -0.3}px)`;
       });
@@ -195,21 +192,22 @@ if (valuesSection) {
 // --- Navbar hide on scroll down, show on scroll up ---
 let lastScrollTop = 0;
 const navEl = document.getElementById('navbar');
+let navTicking = false;
 window.addEventListener('scroll', function() {
-  const st = window.scrollY;
-  if (st > 300 && st > lastScrollTop) {
-    navEl.style.transform = 'translateY(-100%)';
-  } else {
-    navEl.style.transform = 'translateY(0)';
+  if (!navTicking) {
+    requestAnimationFrame(function() {
+      const st = window.scrollY;
+      if (navEl && st > 300 && st > lastScrollTop) {
+        navEl.style.transform = 'translateY(-100%)';
+      } else if (navEl) {
+        navEl.style.transform = 'translateY(0)';
+      }
+      lastScrollTop = st;
+      navTicking = false;
+    });
+    navTicking = true;
   }
-  lastScrollTop = st;
 }, { passive: true });
-
-// --- Typing cursor effect on hero (subtle) ---
-const heroCta = document.querySelector('.hero-cta');
-if (heroCta) {
-  heroCta.style.position = 'relative';
-}
 
 // --- Force Video Autoplay on Mobile ---
 (function() {

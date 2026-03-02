@@ -3,8 +3,6 @@ const SHOPIFY_DOMAIN = '2gchuh-tt.myshopify.com';
 const STOREFRONT_TOKEN = '53cac02ce08a74431eac8f362fc82686';
 const STOREFRONT_API_VERSION = '2024-10';
 
-let shopifyClient; // Keep SDK for product fetching only
-
 // --- Selling Plans (from Seal Subscriptions) ---
 // These are fetched dynamically at init, with fallback to known IDs
 let sellingPlanMap = {
@@ -16,6 +14,7 @@ let sellingPlanMap = {
 let cartId = null;
 let cartCheckoutUrl = null;
 let cartItemsData = [];
+var cartUpdating = false;
 
 // --- Cart Persistence ---
 function saveCartId() {
@@ -45,9 +44,10 @@ async function restoreCart(savedId) {
 
 // --- Security: HTML escape utility ---
 function escapeHTML(str) {
-  const div = document.createElement('div');
-  div.appendChild(document.createTextNode(str));
-  return div.innerHTML;
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c];
+  });
 }
 
 // ============ STOREFRONT API GRAPHQL HELPER ============
@@ -201,41 +201,75 @@ async function cartLinesRemove(lineIds) {
 
 // ============ INIT ============
 async function initShopify() {
-  if (typeof ShopifyBuy === 'undefined') {
-    return;
-  }
   try {
-    // Init SDK for product fetching only
-    shopifyClient = ShopifyBuy.buildClient({
-      domain: SHOPIFY_DOMAIN,
-      storefrontAccessToken: STOREFRONT_TOKEN,
-    });
+    // Restore cart, fetch selling plans, and fetch products in parallel
+    var savedCartId = getSavedCartId();
 
-    // Restore cart from localStorage or create new one
-    var savedId = getSavedCartId();
-    var restored = false;
-    if (savedId) {
-      try {
-        var cart = await restoreCart(savedId);
-        if (cart) restored = true;
-      } catch (e) {
-        clearSavedCart();
-      }
-    }
-    if (!restored) {
+    var [_, __, productsResult] = await Promise.all([
+      savedCartId ? restoreCart(savedCartId).catch(function() { clearSavedCart(); return null; }) : createCart([]),
+      fetchSellingPlans(),
+      storefrontFetch(
+        'query { products(first: 50) { edges { node { id title handle description productType availableForSale sellingPlanGroups(first: 5) { edges { node { sellingPlans(first: 5) { edges { node { id name options { name value } priceAdjustments { adjustmentValue { ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage } } } } } } } } } variants(first: 10) { edges { node { id title price { amount currencyCode } availableForSale } } } images(first: 5) { edges { node { url altText } } } } } }'
+      )
+    ]);
+
+    // If cart restore returned null (failed or no saved ID), ensure we have a cart
+    if (!cartId) {
       await createCart([]);
     }
 
-    // Fetch selling plans to confirm IDs
-    await fetchSellingPlans();
+    // Map GraphQL products to the format expected by updateProductsFromShopify
+    if (productsResult && productsResult.data && productsResult.data.products) {
+      var products = productsResult.data.products.edges.map(function(edge) {
+        var node = edge.node;
+        return {
+          id: node.id,
+          title: node.title,
+          handle: node.handle,
+          description: node.description,
+          productType: node.productType,
+          availableForSale: node.availableForSale,
+          tags: [],
+          variants: node.variants.edges.map(function(v) {
+            return {
+              id: v.node.id,
+              title: v.node.title,
+              price: v.node.price,
+              availableForSale: v.node.availableForSale
+            };
+          }),
+          images: node.images.edges.map(function(img) {
+            return { src: img.node.url, altText: img.node.altText };
+          })
+        };
+      });
 
-    // Fetch products and update UI
-    const products = await shopifyClient.product.fetchAll(50);
-    if (products.length > 0) {
-      updateProductsFromShopify(products);
+      // Also update sellingPlanMap from product data if available
+      productsResult.data.products.edges.forEach(function(edge) {
+        var groups = edge.node.sellingPlanGroups.edges;
+        if (groups.length > 0) {
+          groups.forEach(function(groupEdge) {
+            var plans = groupEdge.node.sellingPlans.edges;
+            plans.forEach(function(planEdge) {
+              var plan = planEdge.node;
+              var option = plan.options[0];
+              if (option && option.value) {
+                var monthMatch = option.value.match(/(\d+)/);
+                if (monthMatch) {
+                  sellingPlanMap[monthMatch[1]] = plan.id;
+                }
+              }
+            });
+          });
+        }
+      });
+
+      if (products.length > 0) {
+        updateProductsFromShopify(products);
+      }
     }
   } catch (err) {
-    // Shopify init failed — static fallback active
+    console.error('Shopify init failed:', err);
   }
 }
 
@@ -491,6 +525,7 @@ function syncCartFromGraphQL(cart) {
 function renderCart() {
   var container = document.getElementById('cartItems');
   var footer = document.getElementById('cartFooter');
+  if (!container || !footer) return;
   var badge = document.getElementById('cartBadge');
   var totalEl = document.getElementById('cartTotal');
 
@@ -573,28 +608,40 @@ function renderCart() {
 
 // ============ CART ACTIONS ============
 async function updateQty(index, delta) {
-  var item = cartItemsData[index];
-  if (cartId && item.id) {
-    var newQty = item.qty + delta;
-    if (newQty <= 0) {
-      await cartLinesRemove([item.id]);
+  if (cartUpdating) return;
+  cartUpdating = true;
+  try {
+    var item = cartItemsData[index];
+    if (cartId && item.id) {
+      var newQty = item.qty + delta;
+      if (newQty <= 0) {
+        await cartLinesRemove([item.id]);
+      } else {
+        await cartLinesUpdate([{ id: item.id, quantity: newQty }]);
+      }
     } else {
-      await cartLinesUpdate([{ id: item.id, quantity: newQty }]);
+      cartItemsData[index].qty += delta;
+      if (cartItemsData[index].qty <= 0) cartItemsData.splice(index, 1);
+      renderCart();
     }
-  } else {
-    cartItemsData[index].qty += delta;
-    if (cartItemsData[index].qty <= 0) cartItemsData.splice(index, 1);
-    renderCart();
+  } finally {
+    cartUpdating = false;
   }
 }
 
 async function removeItem(index) {
-  var item = cartItemsData[index];
-  if (cartId && item.id) {
-    await cartLinesRemove([item.id]);
-  } else {
-    cartItemsData.splice(index, 1);
-    renderCart();
+  if (cartUpdating) return;
+  cartUpdating = true;
+  try {
+    var item = cartItemsData[index];
+    if (cartId && item.id) {
+      await cartLinesRemove([item.id]);
+    } else {
+      cartItemsData.splice(index, 1);
+      renderCart();
+    }
+  } finally {
+    cartUpdating = false;
   }
 }
 
@@ -607,6 +654,14 @@ function toggleCart() {
 
 function goToCheckout() {
   if (cartCheckoutUrl) {
+    try {
+      var url = new URL(cartCheckoutUrl);
+      if (!url.hostname.endsWith('.myshopify.com') && !url.hostname.endsWith('.shopify.com')) {
+        return;
+      }
+    } catch (e) {
+      return;
+    }
     clearSavedCart();
     window.location.href = cartCheckoutUrl;
   }
@@ -614,8 +669,10 @@ function goToCheckout() {
 
 function showToast() {
   var toast = document.getElementById('cartToast');
+  if (!toast) return;
   toast.classList.add('show');
   setTimeout(function() { toast.classList.remove('show'); }, 2000);
+  document.dispatchEvent(new CustomEvent('cart:itemAdded'));
 }
 
 // ============ STATIC PRODUCT FALLBACK ============
@@ -625,7 +682,9 @@ function addToCartStatic(btn) {
   var basePrice = card.getAttribute('data-base-price');
   var variantId = card.getAttribute('data-variant-id');
   var subToggle = card.querySelector('.sub-toggle');
-  var finalPrice = basePrice ? basePrice : card.querySelector('.product-price').textContent.match(/[\d,]+/)[0];
+  var priceEl = card.querySelector('.product-price');
+  var priceMatch = priceEl ? priceEl.textContent.match(/[\d,]+/) : null;
+  var finalPrice = basePrice || (priceMatch ? priceMatch[0] : '0,00');
   var suffix = '';
   var subscriptionInfo = null;
 

@@ -14,9 +14,12 @@
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://2gchuh-tt.myshopify.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <nav class="navbar" id="navbar" aria-label="Navigation principale">
   <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
@@ -26,11 +29,11 @@
     <li><a href="index.html#gammes">Nos Gammes</a></li>
     <li><a href="index.html#histoire">Notre Histoire</a></li>
   </ul>
-  <button class="nav-cart" onclick="toggleCart()">
+  <button class="nav-cart" onclick="toggleCart()" aria-label="Panier">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
     <span class="cart-badge" id="cartBadge">0</span>
   </button>
-  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()">
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()" aria-label="Menu de navigation" aria-expanded="false">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -41,7 +44,7 @@
   <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
 </div>
 
-<main>
+<main id="main-content">
 <section class="legal-page">
   <div class="legal-container">
     <h1>Questions Fr&eacute;quentes</h1>
@@ -156,13 +159,12 @@
 
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
-<div class="cart-toast" id="cartToast">Produit ajout&eacute; au panier !</div>
-<script src="https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js"></script>
-<script src="js/shopify.js"></script>
-<script src="js/main.js"></script>
-<script src="js/animations.js"></script>
+<div class="cart-toast" id="cartToast" role="status" aria-live="polite">Produit ajout&eacute; au panier !</div>
+<script src="js/shopify.js" defer></script>
+<script src="js/main.js" defer></script>
+<script src="js/animations.js" defer></script>
 <!-- Cookie Consent Banner -->
-<div class="cookie-banner" id="cookieBanner">
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Consentement cookies">
   <p>Ce site utilise des cookies pour améliorer votre expérience. <a href="cookies.html">En savoir plus</a></p>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>

@@ -61,15 +61,18 @@ if (heroEl) {
 
 // ============ NAVBAR SCROLL ============
 const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 50);
-});
+if (navbar) {
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 50);
+  });
+}
 
 // Scroll reveal handled by animations.js (enhanced observer with unobserve + stagger)
 
 // ============ PRODUCTS CAROUSEL SCROLL ============
 function scrollCarousel(direction) {
   const carousel = document.getElementById('productsCarousel');
+  if (!carousel) return;
   const scrollAmount = 300;
   carousel.scrollBy({
     left: direction * scrollAmount,
@@ -78,16 +81,16 @@ function scrollCarousel(direction) {
 }
 
 // ============ CATALOGUE SEARCH ============
-var catalogueSearchInput = document.getElementById('catalogueSearch');
+const catalogueSearchInput = document.getElementById('catalogueSearch');
 if (catalogueSearchInput) {
-  var searchDebounce;
+  let searchDebounce;
   catalogueSearchInput.addEventListener('input', function() {
     clearTimeout(searchDebounce);
     searchDebounce = setTimeout(function() {
-      var query = catalogueSearchInput.value.trim().toLowerCase();
-      var cards = document.querySelectorAll('#catalogueGrid .product-card');
-      var noResults = document.getElementById('searchNoResults');
-      var visibleCount = 0;
+      const query = catalogueSearchInput.value.trim().toLowerCase();
+      const cards = document.querySelectorAll('#catalogueGrid .product-card');
+      const noResults = document.getElementById('searchNoResults');
+      let visibleCount = 0;
 
       // Reset filter to "Tous" when searching
       if (query.length > 0) {
@@ -103,11 +106,11 @@ if (catalogueSearchInput) {
           visibleCount++;
           return;
         }
-        var title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
-        var desc = (card.querySelector('.product-desc')?.textContent || '').toLowerCase();
-        var pType = (card.getAttribute('data-product-type') || '').toLowerCase();
-        var tags = (card.getAttribute('data-tags') || '').toLowerCase();
-        var match = title.includes(query) || desc.includes(query) || pType.includes(query) || tags.includes(query);
+        const title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
+        const desc = (card.querySelector('.product-desc')?.textContent || '').toLowerCase();
+        const pType = (card.getAttribute('data-product-type') || '').toLowerCase();
+        const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+        const match = title.includes(query) || desc.includes(query) || pType.includes(query) || tags.includes(query);
         card.style.display = match ? '' : 'none';
         if (match) visibleCount++;
       });
@@ -121,9 +124,9 @@ if (catalogueSearchInput) {
 document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     // Clear search when clicking filter
-    var searchInput = document.getElementById('catalogueSearch');
+    const searchInput = document.getElementById('catalogueSearch');
     if (searchInput) searchInput.value = '';
-    var noResults = document.getElementById('searchNoResults');
+    const noResults = document.getElementById('searchNoResults');
     if (noResults) noResults.style.display = 'none';
 
     document.querySelectorAll('.catalogue-filter-btn').forEach(b => b.classList.remove('active'));
@@ -149,24 +152,16 @@ document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
   });
 });
 
-// Legacy cat-pill support (if any remain)
-document.querySelectorAll('.cat-pill').forEach(pill => {
-  pill.addEventListener('click', () => {
-    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
-    pill.classList.add('active');
-  });
-});
-
 // Parallax on hero floating elements handled by animations.js
 
 // ============ SMOOTH ANCHOR SCROLL ============
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function(e) {
     const href = this.getAttribute('href');
-    if (!href || href === '#') return; // Don't block empty links
-    e.preventDefault();
-    const target = document.querySelector(href);
+    if (!href || href === '#') return;
+    const target = document.getElementById(href.slice(1));
     if (target) {
+      e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
@@ -182,7 +177,7 @@ function toggleMobileNav() {
   burger.setAttribute('aria-expanded', isOpen);
   document.body.style.overflow = isOpen ? 'hidden' : '';
   if (isOpen) {
-    var firstLink = overlay.querySelector('a');
+    const firstLink = overlay.querySelector('a');
     if (firstLink) firstLink.focus();
   }
 }
@@ -203,23 +198,23 @@ window.addEventListener('resize', () => {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     // Close cart drawer
-    var cartDrawer = document.getElementById('cartDrawer');
+    const cartDrawer = document.getElementById('cartDrawer');
     if (cartDrawer && cartDrawer.classList.contains('open')) {
       toggleCart();
-      var cartBtn = document.querySelector('.nav-cart');
+      const cartBtn = document.querySelector('.nav-cart');
       if (cartBtn) cartBtn.focus();
       return;
     }
     // Close mobile nav
-    var mobileNav = document.getElementById('mobileNavOverlay');
+    const mobileNav = document.getElementById('mobileNavOverlay');
     if (mobileNav && mobileNav.classList.contains('active')) {
       closeMobileNav();
-      var burger = document.getElementById('burgerMenu');
+      const burger = document.getElementById('burgerMenu');
       if (burger) burger.focus();
       return;
     }
     // Close cookie banner
-    var cookieBanner = document.getElementById('cookieBanner');
+    const cookieBanner = document.getElementById('cookieBanner');
     if (cookieBanner && cookieBanner.classList.contains('show')) {
       cookieBanner.classList.remove('show');
       return;
@@ -228,12 +223,12 @@ document.addEventListener('keydown', function(e) {
 
   // Focus trap for cart drawer
   if (e.key === 'Tab') {
-    var drawer = document.getElementById('cartDrawer');
+    const drawer = document.getElementById('cartDrawer');
     if (drawer && drawer.classList.contains('open')) {
-      var focusable = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const focusable = drawer.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
       if (focusable.length === 0) return;
-      var first = focusable[0];
-      var last = focusable[focusable.length - 1];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
       if (e.shiftKey) {
         if (document.activeElement === first) { e.preventDefault(); last.focus(); }
       } else {
@@ -246,8 +241,8 @@ document.addEventListener('keydown', function(e) {
 // ============ NEWSLETTER ============
 function handleNewsletter(e) {
   e.preventDefault();
-  var form = document.getElementById('newsletterForm');
-  var success = document.getElementById('newsletterSuccess');
+  const form = document.getElementById('newsletterForm');
+  const success = document.getElementById('newsletterSuccess');
   if (form && success) {
     form.style.display = 'none';
     success.style.display = 'block';

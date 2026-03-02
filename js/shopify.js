@@ -776,11 +776,6 @@ async function loadSingleProduct(handle) {
 
   container.innerHTML = '<div class="product-loading"><div class="spinner"></div><p>Chargement du produit...</p></div>';
 
-  if (typeof ShopifyBuy === 'undefined') {
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur de chargement</h2><p>Impossible de se connecter \u00e0 la boutique.</p><a href="index.html">Retour \u00e0 l\'accueil</a></div>';
-    return;
-  }
-
   try {
     // Restore cart from localStorage or create new one
     if (!cartId) {

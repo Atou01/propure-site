@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>G&eacute;rer mon abonnement &mdash; Pro Pure</title>
+<meta name="description" content="Modifiez, mettez en pause ou annulez votre abonnement Pro Pure en toute autonomie. Guide complet &eacute;tape par &eacute;tape." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://propure-site.vercel.app/gerer-abonnement.html" />
+<link rel="icon" type="image/png" href="/img/logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://2gchuh-tt.myshopify.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css?v=5" />
+<link rel="stylesheet" href="css/gerer-abonnement.css?v=1" />
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+<nav class="navbar" id="navbar" aria-label="Navigation principale">
+  <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="index.html#produits">Best-Sellers</a></li>
+    <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="index.html#gammes">Nos Gammes</a></li>
+    <li><a href="index.html#histoire">Notre Histoire</a></li>
+  </ul>
+  <button class="nav-cart" onclick="toggleCart()" aria-label="Panier">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+  <button class="burger-menu" id="burgerMenu" onclick="toggleMobileNav()" aria-label="Menu de navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <a href="index.html#produits" onclick="closeMobileNav()">Best-Sellers</a>
+  <a href="catalogue.html" onclick="closeMobileNav()">Catalogue</a>
+  <a href="index.html#gammes" onclick="closeMobileNav()">Nos Gammes</a>
+  <a href="index.html#histoire" onclick="closeMobileNav()">Notre Histoire</a>
+</div>
+
+<main id="main-content">
+
+<!-- HERO -->
+<section class="abo-hero">
+  <h1>Comment g&eacute;rer mon abonnement Pro Pure ?</h1>
+  <p>Modifiez, ajoutez, mettez en pause ou annulez votre abonnement en toute autonomie.</p>
+</section>
+
+<!-- NAVIGATION RAPIDE -->
+<nav class="abo-quicknav" aria-label="Navigation rapide">
+  <div class="abo-quicknav-inner">
+    <a href="#etape-0">Acc&eacute;der &agrave; ma page</a>
+    <a href="#etape-1">Modifier mon adresse</a>
+    <a href="#etape-2">Changer la quantit&eacute;</a>
+    <a href="#etape-3">Ajouter un produit</a>
+    <a href="#etape-4">Mettre en pause</a>
+    <a href="#etape-5">Annuler</a>
+    <a href="#etape-6">Changer la date</a>
+    <a href="#etape-7">Moyen de paiement</a>
+  </div>
+</nav>
+
+<div class="abo-container">
+
+<!-- ÉTAPE 0 -->
+<article class="abo-step" id="etape-0">
+  <div class="abo-step-header">
+    <span class="abo-step-number">0</span>
+    <h2>Comment acc&eacute;der &agrave; ma page d'abonnement</h2>
+  </div>
+
+  <h3>O&ugrave; trouver ton lien ?</h3>
+  <p>Lorsque tu as souscrit &agrave; un abonnement Pro Pure, tu as re&ccedil;u un email de confirmation intitul&eacute; : <strong>&laquo; Your subscription was accepted &raquo;</strong></p>
+  <p>Dans cet email, clique sur le bouton <strong>&laquo; View subscription &raquo;</strong>.<br/>Tu arrives directement sur ta page personnelle de gestion d'abonnement.</p>
+
+  <div class="abo-box abo-box-tip">
+    <strong>Astuce :</strong> Tu ne retrouves plus cet email ? Cherche dans ta bo&icirc;te mail <strong>&laquo; sealsubscriptions &raquo;</strong> ou contacte-nous &agrave; <a href="mailto:contact@p-pure.com" style="color:var(--abo-cyan);font-weight:600;">contact@p-pure.com</a> &mdash; on te renverra le lien.
+  </div>
+
+  <h3>Ce que tu vois sur ta page d'abonnement :</h3>
+  <div class="abo-visual-desc">
+    <ul>
+      <li><strong>&Agrave; gauche :</strong> ton num&eacute;ro d'abonnement, le statut (Actif), la fr&eacute;quence (tous les 4 mois ou 2 mois), la liste de tes articles et le calendrier de tes prochaines livraisons</li>
+      <li><strong>&Agrave; droite :</strong> ton adresse de livraison, ton moyen de paiement, et les boutons &laquo; Mettre en pause &raquo; / &laquo; Annuler &raquo;</li>
+    </ul>
+  </div>
+</article>
+
+<!-- ÉTAPE 1 -->
+<article class="abo-step" id="etape-1">
+  <div class="abo-step-header">
+    <span class="abo-step-number">1</span>
+    <h2>Modifier mon adresse de livraison</h2>
+  </div>
+
+  <p class="abo-step-situation">Tu as d&eacute;m&eacute;nag&eacute; ou tu veux te faire livrer ailleurs.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, regarde le bloc <strong>&laquo; Livraison &raquo;</strong> &agrave; droite</li>
+    <li>Clique sur le lien bleu <strong>&laquo; Modifier &raquo;</strong> juste &agrave; c&ocirc;t&eacute; du titre &laquo; Livraison &raquo;</li>
+    <li>Une fen&ecirc;tre s'ouvre avec un formulaire pr&eacute;-rempli contenant : ton pr&eacute;nom et nom, ton adresse actuelle, ton code postal et ta ville, ton pays et ton t&eacute;l&eacute;phone</li>
+    <li>Modifie les champs que tu veux changer</li>
+    <li>Clique sur le bouton bleu <strong>&laquo; Enregistrer &raquo;</strong></li>
+  </ol>
+
+  <div class="abo-box abo-box-success">
+    <strong>R&eacute;sultat :</strong> Ta prochaine livraison sera envoy&eacute;e &agrave; la nouvelle adresse.
+  </div>
+</article>
+
+<!-- ÉTAPE 2 -->
+<article class="abo-step" id="etape-2">
+  <div class="abo-step-header">
+    <span class="abo-step-number">2</span>
+    <h2>Modifier la quantit&eacute; de mes produits</h2>
+  </div>
+
+  <p class="abo-step-situation">Tu veux recevoir 2 bidons de lessive au lieu d'un, ou moins d'adoucissant.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, rep&egrave;re la section <strong>&laquo; Articles &raquo;</strong> &agrave; gauche</li>
+    <li>Clique sur le lien bleu <strong>&laquo; Modifier &raquo;</strong> &agrave; droite du titre &laquo; Articles &raquo;</li>
+    <li>La page passe en mode &eacute;dition : chaque produit affiche maintenant un <strong>champ avec sa quantit&eacute; actuelle</strong></li>
+    <li>Clique sur ce champ et tape la nouvelle quantit&eacute; souhait&eacute;e (ex : remplace &laquo; 1 &raquo; par &laquo; 2 &raquo;)</li>
+    <li>Clique sur <strong>&laquo; Enregistrer &raquo;</strong> en haut &agrave; droite de la section Articles</li>
+  </ol>
+
+  <div class="abo-box abo-box-success">
+    <strong>R&eacute;sultat :</strong> La nouvelle quantit&eacute; sera livr&eacute;e lors de ton prochain r&eacute;approvisionnement.
+  </div>
+
+  <div class="abo-box abo-box-warn">
+    <strong>Attention :</strong> Si tu veux changer de parfum (ex : passer de Marine &agrave; Galaxy), utilise le bouton &laquo; Supprimer &raquo; &agrave; c&ocirc;t&eacute; du produit, puis ajoute le bon parfum via &laquo; Ajouter un article &raquo; (voir &Eacute;tape 3).
+  </div>
+</article>
+
+<!-- ÉTAPE 3 -->
+<article class="abo-step" id="etape-3">
+  <div class="abo-step-header">
+    <span class="abo-step-number">3</span>
+    <h2>Ajouter un nouveau produit &agrave; mon abonnement</h2>
+  </div>
+
+  <p class="abo-step-situation">Tu veux int&eacute;grer un adoucissant, un d&eacute;tachant ou un autre produit Pro Pure dans ta prochaine livraison.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Dans la section <strong>&laquo; Articles &raquo;</strong>, clique sur <strong>&laquo; Modifier &raquo;</strong></li>
+    <li>En bas de la liste de tes articles, clique sur le bouton <strong>&laquo; Ajouter un article &raquo;</strong></li>
+    <li>Une fen&ecirc;tre s'ouvre avec <strong>tout le catalogue Pro Pure</strong> : tu vois chaque produit avec sa photo, son nom, son prix normal barr&eacute; et son <strong>prix abonn&eacute; r&eacute;duit</strong>. Utilise la barre de recherche en haut pour trouver un produit rapidement.</li>
+    <li>Deux options pour chaque produit :
+      <br/>&bull; <strong>&laquo; Ajouter &raquo;</strong> &rarr; le produit rejoint ton abonnement avec ta remise appliqu&eacute;e automatiquement (-10% ou -15%)
+      <br/>&bull; <strong>&laquo; Achat unique &raquo;</strong> &rarr; le produit est ajout&eacute; une seule fois &agrave; ta prochaine livraison, sans engagement
+    </li>
+    <li>Clique sur <strong>&laquo; Ajouter &raquo;</strong> &agrave; c&ocirc;t&eacute; du produit voulu</li>
+    <li>Le produit appara&icirc;t dans ta liste &mdash; clique sur <strong>&laquo; Enregistrer &raquo;</strong></li>
+  </ol>
+
+  <div class="abo-box abo-box-success">
+    <strong>R&eacute;sultat :</strong> Le nouveau produit sera inclus dans ta prochaine livraison, avec ta r&eacute;duction abonn&eacute;.
+  </div>
+</article>
+
+<!-- ÉTAPE 4 -->
+<article class="abo-step" id="etape-4">
+  <div class="abo-step-header">
+    <span class="abo-step-number">4</span>
+    <h2>Mettre mon abonnement en pause</h2>
+  </div>
+
+  <p class="abo-step-situation">Tu pars en vacances, tu as encore du stock, tu veux une pause sans annuler.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, fais d&eacute;filer vers la droite de la page</li>
+    <li>Clique sur le bouton orange <strong>&laquo; Mettre mon abonnement en pause &raquo;</strong></li>
+    <li>Confirme la mise en pause dans la fen&ecirc;tre qui s'affiche</li>
+    <li>Ton abonnement affiche maintenant le statut <strong>&laquo; En pause &raquo;</strong> &mdash; aucun pr&eacute;l&egrave;vement ni exp&eacute;dition ne sera effectu&eacute;</li>
+  </ol>
+
+  <h3>Pour reprendre :</h3>
+  <ol>
+    <li>Reviens sur ta page d'abonnement (via le lien dans ton email de confirmation)</li>
+    <li>Clique sur le bouton <strong>&laquo; Reprendre mon abonnement &raquo;</strong> qui a remplac&eacute; le bouton pause</li>
+    <li>Ton abonnement redevient actif imm&eacute;diatement</li>
+  </ol>
+
+  <div class="abo-box abo-box-success">
+    <strong>R&eacute;sultat :</strong> Tu peux mettre en pause et reprendre autant de fois que tu veux, sans frais.
+  </div>
+</article>
+
+<!-- ÉTAPE 5 -->
+<article class="abo-step" id="etape-5">
+  <div class="abo-step-header">
+    <span class="abo-step-number">5</span>
+    <h2>Annuler mon abonnement</h2>
+  </div>
+
+  <p class="abo-step-situation">Tu ne souhaites plus recevoir de livraisons Pro Pure.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, fais d&eacute;filer vers la droite de la page</li>
+    <li>Clique sur le bouton rouge <strong>&laquo; Annuler mon abonnement &raquo;</strong></li>
+    <li>Une fen&ecirc;tre de confirmation s'affiche &mdash; clique sur <strong>&laquo; Confirmer l'annulation &raquo;</strong></li>
+    <li>Ton abonnement est d&eacute;finitivement annul&eacute; &mdash; plus aucun pr&eacute;l&egrave;vement ne sera effectu&eacute;</li>
+  </ol>
+
+  <div class="abo-box abo-box-tip">
+    <strong>Avant d'annuler</strong>, n'h&eacute;site pas &agrave; nous contacter &agrave; <a href="mailto:contact@p-pure.com" style="color:var(--abo-cyan);font-weight:600;">contact@p-pure.com</a>. On peut peut-&ecirc;tre t'aider ou te proposer une pause si c'est une question de timing.
+  </div>
+</article>
+
+<!-- ÉTAPE 6 -->
+<article class="abo-step" id="etape-6">
+  <div class="abo-step-header">
+    <span class="abo-step-number">6</span>
+    <h2>Modifier la date de ma prochaine livraison</h2>
+  </div>
+
+  <p class="abo-step-situation">La prochaine livraison tombe &agrave; un mauvais moment, tu veux l'avancer ou la repousser.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, rep&egrave;re la section <strong>&laquo; Calendrier de facturation &raquo;</strong> &agrave; gauche</li>
+    <li>Tu vois toutes tes livraisons programm&eacute;es avec leurs dates</li>
+    <li>Clique sur <strong>&laquo; Replanifier &raquo;</strong> &agrave; c&ocirc;t&eacute; de la livraison que tu veux d&eacute;placer</li>
+    <li>Choisis une nouvelle date</li>
+    <li>Confirme</li>
+  </ol>
+
+  <div class="abo-box abo-box-tip">
+    <strong>Sauter une livraison :</strong> Clique sur <strong>&laquo; Ignorer le paiement &raquo;</strong> &agrave; c&ocirc;t&eacute; de la date concern&eacute;e &mdash; cette livraison sera simplement annul&eacute;e, et la suivante sera maintenue.
+  </div>
+</article>
+
+<!-- ÉTAPE 7 -->
+<article class="abo-step" id="etape-7">
+  <div class="abo-step-header">
+    <span class="abo-step-number">7</span>
+    <h2>Modifier mon moyen de paiement</h2>
+  </div>
+
+  <p class="abo-step-situation">Ta carte a expir&eacute; ou tu veux payer avec une autre carte.</p>
+
+  <h3>Comment faire :</h3>
+  <ol>
+    <li>Sur ta page d'abonnement, rep&egrave;re le bloc <strong>&laquo; Moyen de paiement &raquo;</strong> &agrave; droite</li>
+    <li>Clique sur <strong>&laquo; Modifier &raquo;</strong></li>
+    <li>Saisis les informations de ta nouvelle carte</li>
+    <li>Clique sur <strong>&laquo; Enregistrer &raquo;</strong></li>
+  </ol>
+
+  <div class="abo-box abo-box-success">
+    <strong>R&eacute;sultat :</strong> Tes prochains pr&eacute;l&egrave;vements seront effectu&eacute;s sur la nouvelle carte.
+  </div>
+</article>
+
+<!-- FAQ -->
+<section class="abo-faq" id="faq">
+  <h2>Questions fr&eacute;quentes</h2>
+
+  <div class="abo-faq-item">
+    <button class="abo-faq-q" onclick="this.parentElement.classList.toggle('open')">
+      Je ne retrouve plus l'email avec mon lien d'acc&egrave;s.
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="abo-faq-a"><p>Recherche &laquo; sealsubscriptions &raquo; dans ta bo&icirc;te mail. Sinon, &eacute;cris-nous &agrave; <a href="mailto:contact@p-pure.com" style="color:var(--abo-cyan);">contact@p-pure.com</a> et on te renverra ton lien en moins de 24h.</p></div>
+  </div>
+
+  <div class="abo-faq-item">
+    <button class="abo-faq-q" onclick="this.parentElement.classList.toggle('open')">
+      Puis-je modifier mon abonnement &agrave; tout moment ?
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="abo-faq-a"><p>Oui, sans frais et sans engagement. Tu peux modifier, mettre en pause ou annuler quand tu veux.</p></div>
+  </div>
+
+  <div class="abo-faq-item">
+    <button class="abo-faq-q" onclick="this.parentElement.classList.toggle('open')">
+      Ma r&eacute;duction abonn&eacute; est-elle conserv&eacute;e si j'ajoute des produits ?
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="abo-faq-a"><p>Oui. Tout produit ajout&eacute; en mode &laquo; Ajouter &raquo; b&eacute;n&eacute;ficie automatiquement de ta remise (-10% ou -15%).</p></div>
+  </div>
+
+  <div class="abo-faq-item">
+    <button class="abo-faq-q" onclick="this.parentElement.classList.toggle('open')">
+      Que se passe-t-il si je supprime tous les articles de mon abonnement ?
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="abo-faq-a"><p>L'abonnement sera automatiquement annul&eacute;. Ajoute au moins un produit avant d'enregistrer.</p></div>
+  </div>
+</section>
+
+<!-- BLOC CONTACT FINAL -->
+<div class="abo-contact">
+  <h3>Une question ? On r&eacute;pond sous 24h.</h3>
+  <p>Notre &eacute;quipe est l&agrave; pour t'aider avec ton abonnement.</p>
+  <a href="mailto:contact@p-pure.com">Nous contacter</a>
+</div>
+
+</div><!-- /.abo-container -->
+
+</main>
+
+<!-- BOUTON FLOTTANT MOBILE -->
+<a href="mailto:contact@p-pure.com" class="abo-float-btn" aria-label="Nous contacter">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+  Nous contacter
+</a>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="index.html" class="nav-logo"><img src="img/logo.png" alt="Pro Pure" class="nav-logo-img footer-logo-img"></a>
+      <p>Des produits m&eacute;nagers premium pour un int&eacute;rieur impeccable.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/propure.fr" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://tiktok.com/@propure.fr" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52v-3.4a4.85 4.85 0 01-1-.16z"/></svg></a>
+        <a href="https://facebook.com/propure.fr" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Produits</h4>
+      <ul>
+        <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
+        <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
+        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
+        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Informations</h4>
+      <ul>
+        <li><a href="index.html#histoire">Notre Histoire</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="faq.html#contact">Contact</a></li>
+        <li><a href="gerer-abonnement.html">G&eacute;rer mon abonnement</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>L&eacute;gal</h4>
+      <ul>
+        <li><a href="mentions-legales.html">Mentions l&eacute;gales</a></li>
+        <li><a href="cgv.html">CGV</a></li>
+        <li><a href="confidentialite.html">Politique de confidentialit&eacute;</a></li>
+        <li><a href="cookies.html">Politique de cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    &copy; 2026 Pro Pure. Tous droits r&eacute;serv&eacute;s.
+  </div>
+</footer>
+
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer"><div class="cart-header"><h3>Votre Panier</h3><button class="cart-close" onclick="toggleCart()">&times;</button></div><div class="cart-items" id="cartItems"><p class="cart-empty">Votre panier est vide</p></div><div class="cart-footer" id="cartFooter" style="display:none;"><div class="cart-total"><span>Total</span><span id="cartTotal">0,00&euro;</span></div><button class="cart-checkout-btn" onclick="goToCheckout()">Passer Commande</button></div></div>
+<div class="cart-toast" id="cartToast" role="status" aria-live="polite">Produit ajout&eacute; au panier !</div>
+<script src="js/shopify.js?v=7" defer></script>
+<script src="js/main.js?v=4" defer></script>
+<script src="js/animations.js?v=4" defer></script>
+<div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Consentement cookies">
+  <p>Ce site utilise des cookies pour am&eacute;liorer votre exp&eacute;rience. <a href="cookies.html">En savoir plus</a></p>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-btn-refuse" onclick="setCookieConsent(false)">Refuser</button>
+    <button class="cookie-btn cookie-btn-accept" onclick="setCookieConsent(true)">Accepter</button>
+  </div>
+</div>
+<script>
+function setCookieConsent(accepted) {
+  localStorage.setItem("cookieConsent", accepted ? "accepted" : "refused");
+  document.getElementById("cookieBanner").classList.remove("show");
+}
+if (!localStorage.getItem("cookieConsent")) {
+  setTimeout(function() { document.getElementById("cookieBanner").classList.add("show"); }, 1500);
+}
+</script>
+</body>
+</html>

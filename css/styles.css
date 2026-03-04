@@ -1823,6 +1823,26 @@ body.cart-open { overflow: hidden; }
   .sub-cta-card p { font-size: 0.8rem; }
 }
 
+.sub-cta-btn {
+  display: inline-block;
+  padding: 0.9rem 2.5rem;
+  background: var(--gold);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+.sub-cta-btn:hover {
+  background: var(--gold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(196,168,124,0.3);
+}
+
 /* ============ NEWSLETTER ============ */
 .newsletter-section {
   background: var(--charcoal);

@@ -2127,27 +2127,28 @@ body.cart-open { overflow: hidden; }
 /* Compact explainer for product cards */
 .sub-explainer-card {
   margin-top: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  background: #f9f9f6;
+  padding: 0.45rem 0.55rem;
+  background: rgba(196,168,124,0.06);
   border-radius: 8px;
-  border: 1px solid var(--cream-dark);
-}
-.sub-explainer-card .sub-explainer-title {
-  font-size: 0.72rem;
-  margin-bottom: 0.4rem;
-}
-.sub-explainer-card .sub-explainer-title svg {
-  width: 13px; height: 13px;
+  border: 1px solid rgba(196,168,124,0.18);
 }
 .sub-explainer-items-compact {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 .sub-explainer-items-compact > div {
-  font-size: 0.68rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body);
+  font-size: 0.67rem;
   color: var(--charcoal-light);
   line-height: 1.3;
+}
+.sub-explainer-items-compact svg {
+  flex-shrink: 0;
+  color: var(--gold);
 }
 
 /* ============ DELIVERY ESTIMATE ============ */

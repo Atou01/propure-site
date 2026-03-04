@@ -1,24 +1,14 @@
 /* ============================================
-   GERER MON ABONNEMENT — Page Styles
-   Charte : Navy #1E3A5F · Cyan #00B4D8 · Fond #F0F6FA · Texte #363636
+   GERER MON ABONNEMENT — Pro Pure Design System
+   Couleurs : cream / gold / charcoal du site
    ============================================ */
-
-:root {
-  --abo-navy: #1E3A5F;
-  --abo-cyan: #00B4D8;
-  --abo-cyan-light: #E0F7FC;
-  --abo-bg: #F0F6FA;
-  --abo-text: #363636;
-  --abo-orange: #FF9800;
-  --abo-green: #4CAF50;
-}
 
 /* ===== Hero ===== */
 .abo-hero {
-  background: linear-gradient(135deg, var(--abo-navy) 0%, #2a4f7a 100%);
+  background: linear-gradient(135deg, var(--charcoal) 0%, #3a3a3a 100%);
   padding: 7rem 2rem 3.5rem;
   text-align: center;
-  color: white;
+  color: var(--cream-light);
 }
 .abo-hero h1 {
   font-family: var(--font-display);
@@ -26,30 +16,33 @@
   font-weight: 700;
   margin-bottom: 1rem;
   line-height: 1.2;
+  color: var(--white);
 }
 .abo-hero p {
   font-family: var(--font-body);
   font-size: 1.05rem;
-  opacity: 0.85;
-  max-width: 600px;
+  opacity: 0.8;
+  max-width: 560px;
   margin: 0 auto;
   line-height: 1.6;
 }
 
 /* ===== Navigation rapide ===== */
 .abo-quicknav {
-  background: white;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--white);
+  border-bottom: 1px solid var(--cream-dark);
   padding: 0.8rem 1rem;
   position: sticky;
   top: 65px;
   z-index: 90;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.abo-quicknav::-webkit-scrollbar { display: none; }
 .abo-quicknav-inner {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   max-width: 900px;
   margin: 0 auto;
   justify-content: center;
@@ -57,35 +50,35 @@
 }
 .abo-quicknav a {
   white-space: nowrap;
-  padding: 0.45rem 0.9rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 20px;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 500;
-  color: var(--abo-navy);
+  color: var(--charcoal-light);
   text-decoration: none;
-  background: var(--abo-bg);
+  background: var(--cream);
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .abo-quicknav a:hover {
-  background: var(--abo-cyan-light);
-  border-color: var(--abo-cyan);
-  color: var(--abo-cyan);
+  background: var(--cream-dark);
+  border-color: var(--gold-light);
+  color: var(--gold-dark);
 }
 
 /* ===== Container principal ===== */
 .abo-container {
-  max-width: 800px;
+  max-width: 780px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
 }
 
 /* ===== Bloc étape ===== */
 .abo-step {
-  margin-bottom: 2.5rem;
-  padding-bottom: 2.5rem;
-  border-bottom: 2px solid var(--abo-cyan-light);
+  margin-bottom: 0;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--cream-dark);
 }
 .abo-step:last-of-type {
   border-bottom: none;
@@ -93,139 +86,158 @@
 .abo-step-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.9rem;
   margin-bottom: 1.2rem;
 }
 .abo-step-number {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: var(--abo-cyan);
-  color: white;
+  background: var(--gold);
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 .abo-step-header h2 {
   font-family: var(--font-display);
-  font-size: 1.45rem;
-  color: var(--abo-navy);
+  font-size: 1.4rem;
+  color: var(--charcoal);
   margin: 0;
   line-height: 1.3;
 }
 .abo-step-situation {
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: var(--abo-text);
+  font-size: 0.9rem;
+  color: var(--charcoal-light);
   font-style: italic;
   margin-bottom: 1rem;
-  padding-left: 0.5rem;
-  border-left: 3px solid var(--abo-cyan-light);
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--gold-light);
 }
 .abo-step h3 {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--abo-navy);
-  margin: 1.2rem 0 0.6rem;
+  color: var(--charcoal);
+  margin: 1.2rem 0 0.5rem;
 }
 .abo-step ol {
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: var(--abo-text);
+  font-size: 0.9rem;
+  color: var(--charcoal-light);
   line-height: 1.8;
-  padding-left: 1.4rem;
+  padding-left: 1.3rem;
   margin: 0;
 }
 .abo-step ol li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.2rem;
 }
 .abo-step p {
   font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: var(--abo-text);
+  font-size: 0.9rem;
+  color: var(--charcoal-light);
   line-height: 1.7;
-  margin: 0.5rem 0;
+  margin: 0.4rem 0;
 }
 .abo-step strong {
-  color: var(--abo-navy);
+  color: var(--charcoal);
+}
+.abo-step a {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+.abo-step a:hover {
+  color: var(--gold-dark);
+  text-decoration: underline;
 }
 
 /* ===== Blocs contextuels ===== */
 .abo-box {
-  border-radius: 8px;
-  padding: 0.9rem 1rem;
-  margin: 1rem 0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin: 0.8rem 0;
   font-family: var(--font-body);
   font-size: 0.85rem;
   line-height: 1.6;
   border-left: 4px solid;
 }
+.abo-box a {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: none;
+}
+.abo-box a:hover { text-decoration: underline; }
 .abo-box-tip {
-  background: var(--abo-cyan-light);
-  border-color: var(--abo-cyan);
-  color: var(--abo-text);
+  background: rgba(196,168,124,0.08);
+  border-color: var(--gold-light);
+  color: var(--charcoal-light);
 }
-.abo-box-tip strong { color: var(--abo-cyan); }
+.abo-box-tip strong { color: var(--gold-dark); }
 .abo-box-warn {
-  background: #FFF3E0;
-  border-color: var(--abo-orange);
-  color: var(--abo-text);
+  background: #FFF8F0;
+  border-color: #D4943A;
+  color: var(--charcoal-light);
 }
-.abo-box-warn strong { color: var(--abo-orange); }
+.abo-box-warn strong { color: #B07828; }
 .abo-box-success {
-  background: #E8F5E9;
-  border-color: var(--abo-green);
-  color: var(--abo-text);
+  background: rgba(168,181,160,0.12);
+  border-color: var(--sage);
+  color: var(--charcoal-light);
 }
-.abo-box-success strong { color: var(--abo-green); }
+.abo-box-success strong { color: #5A6E52; }
 
-/* ===== "Ce que tu vois" encadré descriptif ===== */
+/* ===== Encadré descriptif ===== */
 .abo-visual-desc {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: 12px;
   padding: 1rem 1.2rem;
-  margin: 1rem 0;
+  margin: 0.8rem 0;
   font-family: var(--font-body);
   font-size: 0.85rem;
   line-height: 1.7;
-  color: var(--abo-text);
+  color: var(--charcoal-light);
 }
 .abo-visual-desc strong {
-  color: var(--abo-navy);
+  color: var(--charcoal);
 }
 .abo-visual-desc ul {
-  margin: 0.5rem 0 0;
+  margin: 0.4rem 0 0;
   padding-left: 1.2rem;
 }
 .abo-visual-desc li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
 }
 
 /* ===== FAQ Accordéon ===== */
 .abo-faq {
-  margin-top: 2.5rem;
+  margin-top: 1rem;
   padding-top: 2rem;
-  border-top: 2px solid var(--abo-cyan-light);
+  border-top: 1px solid var(--cream-dark);
 }
 .abo-faq h2 {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  color: var(--abo-navy);
+  color: var(--charcoal);
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 .abo-faq-item {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  margin-bottom: 0.7rem;
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: 12px;
+  margin-bottom: 0.6rem;
   overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+.abo-faq-item:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 .abo-faq-q {
   display: flex;
@@ -234,9 +246,9 @@
   padding: 1rem 1.2rem;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--abo-navy);
+  color: var(--charcoal);
   background: none;
   border: none;
   width: 100%;
@@ -245,12 +257,12 @@
   transition: background 0.2s;
 }
 .abo-faq-q:hover {
-  background: var(--abo-bg);
+  background: var(--cream);
 }
 .abo-faq-q svg {
   flex-shrink: 0;
   transition: transform 0.3s ease;
-  color: var(--abo-cyan);
+  color: var(--gold);
 }
 .abo-faq-item.open .abo-faq-q svg {
   transform: rotate(180deg);
@@ -267,48 +279,55 @@
 .abo-faq-a p {
   font-family: var(--font-body);
   font-size: 0.88rem;
-  color: var(--abo-text);
+  color: var(--charcoal-light);
   line-height: 1.7;
   margin: 0;
 }
+.abo-faq-a a {
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+}
+.abo-faq-a a:hover { text-decoration: underline; }
 
 /* ===== Bloc contact final ===== */
 .abo-contact {
   text-align: center;
   padding: 2.5rem 1.5rem;
-  background: var(--abo-navy);
+  background: var(--charcoal);
   border-radius: 14px;
   margin-top: 2rem;
-  color: white;
+  color: var(--cream-light);
 }
 .abo-contact h3 {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  color: white;
+  margin-bottom: 0.4rem;
+  color: var(--white);
 }
 .abo-contact p {
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  opacity: 0.85;
+  font-size: 0.9rem;
+  opacity: 0.7;
   margin-bottom: 1rem;
 }
 .abo-contact a {
   display: inline-block;
   padding: 0.7rem 2rem;
-  background: var(--abo-cyan);
-  color: white;
+  background: var(--gold);
+  color: var(--white);
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: 50px;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
 }
 .abo-contact a:hover {
-  background: #009ab8;
+  background: var(--gold-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,180,216,0.3);
+  box-shadow: 0 6px 20px rgba(140,107,48,0.3);
 }
 
 /* ===== Bouton flottant mobile ===== */
@@ -317,20 +336,20 @@
   position: fixed;
   bottom: 1.2rem;
   right: 1.2rem;
-  padding: 0.75rem 1.4rem;
-  background: var(--abo-cyan);
-  color: white;
+  padding: 0.7rem 1.3rem;
+  background: var(--gold);
+  color: var(--white);
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   border-radius: 50px;
-  box-shadow: 0 4px 16px rgba(0,180,216,0.35);
+  box-shadow: 0 4px 16px rgba(140,107,48,0.35);
   z-index: 100;
   transition: all 0.3s ease;
 }
 .abo-float-btn:hover {
-  background: #009ab8;
+  background: var(--gold-dark);
   transform: translateY(-2px);
 }
 .abo-float-btn svg {
@@ -342,25 +361,26 @@
 @media (max-width: 768px) {
   .abo-hero { padding: 6rem 1.5rem 2.5rem; }
   .abo-hero h1 { font-size: 1.8rem; }
-  .abo-hero p { font-size: 0.95rem; }
+  .abo-hero p { font-size: 0.92rem; }
   .abo-quicknav-inner { justify-content: flex-start; }
-  .abo-container { padding: 2rem 1.2rem 3rem; }
-  .abo-step-header h2 { font-size: 1.25rem; }
+  .abo-container { padding: 1.5rem 1.2rem 3rem; }
+  .abo-step-header h2 { font-size: 1.2rem; }
   .abo-float-btn { display: inline-flex; align-items: center; }
 }
 @media (max-width: 480px) {
   .abo-hero { padding: 5.5rem 1rem 2rem; }
-  .abo-hero h1 { font-size: 1.5rem; }
-  .abo-hero p { font-size: 0.88rem; }
+  .abo-hero h1 { font-size: 1.45rem; }
+  .abo-hero p { font-size: 0.85rem; }
   .abo-quicknav { top: 58px; }
-  .abo-quicknav a { font-size: 0.7rem; padding: 0.35rem 0.7rem; }
-  .abo-container { padding: 1.5rem 1rem 2.5rem; }
-  .abo-step { margin-bottom: 2rem; padding-bottom: 2rem; }
-  .abo-step-number { width: 34px; height: 34px; font-size: 0.88rem; }
-  .abo-step-header h2 { font-size: 1.15rem; }
-  .abo-step ol, .abo-step p { font-size: 0.85rem; }
-  .abo-box { font-size: 0.8rem; padding: 0.7rem 0.8rem; }
-  .abo-faq-q { font-size: 0.85rem; padding: 0.85rem 1rem; }
+  .abo-quicknav a { font-size: 0.68rem; padding: 0.3rem 0.65rem; }
+  .abo-container { padding: 1rem 1rem 2.5rem; }
+  .abo-step { padding: 1.5rem 0; }
+  .abo-step-number { width: 32px; height: 32px; font-size: 0.85rem; }
+  .abo-step-header h2 { font-size: 1.1rem; }
+  .abo-step ol, .abo-step p { font-size: 0.84rem; }
+  .abo-box { font-size: 0.8rem; padding: 0.65rem 0.75rem; }
+  .abo-faq h2 { font-size: 1.3rem; }
+  .abo-faq-q { font-size: 0.84rem; padding: 0.85rem 1rem; }
   .abo-faq-a p { font-size: 0.82rem; }
   .abo-contact { padding: 2rem 1rem; border-radius: 10px; }
   .abo-contact h3 { font-size: 1.1rem; }

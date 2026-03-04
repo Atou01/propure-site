@@ -1659,7 +1659,8 @@ body.cart-open { overflow: hidden; }
 }
 .product-card.out-of-stock .sub-toggle,
 .product-card.out-of-stock .sub-freq,
-.product-card.out-of-stock .sub-discount {
+.product-card.out-of-stock .sub-discount,
+.product-card.out-of-stock .sub-explainer {
   display: none !important;
 }
 .out-of-stock-label {
@@ -2149,6 +2150,19 @@ body.cart-open { overflow: hidden; }
 .sub-explainer-items-compact svg {
   flex-shrink: 0;
   color: var(--gold);
+}
+@media (max-width: 480px) {
+  .sub-explainer-card {
+    margin-top: 0.4rem;
+    padding: 0.35rem 0.45rem;
+  }
+  .sub-explainer-items-compact > div {
+    font-size: 0.6rem;
+    gap: 0.25rem;
+  }
+  .sub-explainer-items-compact svg {
+    width: 11px; height: 11px;
+  }
 }
 
 /* ============ DELIVERY ESTIMATE ============ */

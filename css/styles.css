@@ -2124,6 +2124,32 @@ body.cart-open { overflow: hidden; }
   .sub-freq-options { flex-direction: column; }
 }
 
+/* Compact explainer for product cards */
+.sub-explainer-card {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: #f9f9f6;
+  border-radius: 8px;
+  border: 1px solid var(--cream-dark);
+}
+.sub-explainer-card .sub-explainer-title {
+  font-size: 0.72rem;
+  margin-bottom: 0.4rem;
+}
+.sub-explainer-card .sub-explainer-title svg {
+  width: 13px; height: 13px;
+}
+.sub-explainer-items-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.sub-explainer-items-compact > div {
+  font-size: 0.68rem;
+  color: var(--charcoal-light);
+  line-height: 1.3;
+}
+
 /* ============ DELIVERY ESTIMATE ============ */
 .delivery-estimate {
   display: flex;

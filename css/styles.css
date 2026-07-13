@@ -1624,6 +1624,46 @@ body.cart-open { overflow: hidden; }
 .skeleton-line.short { width: 60%; }
 .skeleton-line.medium { width: 80%; }
 .skeleton-line.price { width: 40%; height: 18px; }
+
+.catalogue-status {
+  grid-column: 1 / -1;
+  max-width: 680px;
+  margin: 1rem auto 3rem;
+  padding: 2.5rem 2rem;
+  border: 1px solid rgba(184, 134, 11, 0.22);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 14px 40px rgba(44, 44, 44, 0.08);
+  text-align: center;
+}
+
+.catalogue-status h2 {
+  margin-bottom: 0.75rem;
+  color: var(--charcoal);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.catalogue-status p {
+  margin-bottom: 1.4rem;
+  color: var(--charcoal-light);
+  line-height: 1.65;
+}
+
+.catalogue-status a {
+  display: inline-flex;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--charcoal);
+  color: var(--cream);
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.catalogue-status a:hover {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+}
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 /* ============ 404 PAGE ============ */

@@ -1,14 +1,16 @@
 // ============ SHOPIFY STOREFRONT API ============
-const SHOPIFY_DOMAIN = '2gchuh-tt.myshopify.com';
-const STOREFRONT_TOKEN = '53cac02ce08a74431eac8f362fc82686';
-const STOREFRONT_API_VERSION = '2024-10';
+const SHOPIFY_DOMAIN = 'xvvyhq-v2.myshopify.com';
+// Le token public est optionnel pour les requêtes utilisées ici (produits, plans de vente et panier).
+// Si des fonctionnalités Storefront protégées sont ajoutées plus tard, remplacer cette valeur par
+// un token public créé dans Shopify Admin. Ne jamais placer de token privé dans ce fichier client.
+const STOREFRONT_TOKEN = '';
+const STOREFRONT_API_VERSION = '2026-07';
 
-// --- Selling Plans (from Seal Subscriptions) ---
-// These are fetched dynamically at init, with fallback to known IDs
-let sellingPlanMap = {
-  '2': 'gid://shopify/SellingPlan/692066156877',  // 2 months, -15%
-  '4': 'gid://shopify/SellingPlan/692066189645'   // 4 months, -10%
-};
+// --- Selling Plans (abonnement) ---
+// Les plans de vente sont normalement récupérés dynamiquement via fetchSellingPlans() ; ce fallback
+// reste vide tant que de nouveaux plans (-15% / 2 mois, -10% / 4 mois) n'ont pas été
+// recréés sur xvvyhq-v2 (app Abonnements Shopify, ou API Selling Plans native).
+let sellingPlanMap = {};
 
 // --- Cart State (GraphQL Cart API) ---
 let cartId = null;
@@ -52,22 +54,62 @@ function escapeHTML(str) {
 
 // ============ STOREFRONT API GRAPHQL HELPER ============
 async function storefrontFetch(query, variables) {
+  var headers = {
+    'Content-Type': 'application/json'
+  };
+  if (STOREFRONT_TOKEN && !STOREFRONT_TOKEN.startsWith('REMPLACER_')) {
+    headers['X-Shopify-Storefront-Access-Token'] = STOREFRONT_TOKEN;
+  }
+
   const response = await fetch(
     'https://' + SHOPIFY_DOMAIN + '/api/' + STOREFRONT_API_VERSION + '/graphql.json',
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN,
-      },
+      headers: headers,
       body: JSON.stringify({ query: query, variables: variables || {} }),
     }
   );
+  var data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    throw new Error('Storefront API HTTP error: ' + response.status);
+  }
+  if (data.errors && data.errors.length) {
+    throw new Error(data.errors.map(function(error) {
+      return error.message || 'Erreur Shopify inconnue';
+    }).join(' | '));
+  }
   if (!response.ok) {
     throw new Error('Storefront API HTTP error: ' + response.status);
   }
-  var data = await response.json();
   return data;
+}
+
+function showStorefrontUnavailable() {
+  var skeleton = document.getElementById('catalogueSkeleton');
+  if (skeleton) skeleton.style.display = 'none';
+
+  var grid = document.getElementById('catalogueGrid');
+  if (!grid) return;
+
+  while (grid.firstChild) grid.removeChild(grid.firstChild);
+  var status = document.createElement('div');
+  status.className = 'catalogue-status';
+  status.setAttribute('role', 'status');
+
+  var title = document.createElement('h2');
+  title.textContent = 'Catalogue momentanément indisponible';
+  var message = document.createElement('p');
+  message.textContent = 'Notre boutique est en cours de mise à jour. Revenez prochainement pour découvrir tous nos produits.';
+  var link = document.createElement('a');
+  link.href = 'index.html';
+  link.textContent = 'Retour à l’accueil';
+
+  status.appendChild(title);
+  status.appendChild(message);
+  status.appendChild(link);
+  grid.appendChild(status);
 }
 
 // ============ CART GRAPHQL FRAGMENTS ============
@@ -270,6 +312,7 @@ async function initShopify() {
     }
   } catch (err) {
     console.error('Shopify init failed:', err);
+    showStorefrontUnavailable();
   }
 }
 
@@ -392,7 +435,7 @@ function updateProductsFromShopify(products) {
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
     while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var bsHandles = ['charnel', 'marine-5l', 'detachant-textile-1l'];
+    var bsHandles = ['lessive-liquide-marine-5l', 'lessive-liquide-charnel-5l', 'lessive-liquide-galaxie-5l'];
     var top3 = bsHandles.map(function(h) {
       return products.find(function(p) { return p.handle === h; });
     }).filter(Boolean);

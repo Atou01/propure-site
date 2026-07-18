@@ -1177,7 +1177,14 @@ function renderRelatedGrid(container, products) {
 }
 
 // ============ INIT ON LOAD ============
+function disableUnavailableSubscriptions() {
+  var style = document.createElement('style');
+  style.textContent = '.sub-toggle,.sub-freq,.sub-discount,.sub-section-detail,.sub-explainer{display:none!important;}';
+  document.head.appendChild(style);
+}
+
 window.addEventListener('DOMContentLoaded', function() {
+  disableUnavailableSubscriptions();
   var urlParams = new URLSearchParams(window.location.search);
   var handle = urlParams.get('handle');
   if (handle && document.getElementById('productDetailContainer')) {

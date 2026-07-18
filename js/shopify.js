@@ -1179,7 +1179,7 @@ function renderRelatedGrid(container, products) {
 // ============ INIT ON LOAD ============
 function disableUnavailableSubscriptions() {
   var style = document.createElement('style');
-  style.textContent = '.sub-toggle,.sub-freq,.sub-discount,.sub-section-detail,.sub-explainer{display:none!important;}';
+  style.textContent = '.sub-toggle,.sub-freq,.sub-discount,.sub-section-detail,.sub-explainer,#abonnement,a[href*="gerer-abonnement"]{display:none!important;}';
   document.head.appendChild(style);
 }
 

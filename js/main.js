@@ -96,7 +96,11 @@ if (catalogueSearchInput) {
       if (query.length > 0) {
         document.querySelectorAll('.catalogue-filter-btn').forEach(function(b) {
           b.classList.remove('active');
-          if (b.getAttribute('data-filter') === 'all') b.classList.add('active');
+          b.setAttribute('aria-pressed', 'false');
+          if (b.getAttribute('data-filter') === 'all') {
+            b.classList.add('active');
+            b.setAttribute('aria-pressed', 'true');
+          }
         });
       }
 
@@ -129,25 +133,29 @@ document.querySelectorAll('.catalogue-filter-btn').forEach(btn => {
     const noResults = document.getElementById('searchNoResults');
     if (noResults) noResults.style.display = 'none';
 
-    document.querySelectorAll('.catalogue-filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.catalogue-filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     const filter = btn.getAttribute('data-filter');
+    const categoryLabel = window.ProPureProductCategories &&
+      window.ProPureProductCategories.labels[filter];
+    const titleEl = document.getElementById('catalogueTitle');
+    const breadcrumbEl = document.getElementById('breadcrumbTitle');
+    if (categoryLabel) {
+      if (titleEl) titleEl.textContent = categoryLabel;
+      if (breadcrumbEl) breadcrumbEl.textContent = categoryLabel;
+    }
     const cards = document.querySelectorAll('#catalogueGrid .product-card');
     cards.forEach(card => {
       if (filter === 'all') {
         card.style.display = '';
         return;
       }
-      const pType = (card.getAttribute('data-product-type') || '').toLowerCase();
-      const tags = (card.getAttribute('data-tags') || '').toLowerCase();
-      const title = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
-      let show = false;
-      if (filter === 'lessives') show = pType.includes('lessive') || title.includes('lessive');
-      else if (filter === 'adoucissants') show = pType.includes('adoucissant') || pType.includes('adoucisant') || title.includes('adoucissant');
-      else if (filter === 'nettoyant-luxe') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('luxe') || pType.includes('luxe'));
-      else if (filter === 'nettoyant-classique') show = (pType.includes('nettoyant') || title.includes('nettoyant')) && (title.includes('classique') || pType.includes('classique') || pType.includes('classic'));
-      else if (filter === 'entretien') show = pType.includes('entretien') || title.includes('entretien') || title.includes('dégraissant') || pType.includes('nettoyant multi') || pType.includes('détac');
-      card.style.display = show ? '' : 'none';
+      const category = card.getAttribute('data-product-category') || 'other';
+      card.style.display = category === filter ? '' : 'none';
     });
   });
 });

@@ -251,7 +251,7 @@ async function initShopify() {
       savedCartId ? restoreCart(savedCartId).catch(function() { clearSavedCart(); return null; }) : createCart([]),
       fetchSellingPlans(),
       storefrontFetch(
-        'query { products(first: 50) { edges { node { id title handle description productType availableForSale sellingPlanGroups(first: 5) { edges { node { sellingPlans(first: 5) { edges { node { id name options { name value } priceAdjustments { adjustmentValue { ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage } } } } } } } } } variants(first: 10) { edges { node { id title price { amount currencyCode } availableForSale } } } images(first: 5) { edges { node { url altText } } } } } } }'
+        'query { products(first: 50) { edges { node { id title handle description productType tags availableForSale sellingPlanGroups(first: 5) { edges { node { sellingPlans(first: 5) { edges { node { id name options { name value } priceAdjustments { adjustmentValue { ... on SellingPlanPercentagePriceAdjustment { adjustmentPercentage } } } } } } } } } variants(first: 10) { edges { node { id title price { amount currencyCode } availableForSale } } } images(first: 5) { edges { node { url altText } } } } } } }'
       )
     ]);
 
@@ -271,7 +271,7 @@ async function initShopify() {
           description: node.description,
           productType: node.productType,
           availableForSale: node.availableForSale,
-          tags: [],
+          tags: node.tags || [],
           variants: node.variants.edges.map(function(v) {
             return {
               id: v.node.id,
@@ -388,6 +388,10 @@ function buildProductCard(product, i, tagLabel) {
   card.setAttribute('data-variant-id', variant.id);
   var pType = (product.productType || '').toLowerCase();
   card.setAttribute('data-product-type', pType);
+  var productCategory = window.ProPureProductCategories
+    ? window.ProPureProductCategories.classifyProduct(product)
+    : 'other';
+  card.setAttribute('data-product-category', productCategory);
   var tags = product.tags || [];
   card.setAttribute('data-tags', tags.join(',').toLowerCase());
 
@@ -431,11 +435,11 @@ function buildProductCard(product, i, tagLabel) {
 function updateProductsFromShopify(products) {
   allShopifyProducts = products;
 
-  // --- BEST-SELLERS: Top 3 only ---
+  // --- BEST-SELLERS: trois références actives ---
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
     while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var bsHandles = ['lessive-liquide-marine-5l', 'lessive-liquide-charnel-5l', 'lessive-liquide-galaxie-5l'];
+    var bsHandles = ['lessive-liquide-marine-5l', 'lessive-liquide-charnel-5l', 'lessive-liquide-mystere-5l'];
     var top3 = bsHandles.map(function(h) {
       return products.find(function(p) { return p.handle === h; });
     }).filter(Boolean);
@@ -450,7 +454,11 @@ function updateProductsFromShopify(products) {
   var catGrid = document.getElementById('catalogueGrid');
   if (catGrid) {
     while (catGrid.firstChild) catGrid.removeChild(catGrid.firstChild);
-    products.forEach(function(product, i) {
+    var catalogueProducts = products.filter(function(product) {
+      return !window.ProPureProductCategories ||
+        window.ProPureProductCategories.classifyProduct(product) !== 'other';
+    });
+    catalogueProducts.forEach(function(product, i) {
       var tags = product.tags || [];
       var tagLabel = '';
       if (tags.includes('new') || tags.includes('nouveau')) tagLabel = 'Nouveau';

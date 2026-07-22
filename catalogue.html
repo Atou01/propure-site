@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Catalogue — Pro Pure | Tous Nos Produits</title>
-<meta name="description" content="Explorez le catalogue complet Pro Pure : lessives, adoucissants, nettoyants sols et produits d'entretien premium fabriqués en France." />
+<meta name="description" content="Découvrez les lessives, adoucissants, nettoyants sols, liquides vaisselle et sprays d'entretien Pro Pure." />
 <meta name="robots" content="index, follow" />
 <meta name="theme-color" content="#2C2C2C" />
 <meta property="og:title" content="Catalogue — Pro Pure" />
@@ -84,9 +84,9 @@
     <button class="catalogue-filter-btn active" data-filter="all" aria-pressed="true">Tous</button>
     <button class="catalogue-filter-btn" data-filter="lessives" aria-pressed="false">Lessives</button>
     <button class="catalogue-filter-btn" data-filter="adoucissants" aria-pressed="false">Adoucissants</button>
-    <button class="catalogue-filter-btn" data-filter="nettoyant-luxe" aria-pressed="false">Nettoyant Sols Luxe</button>
-    <button class="catalogue-filter-btn" data-filter="nettoyant-classique" aria-pressed="false">Nettoyant Sols Classique</button>
-    <button class="catalogue-filter-btn" data-filter="entretien" aria-pressed="false">Produits d'Entretien</button>
+    <button class="catalogue-filter-btn" data-filter="nettoyants-sols" aria-pressed="false">Nettoyants sols</button>
+    <button class="catalogue-filter-btn" data-filter="liquides-vaisselle" aria-pressed="false">Liquides vaisselle</button>
+    <button class="catalogue-filter-btn" data-filter="sprays-entretien" aria-pressed="false">Sprays d'entretien</button>
   </div>
   <div class="catalogue-grid" id="catalogueGrid">
     <!-- Filled by JS from Shopify -->
@@ -119,9 +119,9 @@
       <ul>
         <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
         <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
-        <li><a href="catalogue.html?filter=nettoyant-luxe">Nettoyant Sols Luxe</a></li>
-        <li><a href="catalogue.html?filter=nettoyant-classique">Nettoyant Sols Classique</a></li>
-        <li><a href="catalogue.html?filter=entretien">Produits d'Entretien</a></li>
+        <li><a href="catalogue.html?filter=nettoyants-sols">Nettoyants sols</a></li>
+        <li><a href="catalogue.html?filter=liquides-vaisselle">Liquides vaisselle</a></li>
+        <li><a href="catalogue.html?filter=sprays-entretien">Sprays d'entretien</a></li>
       </ul>
     </div>
     <div class="footer-col">
@@ -172,8 +172,9 @@
 <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Produit ajout&eacute; au panier !</div>
 
 <!-- Scripts -->
-<script src="js/shopify.js?v=9" defer></script>
-<script src="js/main.js?v=4" defer></script>
+<script src="js/product-categories.js?v=1" defer></script>
+<script src="js/shopify.js?v=10" defer></script>
+<script src="js/main.js?v=5" defer></script>
 <script src="js/animations.js?v=4" defer></script>
 
 <!-- Auto-apply filter from URL -->
@@ -181,13 +182,14 @@
 (function() {
   var params = new URLSearchParams(window.location.search);
   var filter = params.get('filter');
-  if (filter) {
+  var validFilters = ['all', 'lessives', 'adoucissants', 'nettoyants-sols', 'liquides-vaisselle', 'sprays-entretien'];
+  if (validFilters.indexOf(filter) !== -1 && filter !== 'all') {
     var names = {
       'lessives': 'Lessives',
       'adoucissants': 'Adoucissants',
-      'nettoyant-luxe': 'Nettoyant Sols Luxe',
-      'nettoyant-classique': 'Nettoyant Sols Classique',
-      'entretien': "Produits d'Entretien"
+      'nettoyants-sols': 'Nettoyants sols',
+      'liquides-vaisselle': 'Liquides vaisselle',
+      'sprays-entretien': "Sprays d'entretien"
     };
 
     // Update breadcrumb and title immediately
@@ -208,8 +210,10 @@
           var btns = document.querySelectorAll('.catalogue-filter-btn');
           btns.forEach(function(btn) {
             btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
             if (btn.dataset.filter === filter) {
               btn.classList.add('active');
+              btn.setAttribute('aria-pressed', 'true');
               btn.click();
             }
           });

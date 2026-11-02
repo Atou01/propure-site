@@ -48,7 +48,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://47kjax-uw.myshopify.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/styles.css?v=5" />
+<link rel="stylesheet" href="css/styles.css?v=6" />
 </head>
 
 <body>
@@ -91,7 +91,7 @@
 <!-- HERO CAROUSEL -->
 <section class="hero" id="hero">
   <!-- Video Background -->
-  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="none" aria-hidden="true">
+  <video class="hero-video" id="heroVideo" autoplay muted loop playsinline preload="none" poster="img/hero-poster.jpg" aria-hidden="true">
     <source src="hero-bg.mp4" type="video/mp4">
   </video>
   <div class="hero-video-overlay"></div>
@@ -233,7 +233,7 @@
     </div>
   </div>
   <div style="text-align:center;padding:1rem 0 2rem;">
-    <a href="catalogue.html" class="hero-cta ripple-btn" style="font-size:0.85rem;padding:0.9rem 2.5rem;text-decoration:none;display:inline-block;">Voir tout le catalogue &rarr;</a>
+    <a href="catalogue.html" class="hero-cta cta-dark ripple-btn" style="font-size:0.85rem;padding:0.9rem 2.5rem;text-decoration:none;display:inline-block;">Voir tout le catalogue &rarr;</a>
   </div>
 </section>
 
@@ -354,7 +354,8 @@
 
 
 <!-- NEWSLETTER -->
-<section class="newsletter-section reveal">
+<section class="newsletter-section reveal" hidden style="display:none">
+<!-- Newsletter masquée : à réactiver une fois reliée à Shopify (abonnement e-mail) ou Klaviyo -->
   <h2>Restez Inform&eacute;</h2>
   <p>Recevez nos offres exclusives, nouveaut&eacute;s et conseils d'entretien.</p>
   <form class="newsletter-form" id="newsletterForm" onsubmit="return handleNewsletter(event)">
@@ -437,8 +438,8 @@
 
 <!-- Scripts -->
 <script src="js/product-categories.js?v=1" defer></script>
-<script src="js/shopify.js?v=10" defer></script>
-<script src="js/main.js?v=5" defer></script>
+<script src="js/shopify.js?v=11" defer></script>
+<script src="js/main.js?v=6" defer></script>
 <script src="js/animations.js?v=4" defer></script>
 
 <!-- Cookie Consent Banner -->

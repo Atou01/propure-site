@@ -468,16 +468,21 @@ function updateProductsFromShopify(products) {
   // --- BEST-SELLERS: trois références actives ---
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
-    while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var bsHandles = ['lessive-liquide-marine-5l', 'lessive-liquide-charnel-5l', 'lessive-liquide-mystere-5l'];
-    var top3 = bsHandles.map(function(h) {
-      return products.find(function(p) { return p.handle === h; });
-    }).filter(Boolean);
-    var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
-    top3.forEach(function(product, i) {
-      var card = buildProductCard(product, i, bsLabels[i] || '');
-      bsGrid.appendChild(card);
+    // Produits marqués du tag « best-seller » dans Shopify, puis complétés par les autres (3 max).
+    // Aucun nom de produit codé en dur : renommer un produit dans Shopify ne vide plus la section.
+    var tagged = products.filter(function(p) {
+      return (p.tags || []).some(function(t) { return String(t).toLowerCase() === 'best-seller'; });
     });
+    var others = products.filter(function(p) { return tagged.indexOf(p) === -1; });
+    var top3 = tagged.concat(others).filter(function(p) { return p.availableForSale !== false; }).slice(0, 3);
+    if (top3.length) {
+      while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
+      var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
+      top3.forEach(function(product, i) {
+        var card = buildProductCard(product, i, bsLabels[i] || '');
+        bsGrid.appendChild(card);
+      });
+    }
   }
 
   // --- CATALOGUE: All products ---
@@ -556,7 +561,7 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo, qty)
     await cartLinesAdd([line]);
 
   } catch (err) {
-    addToCartLocal(title, price, imgSrc);
+    showCartError('Impossible d’ajouter ce produit pour le moment. Réessayez dans quelques instants.');
   }
 }
 
@@ -820,15 +825,9 @@ function addToCartStatic(btn) {
   // Use GraphQL cart if available
   if (variantId && cartId !== null) {
     addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo, qty);
-  } else if (subscriptionInfo) {
-    showCartError('La boutique est momentanément indisponible : l’abonnement ne peut pas être ajouté. Réessayez dans quelques instants.');
   } else {
-    addToCartLocal(title + suffix, finalPrice, imgSrc);
-    showToast();
-    setTimeout(function() {
-      var drawer = document.getElementById('cartDrawer');
-      if (drawer && !drawer.classList.contains('open')) toggleCart();
-    }, 400);
+    // Sans panier Shopify, aucun ajout « local » : il mènerait à un panier impossible à payer.
+    showCartError('La boutique est momentanément indisponible. Réessayez dans quelques minutes ou écrivez-nous à contact@p-pure.com.');
   }
 }
 
@@ -1072,7 +1071,7 @@ async function loadSingleProduct(handle) {
 
     var breadcrumb = document.getElementById('productBreadcrumb');
     if (breadcrumb) {
-      breadcrumb.innerHTML = '<a href="index.html">Accueil</a><span>&rsaquo;</span><a href="index.html#catalogue">Catalogue</a><span>&rsaquo;</span>' + escapeHTML(product.title);
+      breadcrumb.innerHTML = '<a href="index.html">Accueil</a><span>&rsaquo;</span><a href="catalogue.html">Catalogue</a><span>&rsaquo;</span>' + escapeHTML(product.title);
     }
     var breadcrumbCurrent = document.getElementById('breadcrumbProduct');
     if (breadcrumbCurrent) {
@@ -1124,9 +1123,9 @@ async function loadSingleProduct(handle) {
       + '</div>'
       + '</div>'
       + '<div class="trust-badges">'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Format 5 L</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison en France</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Formule concentr\u00e9e</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>' + escapeHTML(productFormatLabel(product.title)) + '</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison France &amp; Gen\u00e8ve\u2013Nyon</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Fabriqu\u00e9 en France</span></div>'
       + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Paiement s\u00e9curis\u00e9</span></div>'
       + '</div>'
       + '<div class="delivery-estimate" id="deliveryEstimate"></div>'
@@ -1139,38 +1138,21 @@ async function loadSingleProduct(handle) {
     loadRelatedProducts(product);
 
   } catch (err) {
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement du produit.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
+    var bc = document.getElementById('breadcrumbProduct'); if (bc) bc.textContent = 'Produit';
+    container.innerHTML = '<div class="product-not-found"><h2>Produit momentan\u00e9ment indisponible</h2><p>La boutique ne r\u00e9pond pas pour le moment. R\u00e9essayez dans quelques minutes ou \u00e9crivez-nous \u00e0 <a href="mailto:contact@p-pure.com">contact@p-pure.com</a>.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
 
 function updateDeliveryEstimate() {
   var el = document.getElementById('deliveryEstimate');
   if (!el) return;
-  var now = new Date();
-  var orderHour = now.getHours();
-  // If ordered before 14h, ships today; otherwise tomorrow
-  var shipDate = new Date(now);
-  if (orderHour >= 14) shipDate.setDate(shipDate.getDate() + 1);
-  // Skip weekends for shipping
-  if (shipDate.getDay() === 0) shipDate.setDate(shipDate.getDate() + 1);
-  if (shipDate.getDay() === 6) shipDate.setDate(shipDate.getDate() + 2);
-  // Delivery = ship date + 2 business days
-  var deliveryMin = new Date(shipDate);
-  deliveryMin.setDate(deliveryMin.getDate() + 1);
-  if (deliveryMin.getDay() === 0) deliveryMin.setDate(deliveryMin.getDate() + 1);
-  if (deliveryMin.getDay() === 6) deliveryMin.setDate(deliveryMin.getDate() + 2);
-  var deliveryMax = new Date(shipDate);
-  deliveryMax.setDate(deliveryMax.getDate() + 3);
-  if (deliveryMax.getDay() === 0) deliveryMax.setDate(deliveryMax.getDate() + 1);
-  if (deliveryMax.getDay() === 6) deliveryMax.setDate(deliveryMax.getDate() + 2);
+  // Délais alignés sur les CGV : pas de date calculée qui ne pourrait pas être tenue.
+  el.textContent = 'Exp\u00e9dition sous 2 jours ouvr\u00e9s \u00b7 Livraison en France en 3 \u00e0 5 jours ouvr\u00e9s \u00b7 Livraison Gen\u00e8ve\u2013Nyon sur rendez-vous';
+}
 
-  var jours = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-  var mois = ['janvier','f\u00e9vrier','mars','avril','mai','juin','juillet','ao\u00fbt','septembre','octobre','novembre','d\u00e9cembre'];
-  var minStr = jours[deliveryMin.getDay()] + ' ' + deliveryMin.getDate() + ' ' + mois[deliveryMin.getMonth()];
-  var maxStr = jours[deliveryMax.getDay()] + ' ' + deliveryMax.getDate() + ' ' + mois[deliveryMax.getMonth()];
-
-  el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
-    + '<span>Commandez maintenant, livr\u00e9 entre <strong>' + minStr + '</strong> et <strong>' + maxStr + '</strong></span>';
+function productFormatLabel(title) {
+  var m = String(title || '').match(/(\d+(?:[.,]\d+)?)\s?(L|ml)\b/i);
+  return m ? 'Format ' + m[1] + ' ' + (m[2].toLowerCase() === 'ml' ? 'ml' : 'L') : 'Grand format';
 }
 
 function changeMainImage(thumb, src) {

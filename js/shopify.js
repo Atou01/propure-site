@@ -1,5 +1,5 @@
 // ============ SHOPIFY STOREFRONT API ============
-const SHOPIFY_DOMAIN = 'xvvyhq-v2.myshopify.com';
+const SHOPIFY_DOMAIN = '47kjax-uw.myshopify.com';
 // Le token public est optionnel pour les requêtes utilisées ici (produits, plans de vente et panier).
 // Si des fonctionnalités Storefront protégées sont ajoutées plus tard, remplacer cette valeur par
 // un token public créé dans Shopify Admin. Ne jamais placer de token privé dans ce fichier client.
@@ -7,10 +7,51 @@ const STOREFRONT_TOKEN = '';
 const STOREFRONT_API_VERSION = '2026-07';
 
 // --- Selling Plans (abonnement) ---
-// Les plans de vente sont normalement récupérés dynamiquement via fetchSellingPlans() ; ce fallback
-// reste vide tant que de nouveaux plans (-15% / 2 mois, -10% / 4 mois) n'ont pas été
-// recréés sur xvvyhq-v2 (app Abonnements Shopify, ou API Selling Plans native).
-let sellingPlanMap = {};
+// Les formules viennent de l'app Shopify Subscriptions (forfait « Abonnement Pro Pure ») et sont lues
+// dynamiquement. La fréquence (en mois) est extraite du premier nombre de l'option de la formule.
+// Aucune valeur n'est codée en dur : si un produit n'a pas de formule, l'abonnement n'est pas proposé.
+let sellingPlanMap = {};              // fréquence (mois) -> id de formule (repli global)
+let sellingPlansByProduct = {};       // id produit -> { fréquence: { id, pct } }
+let planDiscounts = {};               // fréquence (mois) -> pourcentage de remise réel
+
+function registerSellingPlans(productId, groupEdges) {
+  (groupEdges || []).forEach(function(groupEdge) {
+    var plans = groupEdge.node.sellingPlans.edges;
+    plans.forEach(function(planEdge) {
+      var plan = planEdge.node;
+      var option = plan.options && plan.options[0];
+      var monthMatch = option && option.value ? option.value.match(/(\d+)/) : null;
+      if (!monthMatch) return;
+      var months = monthMatch[1];
+      var adj = plan.priceAdjustments && plan.priceAdjustments[0];
+      var pct = adj && adj.adjustmentValue ? adj.adjustmentValue.adjustmentPercentage : null;
+      if (typeof pct !== 'number') return;   // formule sans remise en % : ignorée
+      sellingPlanMap[months] = plan.id;
+      planDiscounts[months] = pct;
+      if (productId) {
+        sellingPlansByProduct[productId] = sellingPlansByProduct[productId] || {};
+        sellingPlansByProduct[productId][months] = { id: plan.id, pct: pct };
+      }
+    });
+  });
+}
+
+// Remise réelle (0-1) pour une fréquence, ou null si aucune formule correspondante.
+function discountRateFor(months, productId) {
+  var byProduct = productId && sellingPlansByProduct[productId];
+  if (byProduct && byProduct[months]) return byProduct[months].pct / 100;
+  if (!productId && typeof planDiscounts[months] === 'number') return planDiscounts[months] / 100;
+  return null;
+}
+
+function planIdFor(months, productId) {
+  var byProduct = productId && sellingPlansByProduct[productId];
+  return byProduct && byProduct[months] ? byProduct[months].id : null;
+}
+
+function formatPct(rate) {
+  return String(Math.round(rate * 1000) / 10).replace('.', ',');
+}
 
 // --- Cart State (GraphQL Cart API) ---
 let cartId = null;
@@ -288,22 +329,7 @@ async function initShopify() {
 
       // Also update sellingPlanMap from product data if available
       productsResult.data.products.edges.forEach(function(edge) {
-        var groups = edge.node.sellingPlanGroups.edges;
-        if (groups.length > 0) {
-          groups.forEach(function(groupEdge) {
-            var plans = groupEdge.node.sellingPlans.edges;
-            plans.forEach(function(planEdge) {
-              var plan = planEdge.node;
-              var option = plan.options[0];
-              if (option && option.value) {
-                var monthMatch = option.value.match(/(\d+)/);
-                if (monthMatch) {
-                  sellingPlanMap[monthMatch[1]] = plan.id;
-                }
-              }
-            });
-          });
-        }
+        registerSellingPlans(edge.node.id, edge.node.sellingPlanGroups.edges);
       });
 
       if (products.length > 0) {
@@ -319,10 +345,11 @@ async function initShopify() {
 async function fetchSellingPlans() {
   try {
     const result = await storefrontFetch(`{
-      products(first: 1) {
+      products(first: 50) {
         edges {
           node {
-            sellingPlanGroups(first: 1) {
+            id
+            sellingPlanGroups(first: 5) {
               edges {
                 node {
                   sellingPlans(first: 10) {
@@ -348,24 +375,9 @@ async function fetchSellingPlans() {
       }
     }`);
 
-    const productNode = result.data.products.edges[0];
-    if (productNode) {
-      const groups = productNode.node.sellingPlanGroups.edges;
-      if (groups.length > 0) {
-        const plans = groups[0].node.sellingPlans.edges;
-        plans.forEach(function(planEdge) {
-          var plan = planEdge.node;
-          var option = plan.options[0];
-          if (option && option.value) {
-            // Extract month number from option value like "2 months"
-            var monthMatch = option.value.match(/(\d+)/);
-            if (monthMatch) {
-              sellingPlanMap[monthMatch[1]] = plan.id;
-            }
-          }
-        });
-      }
-    }
+    result.data.products.edges.forEach(function(edge) {
+      registerSellingPlans(edge.node.id, edge.node.sellingPlanGroups.edges);
+    });
   } catch (err) {
     // Using fallback selling plan IDs
   }
@@ -374,18 +386,51 @@ async function fetchSellingPlans() {
 // ============ PRODUCT CARDS ============
 let allShopifyProducts = [];
 
+// Fréquences proposées pour un produit, triées (ex. ['2', '4']). Vide = pas d'abonnement.
+function productFrequencies(productId) {
+  var plans = sellingPlansByProduct[productId] || {};
+  return Object.keys(plans).sort(function(a, b) { return Number(a) - Number(b); });
+}
+
+// Bloc abonnement d'une carte produit, construit uniquement à partir des formules Shopify réelles.
+function buildCardSubscriptionHtml(productId, basePrice) {
+  var freqs = productFrequencies(productId);
+  if (!freqs.length) return '';
+  var first = freqs[0];
+  var firstRate = discountRateFor(first, productId);
+  var bestRate = Math.max.apply(null, freqs.map(function(f) { return discountRateFor(f, productId); }));
+  var saving = (basePrice * firstRate).toFixed(2).replace('.', ',');
+  var freqButtons = freqs.map(function(f, idx) {
+    var r = discountRateFor(f, productId);
+    return '<button class="sub-freq-btn' + (idx === 0 ? ' active' : '') + '" data-freq="' + f + '" data-discount="' + formatPct(r) + '" onclick="setFreq(this,\'' + f + '\')">Tous les ' + f + ' mois (-' + formatPct(r) + '%)</button>';
+  }).join('');
+  return '<div class="sub-toggle">'
+    + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
+    + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement jusqu\'à -' + formatPct(bestRate) + '%</button>'
+    + '</div>'
+    + '<div class="sub-freq" style="display:none">' + freqButtons + '</div>'
+    + '<div class="sub-discount" style="display:none">Économisez ' + saving + ' € sur le produit</div>'
+    + '<div class="sub-explainer sub-explainer-card" style="display:none">'
+    + '<div class="sub-explainer-items-compact">'
+    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Livraison automatique à la fréquence choisie</div>'
+    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Modifiable ou annulable à tout moment</div>'
+    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg> Sans engagement, sans durée minimum</div>'
+    + '</div>'
+    + '</div>';
+}
+
 function buildProductCard(product, i, tagLabel) {
   var variant = product.variants[0];
   var price = parseFloat(variant.price.amount || variant.price).toFixed(2).replace('.', ',');
   var imgSrc = product.images[0] ? product.images[0].src : '';
-  var defaultDiscount = 0.15;
-  var saving = (parseFloat(price.replace(',', '.')) * defaultDiscount).toFixed(2).replace('.', ',');
   var inStock = product.availableForSale !== false;
+  var subHtml = buildCardSubscriptionHtml(product.id, parseFloat(price.replace(',', '.')));
 
   var card = document.createElement('div');
   card.className = 'product-card reveal visible';
   card.setAttribute('data-base-price', price);
   card.setAttribute('data-variant-id', variant.id);
+  card.setAttribute('data-product-id', product.id);
   var pType = (product.productType || '').toLowerCase();
   card.setAttribute('data-product-type', pType);
   var productCategory = window.ProPureProductCategories
@@ -405,22 +450,7 @@ function buildProductCard(product, i, tagLabel) {
     + '<div class="product-info">'
     + '<a href="product.html?handle=' + encodeURIComponent(handle) + '" class="product-name" style="text-decoration:none;color:inherit;display:block;">' + escapeHTML(product.title) + '</a>'
     + '<p class="product-desc">' + escapeHTML((product.description || '').substring(0, 60)) + '</p>'
-    + '<div class="sub-toggle">'
-    + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">Achat unique</button>'
-    + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement -15%</button>'
-    + '</div>'
-    + '<div class="sub-freq" style="display:none">'
-    + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois (-15%)</button>'
-    + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois (-10%)</button>'
-    + '</div>'
-    + '<div class="sub-discount" style="display:none">\u00c9conomisez ' + saving + '\u20ac sur le produit</div>'
-    + '<div class="sub-explainer sub-explainer-card" style="display:none">'
-    + '<div class="sub-explainer-items-compact">'
-    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Livraison automatique \u00e0 la fr\u00e9quence choisie</div>'
-    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Modifiable ou annulable \u00e0 tout moment</div>'
-    + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg> Sans engagement, sans dur\u00e9e minimum</div>'
-    + '</div>'
-    + '</div>'
+    + subHtml
     + '<div class="product-bottom">'
     + '<div class="product-price">' + price + ' &euro;</div>'
     + (inStock
@@ -438,16 +468,21 @@ function updateProductsFromShopify(products) {
   // --- BEST-SELLERS: trois références actives ---
   var bsGrid = document.getElementById('bestsellersGrid');
   if (bsGrid) {
-    while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
-    var bsHandles = ['lessive-liquide-marine-5l', 'lessive-liquide-charnel-5l', 'lessive-liquide-mystere-5l'];
-    var top3 = bsHandles.map(function(h) {
-      return products.find(function(p) { return p.handle === h; });
-    }).filter(Boolean);
-    var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
-    top3.forEach(function(product, i) {
-      var card = buildProductCard(product, i, bsLabels[i] || '');
-      bsGrid.appendChild(card);
+    // Produits marqués du tag « best-seller » dans Shopify, puis complétés par les autres (3 max).
+    // Aucun nom de produit codé en dur : renommer un produit dans Shopify ne vide plus la section.
+    var tagged = products.filter(function(p) {
+      return (p.tags || []).some(function(t) { return String(t).toLowerCase() === 'best-seller'; });
     });
+    var others = products.filter(function(p) { return tagged.indexOf(p) === -1; });
+    var top3 = tagged.concat(others).filter(function(p) { return p.availableForSale !== false; }).slice(0, 3);
+    if (top3.length) {
+      while (bsGrid.firstChild) bsGrid.removeChild(bsGrid.firstChild);
+      var bsLabels = ['Best-seller', 'Populaire', 'Top vente'];
+      top3.forEach(function(product, i) {
+        var card = buildProductCard(product, i, bsLabels[i] || '');
+        bsGrid.appendChild(card);
+      });
+    }
   }
 
   // --- CATALOGUE: All products ---
@@ -513,24 +548,20 @@ async function addToCart(variantId, title, price, imgSrc, subscriptionInfo, qty)
 
     // If subscription, attach selling plan ID
     if (subscriptionInfo && subscriptionInfo.frequency) {
-      var planId = sellingPlanMap[subscriptionInfo.frequency];
-      if (planId) {
-        line.sellingPlanId = planId;
+      var planId = planIdFor(subscriptionInfo.frequency, subscriptionInfo.productId);
+      if (!planId) {
+        // Jamais de \u00ab faux \u00bb abonnement : sans formule Shopify, on n'ajoute rien et on pr\u00e9vient le client.
+        showCartError('L\u2019abonnement n\u2019est pas disponible pour ce produit pour le moment. Choisissez \u00ab Achat unique \u00bb.');
+        return;
       }
-      // Also add custom attributes for display purposes
-      var discountPct = subscriptionInfo.frequency === '2' ? '15' : '10';
-      line.attributes = [
-        { key: 'Mode', value: 'Abonnement' },
-        { key: 'Fr\u00e9quence', value: 'Tous les ' + subscriptionInfo.frequency + ' mois' },
-        { key: 'R\u00e9duction', value: '-' + discountPct + '%' }
-      ];
+      line.sellingPlanId = planId;
     }
 
     // Add to cart via GraphQL
     await cartLinesAdd([line]);
 
   } catch (err) {
-    addToCartLocal(title, price, imgSrc);
+    showCartError('Impossible d’ajouter ce produit pour le moment. Réessayez dans quelques instants.');
   }
 }
 
@@ -736,6 +767,23 @@ function showToast() {
   document.dispatchEvent(new CustomEvent('cart:itemAdded'));
 }
 
+function showCartError(message) {
+  var el = document.getElementById('cartErrorToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'cartErrorToast';
+    el.setAttribute('role', 'alert');
+    el.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);max-width:min(92vw,420px);'
+      + 'background:#2b2233;color:#fff;padding:12px 16px;border-radius:12px;font-size:.9rem;line-height:1.4;'
+      + 'box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:10000;text-align:center;';
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.style.display = 'block';
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(function() { el.style.display = 'none'; }, 5000);
+}
+
 // ============ STATIC PRODUCT FALLBACK ============
 function addToCartStatic(btn) {
   var card = btn.closest('.product-card');
@@ -754,11 +802,16 @@ function addToCartStatic(btn) {
     if (subBtn && subBtn.classList.contains('active')) {
       var numPrice = parseFloat(finalPrice.replace(',', '.'));
       var freqBtn = card.querySelector('.sub-freq-btn.active');
-      var months = freqBtn ? freqBtn.getAttribute('data-freq') : '2';
-      var discountRate = months === '2' ? 0.15 : 0.10;
+      var productId = card.getAttribute('data-product-id');
+      var months = freqBtn ? freqBtn.getAttribute('data-freq') : productFrequencies(productId)[0];
+      var discountRate = discountRateFor(months, productId);
+      if (discountRate === null) {
+        showCartError('L’abonnement n’est pas disponible pour ce produit pour le moment. Choisissez « Achat unique ».');
+        return;
+      }
       finalPrice = (numPrice * (1 - discountRate)).toFixed(2).replace('.', ',');
       suffix = ' (Abo ' + months + ' mois)';
-      subscriptionInfo = { frequency: months, price: finalPrice };
+      subscriptionInfo = { frequency: months, price: finalPrice, productId: productId };
     }
   }
 
@@ -773,12 +826,8 @@ function addToCartStatic(btn) {
   if (variantId && cartId !== null) {
     addToCart(variantId, title + suffix, finalPrice, imgSrc, subscriptionInfo, qty);
   } else {
-    addToCartLocal(title + suffix, finalPrice, imgSrc);
-    showToast();
-    setTimeout(function() {
-      var drawer = document.getElementById('cartDrawer');
-      if (drawer && !drawer.classList.contains('open')) toggleCart();
-    }, 400);
+    // Sans panier Shopify, aucun ajout « local » : il mènerait à un panier impossible à payer.
+    showCartError('La boutique est momentanément indisponible. Réessayez dans quelques minutes ou écrivez-nous à contact@p-pure.com.');
   }
 }
 
@@ -802,12 +851,14 @@ function setMode(btn, mode) {
     if (savingBox) { savingBox.style.display = ''; savingBox.classList.add('visible'); }
     if (explainerDiv) { explainerDiv.style.display = ''; explainerDiv.classList.add('visible'); }
     var activeFreqBtn = card.querySelector('.sub-freq-btn.active');
-    var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : '2';
-    var discountRate = months === '2' ? 0.15 : 0.10;
-    var discountPct = months === '2' ? '15' : '10';
+    var productId = card.getAttribute('data-product-id');
+    var months = activeFreqBtn ? activeFreqBtn.getAttribute('data-freq') : productFrequencies(productId)[0];
+    var discountRate = discountRateFor(months, productId);
+    if (discountRate === null) return;
+    var discountPct = formatPct(discountRate);
     var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
     var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
-    var deliveriesPerYear = months === '2' ? 6 : 3;
+    var deliveriesPerYear = Math.floor(12 / Number(months));
     var annualSaving = (basePrice * discountRate * deliveriesPerYear).toFixed(0);
     while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
     var oldPriceSpan = document.createElement('span');
@@ -846,11 +897,12 @@ function setFreq(btn, months) {
   btn.classList.add('active');
 
   var basePrice = parseFloat(card.getAttribute('data-base-price').replace(',', '.'));
-  var discountRate = months === '2' ? 0.15 : 0.10;
-  var discountPct = months === '2' ? '15' : '10';
+  var discountRate = discountRateFor(months, card.getAttribute('data-product-id'));
+  if (discountRate === null) return;
+  var discountPct = formatPct(discountRate);
   var discounted = (basePrice * (1 - discountRate)).toFixed(2).replace('.', ',');
   var saving = (basePrice * discountRate).toFixed(2).replace('.', ',');
-  var deliveriesPerYear = months === '2' ? 6 : 3;
+  var deliveriesPerYear = Math.floor(12 / Number(months));
   var annualSaving = (basePrice * discountRate * deliveriesPerYear).toFixed(0);
 
   var priceEl = card.querySelector('.product-price');
@@ -898,6 +950,56 @@ function setFreq(btn, months) {
 }
 
 // ============ PRODUCT DETAIL PAGE ============
+// Bloc « Choisissez votre formule » de la fiche produit, à partir des formules Shopify réelles.
+function buildDetailSubscriptionHtml(productId, basePrice, priceLabel) {
+  var freqs = productFrequencies(productId);
+  if (!freqs.length) return '';
+  var first = freqs[0];
+  var firstRate = discountRateFor(first, productId);
+  var bestRate = Math.max.apply(null, freqs.map(function(f) { return discountRateFor(f, productId); }));
+  var saving = (basePrice * firstRate).toFixed(2).replace('.', ',');
+  var annual = (basePrice * firstRate * Math.floor(12 / Number(first))).toFixed(0);
+  var freqButtons = freqs.map(function(f, idx) {
+    var r = discountRateFor(f, productId);
+    return '<button class="sub-freq-btn' + (idx === 0 ? ' active' : '') + '" data-freq="' + f + '" data-discount="' + formatPct(r) + '" onclick="setFreq(this,\'' + f + '\')">Tous les ' + f + ' mois <strong>-' + formatPct(r) + '%</strong></button>';
+  }).join('');
+  return '<div class="sub-section-detail">'
+    + '<div class="sub-section-header">'
+    + '<span class="sub-section-title">Choisissez votre formule</span>'
+    + '</div>'
+    + '<div class="sub-toggle sub-toggle-detail">'
+    + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">'
+    + '<span class="sub-btn-title">Achat unique</span>'
+    + '<span class="sub-btn-price">' + priceLabel + ' \u20ac</span>'
+    + '</button>'
+    + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">'
+    + '<span class="sub-btn-title">Abonnement <span class="sub-option-badge">-' + formatPct(firstRate) + '%</span></span>'
+    + '<span class="sub-btn-price">' + (basePrice * (1 - firstRate)).toFixed(2).replace('.', ',') + ' \u20ac</span>'
+    + '</button>'
+    + '</div>'
+    + '<div class="sub-freq" style="display:none">'
+    + '<span class="sub-freq-label">Fr\u00e9quence de livraison :</span>'
+    + '<div class="sub-freq-options">' + freqButtons + '</div>'
+    + '</div>'
+    + '<div class="sub-saving-box" style="display:none">'
+    + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit</div>'
+    + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + annual + ' \u20ac</strong> d\'\u00e9conomie par an</div>'
+    + '</div>'
+    + '<div class="sub-explainer" style="display:none">'
+    + '<div class="sub-explainer-title">'
+    + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+    + ' Comment fonctionne l\u2019abonnement ?'
+    + '</div>'
+    + '<div class="sub-explainer-grid">'
+    + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u2795</span><strong>Recevez automatiquement</strong> votre produit \u00e0 la fr\u00e9quence choisie, sans y penser</div>'
+    + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u270f\ufe0f</span><strong>100% flexible</strong> : changez de fr\u00e9quence, suspendez ou annulez depuis votre espace client</div>'
+    + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\udcb0</span><strong>Prix r\u00e9duit garanti</strong> sur chaque livraison, jusqu\'\u00e0 ' + formatPct(bestRate) + '% d\'\u00e9conomie</div>'
+    + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\ude9a</span><strong>Aucun engagement</strong> : sans dur\u00e9e minimum, arr\u00eatez quand vous voulez</div>'
+    + '</div>'
+    + '</div>'
+    + '</div>';
+}
+
 async function loadSingleProduct(handle) {
   var container = document.getElementById('productDetailContainer');
   if (!container) return;
@@ -961,7 +1063,7 @@ async function loadSingleProduct(handle) {
     var variant = product.variants[0];
     var basePrice = parseFloat(variant.price.amount);
     var price = basePrice.toFixed(2).replace('.', ',');
-    var saving = (basePrice * 0.15).toFixed(2).replace('.', ',');
+    var detailSubHtml = buildDetailSubscriptionHtml(product.id, basePrice, price);
     var images = product.images || [];
     var mainImg = images[0] ? images[0].src : '';
     var pType = (product.productType || '').replace(/^\w/, function(c) { return c.toUpperCase(); });
@@ -969,7 +1071,7 @@ async function loadSingleProduct(handle) {
 
     var breadcrumb = document.getElementById('productBreadcrumb');
     if (breadcrumb) {
-      breadcrumb.innerHTML = '<a href="index.html">Accueil</a><span>&rsaquo;</span><a href="index.html#catalogue">Catalogue</a><span>&rsaquo;</span>' + escapeHTML(product.title);
+      breadcrumb.innerHTML = '<a href="index.html">Accueil</a><span>&rsaquo;</span><a href="catalogue.html">Catalogue</a><span>&rsaquo;</span>' + escapeHTML(product.title);
     }
     var breadcrumbCurrent = document.getElementById('breadcrumbProduct');
     if (breadcrumbCurrent) {
@@ -998,47 +1100,9 @@ async function loadSingleProduct(handle) {
       + '<h1 class="product-title">' + escapeHTML(product.title) + '</h1>'
       + '<div class="product-price-detail">' + price + ' &euro;</div>'
       + '<div class="product-description-full">' + escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.') + '</div>'
-      + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" style="background:none;box-shadow:none;padding:0;">'
+      + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" data-product-id="' + escapeHTML(product.id) + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
-      + '<div class="sub-section-detail">'
-      + '<div class="sub-section-header">'
-      + '<span class="sub-section-title">Choisissez votre formule</span>'
-      + '<span class="sub-recommended-tag">Le + populaire : Abonnement</span>'
-      + '</div>'
-      + '<div class="sub-toggle sub-toggle-detail">'
-      + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">'
-      + '<span class="sub-btn-title">Achat unique</span>'
-      + '<span class="sub-btn-price">' + price + ' \u20ac</span>'
-      + '</button>'
-      + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">'
-      + '<span class="sub-btn-title">Abonnement <span class="sub-option-badge">-15%</span></span>'
-      + '<span class="sub-btn-price">' + (basePrice * 0.85).toFixed(2).replace('.', ',') + ' \u20ac</span>'
-      + '</button>'
-      + '</div>'
-      + '<div class="sub-freq" style="display:none">'
-      + '<span class="sub-freq-label">Fr\u00e9quence de livraison :</span>'
-      + '<div class="sub-freq-options">'
-      + '<button class="sub-freq-btn active" data-freq="2" data-discount="15" onclick="setFreq(this,\'2\')">Tous les 2 mois <strong>-15%</strong></button>'
-      + '<button class="sub-freq-btn" data-freq="4" data-discount="10" onclick="setFreq(this,\'4\')">Tous les 4 mois <strong>-10%</strong></button>'
-      + '</div>'
-      + '</div>'
-      + '<div class="sub-saving-box" style="display:none">'
-      + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit</div>'
-      + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + (basePrice * 0.15 * 6).toFixed(0) + ' \u20ac</strong> d\'\u00e9conomie par an</div>'
-      + '</div>'
-      + '<div class="sub-explainer" style="display:none">'
-      + '<div class="sub-explainer-title">'
-      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
-      + ' Comment fonctionne l\u2019abonnement ?'
-      + '</div>'
-      + '<div class="sub-explainer-grid">'
-      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u2795</span><strong>Recevez automatiquement</strong> votre produit \u00e0 la fr\u00e9quence choisie, sans y penser</div>'
-      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\u270f\ufe0f</span><strong>100% flexible</strong> : modifiez la fr\u00e9quence, suspendez ou annulez en 1 clic depuis votre espace client</div>'
-      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\udcb0</span><strong>Prix r\u00e9duit garanti</strong> sur chaque produit, jusqu\'\u00e0 15% d\'\u00e9conomie</div>'
-      + '<div class="sub-explainer-item"><span class="sub-explainer-icon">\ud83d\ude9a</span><strong>Aucun engagement</strong> : sans dur\u00e9e minimum, arr\u00eatez quand vous voulez</div>'
-      + '</div>'
-      + '</div>'
-      + '</div>'
+      + detailSubHtml
       + '<div class="product-bottom" style="margin-top:1rem;">'
       + '<div class="product-price" style="font-size:1.3rem;">' + price + ' &euro;</div>'
       + '</div>'
@@ -1059,9 +1123,9 @@ async function loadSingleProduct(handle) {
       + '</div>'
       + '</div>'
       + '<div class="trust-badges">'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Format 5 L</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison en France</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Formule concentr\u00e9e</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>' + escapeHTML(productFormatLabel(product.title)) + '</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison France &amp; Gen\u00e8ve\u2013Nyon</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Fabriqu\u00e9 en France</span></div>'
       + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Paiement s\u00e9curis\u00e9</span></div>'
       + '</div>'
       + '<div class="delivery-estimate" id="deliveryEstimate"></div>'
@@ -1074,38 +1138,21 @@ async function loadSingleProduct(handle) {
     loadRelatedProducts(product);
 
   } catch (err) {
-    container.innerHTML = '<div class="product-not-found"><h2>Erreur</h2><p>Une erreur est survenue lors du chargement du produit.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
+    var bc = document.getElementById('breadcrumbProduct'); if (bc) bc.textContent = 'Produit';
+    container.innerHTML = '<div class="product-not-found"><h2>Produit momentan\u00e9ment indisponible</h2><p>La boutique ne r\u00e9pond pas pour le moment. R\u00e9essayez dans quelques minutes ou \u00e9crivez-nous \u00e0 <a href="mailto:contact@p-pure.com">contact@p-pure.com</a>.</p><a href="index.html">&larr; Retour \u00e0 l\'accueil</a></div>';
   }
 }
 
 function updateDeliveryEstimate() {
   var el = document.getElementById('deliveryEstimate');
   if (!el) return;
-  var now = new Date();
-  var orderHour = now.getHours();
-  // If ordered before 14h, ships today; otherwise tomorrow
-  var shipDate = new Date(now);
-  if (orderHour >= 14) shipDate.setDate(shipDate.getDate() + 1);
-  // Skip weekends for shipping
-  if (shipDate.getDay() === 0) shipDate.setDate(shipDate.getDate() + 1);
-  if (shipDate.getDay() === 6) shipDate.setDate(shipDate.getDate() + 2);
-  // Delivery = ship date + 2 business days
-  var deliveryMin = new Date(shipDate);
-  deliveryMin.setDate(deliveryMin.getDate() + 1);
-  if (deliveryMin.getDay() === 0) deliveryMin.setDate(deliveryMin.getDate() + 1);
-  if (deliveryMin.getDay() === 6) deliveryMin.setDate(deliveryMin.getDate() + 2);
-  var deliveryMax = new Date(shipDate);
-  deliveryMax.setDate(deliveryMax.getDate() + 3);
-  if (deliveryMax.getDay() === 0) deliveryMax.setDate(deliveryMax.getDate() + 1);
-  if (deliveryMax.getDay() === 6) deliveryMax.setDate(deliveryMax.getDate() + 2);
+  // Délais alignés sur les CGV : pas de date calculée qui ne pourrait pas être tenue.
+  el.textContent = 'Exp\u00e9dition sous 2 jours ouvr\u00e9s \u00b7 Livraison en France en 3 \u00e0 5 jours ouvr\u00e9s \u00b7 Livraison Gen\u00e8ve\u2013Nyon sur rendez-vous';
+}
 
-  var jours = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-  var mois = ['janvier','f\u00e9vrier','mars','avril','mai','juin','juillet','ao\u00fbt','septembre','octobre','novembre','d\u00e9cembre'];
-  var minStr = jours[deliveryMin.getDay()] + ' ' + deliveryMin.getDate() + ' ' + mois[deliveryMin.getMonth()];
-  var maxStr = jours[deliveryMax.getDay()] + ' ' + deliveryMax.getDate() + ' ' + mois[deliveryMax.getMonth()];
-
-  el.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>'
-    + '<span>Commandez maintenant, livr\u00e9 entre <strong>' + minStr + '</strong> et <strong>' + maxStr + '</strong></span>';
+function productFormatLabel(title) {
+  var m = String(title || '').match(/(\d+(?:[.,]\d+)?)\s?(L|ml)\b/i);
+  return m ? 'Format ' + m[1] + ' ' + (m[2].toLowerCase() === 'ml' ? 'ml' : 'L') : 'Grand format';
 }
 
 function changeMainImage(thumb, src) {
@@ -1185,19 +1232,33 @@ function renderRelatedGrid(container, products) {
 }
 
 // ============ INIT ON LOAD ============
-function disableUnavailableSubscriptions() {
+// Les cartes statiques du HTML (sans data-product-id) ne connaissent pas les formules Shopify :
+// leurs blocs d'abonnement restent masqués. Les cartes construites depuis Shopify affichent le leur
+// seulement si le produit a une formule réelle.
+(function hideStaticSubscriptionBlocks() {
   var style = document.createElement('style');
-  style.textContent = '.sub-toggle,.sub-freq,.sub-discount,.sub-section-detail,.sub-explainer,#abonnement,a[href*="gerer-abonnement"]{display:none!important;}';
+  style.textContent = '.product-card:not([data-product-id]) .sub-toggle,'
+    + '.product-card:not([data-product-id]) .sub-freq,'
+    + '.product-card:not([data-product-id]) .sub-discount,'
+    + '.product-card:not([data-product-id]) .sub-explainer{display:none!important;}';
   document.head.appendChild(style);
+})();
+
+// Sans aucune formule d'abonnement active dans la boutique, on masque la section et les liens « abonnement ».
+function syncSubscriptionVisibility() {
+  var hasPlans = Object.keys(sellingPlanMap).length > 0;
+  document.querySelectorAll('#abonnement, a[href*="gerer-abonnement"]').forEach(function(el) {
+    el.style.display = hasPlans ? '' : 'none';
+  });
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-  disableUnavailableSubscriptions();
+window.addEventListener('DOMContentLoaded', async function() {
   var urlParams = new URLSearchParams(window.location.search);
   var handle = urlParams.get('handle');
   if (handle && document.getElementById('productDetailContainer')) {
-    loadSingleProduct(handle);
+    await loadSingleProduct(handle);
   } else {
-    initShopify();
+    await initShopify();
   }
+  syncSubscriptionVisibility();
 });

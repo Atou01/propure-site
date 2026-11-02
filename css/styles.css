@@ -607,6 +607,9 @@ body {
 }
 .cta-banner .section-title { margin-bottom: 1rem; }
 .cta-banner .hero-cta { margin-top: 1.5rem; }
+/* Variante foncée pour les fonds clairs (contraste AA) */
+.hero-cta.cta-dark { background: var(--charcoal); color: var(--cream-light); border-color: var(--charcoal); backdrop-filter: none; }
+.hero-cta.cta-dark:hover { opacity: .9; }
 
 /* ============ FOOTER ============ */
 .footer {
@@ -1577,6 +1580,8 @@ body.cart-open { overflow: hidden; }
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .cookie-banner.show { transform: translateY(0); }
+/* Le panier ouvert passe devant la bannière cookies (sinon elle masque « Passer commande ») */
+body.cart-open .cookie-banner { visibility: hidden; }
 .cookie-banner p { flex: 1; min-width: 250px; line-height: 1.5; }
 .cookie-banner a { color: var(--gold); text-decoration: underline; }
 .cookie-btns { display: flex; gap: 0.8rem; flex-shrink: 0; }

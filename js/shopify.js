@@ -1038,6 +1038,19 @@ function washesFromText(t) {
   return m ? parseInt(m[1], 10) : 0;
 }
 
+function setupStickyBuyBar(name, price) {
+  var old = document.getElementById('pdSticky'); if (old) old.remove();
+  var btn = document.querySelector('.pd-v2 .add-to-cart-btn');
+  if (!btn || !('IntersectionObserver' in window)) return;
+  var bar = document.createElement('div');
+  bar.id = 'pdSticky'; bar.className = 'pd-sticky';
+  bar.innerHTML = '<div class="pd-sticky-info"><span class="pd-sticky-name">' + escapeHTML(name) + '</span><span class="pd-sticky-price">' + price + ' &euro;</span></div><button type="button">Ajouter au panier</button>';
+  bar.querySelector('button').addEventListener('click', function() { btn.click(); });
+  document.body.appendChild(bar);
+  new IntersectionObserver(function(entries) {
+    bar.classList.toggle('show', !entries[0].isIntersecting);
+  }).observe(btn);
+}
 var STATIC_PRODUCT_HANDLES = ["lessive-marine-5-l", "lessive-prestige-5-l", "lessive-air-de-montagne-5-l", "lessive-alpine-5-l", "lessive-fraicheur-5-l", "lessive-musc-blanc-5-l", "lessive-mystere-5-l", "lessive-savon-de-marseille-5-l", "lessive-souffle-mysterieux-5-l", "adoucissant-air-de-montagne-5-l", "adoucissant-douceur-prestige-5-l", "adoucissant-fraicheur-5-l", "adoucissant-souffle-mysterieux-5-l"];
 function productUrl(handle) {
   return STATIC_PRODUCT_HANDLES.indexOf(handle) !== -1 ? handle + '.html' : 'product.html?handle=' + encodeURIComponent(handle);
@@ -1132,6 +1145,11 @@ async function loadSingleProduct(handle) {
       });
     }
 
+    var titleParts = (function(t) {
+      var i = t.indexOf(' \u2013 ');
+      if (i === -1) return { kind: pType || 'Pro Pure', name: t };
+      return { kind: t.slice(0, i).replace(/ 5 L$/, '') + ' \u00b7 5 L', name: t.slice(i + 3) };
+    })(product.title);
     var parts = splitProductDescription(product.descriptionHtml || '', product.description || '');
     var perWash = washesFromText(product.title + ' ' + (product.description || ''));
     var perWashHtml = perWash ? '<div class="pd-per-wash">soit <strong>' + (basePrice / perWash).toFixed(2).replace('.', ',') + ' &euro;</strong> par lavage &middot; ' + perWash + ' lavages</div>' : '';
@@ -1147,8 +1165,7 @@ async function loadSingleProduct(handle) {
       + (thumbsHtml ? '<div class="product-gallery-thumbs">' + thumbsHtml + '</div>' : '')
       + '</div>'
       + '<div class="product-info">'
-      + (pType ? '<div class="product-category">' + escapeHTML(pType) + '</div>' : '')
-      + '<h1 class="product-title">' + escapeHTML(product.title) + '</h1>'
+      + '<h1 class="product-title pd-h1"><span class="pd-eyebrow">' + escapeHTML(titleParts.kind) + '</span><span class="pd-name">' + escapeHTML(titleParts.name) + '</span></h1>'
       + (parts.intro ? '<div class="pd-intro">' + parts.intro + '</div>' : '')
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" data-product-id="' + escapeHTML(product.id) + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
@@ -1166,20 +1183,22 @@ async function loadSingleProduct(handle) {
           + ' Ajouter au panier</button></div>'
         : '<div class="out-of-stock-banner">Rupture de stock &middot; bientôt de retour</div>')
       + '</div>'
-      + '<div class="delivery-estimate" id="deliveryEstimate"></div>'
+      + '<ul class="pd-reassure">'
+      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/></svg><span><strong>Livraison offerte</strong> d\u00e8s 39 &euro;</span></li>'
+      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><strong>Exp\u00e9di\u00e9</strong> sous 48 h</span></li>'
+      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-7-11a7 7 0 0114 0c0 6.5-7 11-7 11z"/><path d="M9 10l2 2 4-4"/></svg><span><strong>Fabriqu\u00e9</strong> en France</span></li>'
+      + '</ul>'
       + (parts.highlights ? '<ul class="pd-highlights">' + parts.highlights + '</ul>' : '')
       + '<div class="pd-accordions">'
       + acc('Mode d’emploi', parts.usage, false)
       + acc('Composition &amp; sécurité', parts.composition, false)
       + acc('Livraison &amp; abonnement', '<p>Expédition sous 2 jours ouvrés. Livraison en France en 3 à 5 jours ouvrés (5,90 &euro;, offerte dès 39 &euro;). Genève–Nyon : livraison sur rendez-vous, offerte dès 49 &euro;.</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
       + '</div>'
-      + '<div class="trust-badges">'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Fabriqué en France</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Paiement sécurisé</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison France &amp; Genève–Nyon</span></div>'
-      + '</div>'
       + '</div>'
       + '</div>';
+
+    // Barre d'achat collante sur mobile
+    if (inStock) setupStickyBuyBar(titleParts.name, price);
 
     // Calculate estimated delivery date
     updateDeliveryEstimate();

@@ -2316,3 +2316,62 @@ body.product-page .product-card { background: #F6EFE5; }
   .pd-v2 .pd-price-row .product-price { font-size: 1.6rem; }
   .product-gallery { position: static; }
 }
+
+/* ===== Page produit v3 : élévation ===== */
+/* Navigation claire sur la page produit : le logo coloré reste lisible */
+body.product-page .navbar,
+body.product-page .navbar.scrolled { background: rgba(239, 230, 217, 0.92); box-shadow: 0 1px 0 rgba(140,107,48,0.15); color: var(--charcoal); }
+body.product-page .navbar.scrolled .nav-links a,
+body.product-page .navbar .nav-links a,
+body.product-page .navbar.scrolled .nav-cart,
+body.product-page .navbar .nav-cart { color: var(--charcoal); }
+
+/* Fil d'Ariane lisible, sans le nom du produit sur mobile */
+body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light); }
+
+/* Galerie plus présente */
+.pd-v2 { grid-template-columns: 1.15fr 1fr; gap: 5rem; }
+.pd-v2 .product-gallery-main { aspect-ratio: 4 / 5; }
+.pd-v2 .product-gallery-main img { padding: 6% 10%; }
+
+/* Titre : type de produit en surtitre, nom du parfum en grand */
+.pd-h1 { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem !important; }
+.pd-eyebrow { font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+.pd-name { font-family: var(--font-display); font-size: clamp(2.2rem, 3.4vw, 3.1rem); line-height: 1.05; letter-spacing: -0.01em; color: var(--charcoal); }
+
+/* Formule : l'abonnement ne doit pas sembler désactivé */
+.pd-v2 .sub-section-detail { background: rgba(255,255,255,0.5); border: 1px solid rgba(140,107,48,0.15); }
+.pd-v2 .sub-toggle-btn .sub-btn-price { opacity: 0.85; }
+.pd-v2 .sub-option-badge { background: var(--gold); }
+
+/* Réassurance en une ligne sous le bouton */
+.pd-reassure { list-style: none; padding: 0; margin: 1.1rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.pd-reassure li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; line-height: 1.3; color: var(--charcoal-light); }
+.pd-reassure svg { width: 22px; height: 22px; flex: 0 0 22px; color: var(--gold); }
+.pd-reassure strong { color: var(--charcoal); font-weight: 600; display: block; }
+
+/* Étiquette rupture lisible */
+.product-price .pd-oos-tag { color: #fff !important; background: var(--charcoal-light); font-weight: 500; }
+
+/* Barre d'achat collante (mobile) */
+.pd-sticky { position: fixed; left: 0; right: 0; bottom: 0; z-index: 90; display: none; align-items: center; gap: 0.75rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom)); background: rgba(250,247,244,0.96);
+  box-shadow: 0 -6px 24px rgba(60,45,25,0.12); transform: translateY(110%); transition: transform .25s ease-out; }
+.pd-sticky.show { transform: translateY(0); }
+.pd-sticky-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.pd-sticky-name { font-family: var(--font-display); font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pd-sticky-price { font-size: 0.85rem; color: var(--gold-dark); font-weight: 600; }
+.pd-sticky button { border: 0; border-radius: 999px; background: var(--charcoal); color: #fff; font-weight: 600; padding: 0.85rem 1.3rem; font-size: 0.9rem; }
+
+@media (max-width: 900px) {
+  .pd-v2 { grid-template-columns: 1fr; gap: 1.5rem; }
+  .pd-v2 .product-gallery-main { aspect-ratio: 5 / 4; }
+  .pd-v2 .product-gallery-main img { padding: 4% 18%; }
+  .pd-v2 .pd-buy-row .product-add-btn { white-space: nowrap; font-size: 0.95rem; padding: 0.9rem 1rem; }
+  body.product-page .breadcrumb .breadcrumb-current,
+  body.product-page .breadcrumb .breadcrumb-sep:last-of-type { display: none; }
+  .pd-sticky { display: flex; }
+  .pd-reassure { gap: 0.5rem; }
+  .pd-reassure li { flex-direction: column; text-align: center; font-size: 0.72rem; gap: 0.3rem; }
+  body.product-page { padding-bottom: 80px; }
+}

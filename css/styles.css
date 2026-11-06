@@ -2423,3 +2423,18 @@ body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light)
 
 .cart-discount-row { color: #2E7D4F; font-size: .9rem; margin-bottom: .4rem; }
 .cart-item-img { background-size: contain; background-repeat: no-repeat; background-position: center; }
+
+/* === Page produit : prix par lavage + barre d'achat collante === */
+.pd-perwash { margin: -4px 0 14px; font-size: .9rem; color: var(--charcoal-light); }
+.pd-perwash strong { color: var(--gold-dark); font-weight: 600; }
+.pd-sticky { display: none; }
+@media (max-width: 768px) {
+  .pd-sticky { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: var(--cream-light); border-top: 1px solid var(--cream-dark);
+    box-shadow: 0 -4px 16px rgba(44,44,44,.08); transform: translateY(110%); transition: transform .2s ease-out; }
+  .pd-sticky.show { transform: translateY(0); }
+  .pd-sticky-info { display: flex; flex-direction: column; min-width: 0; }
+  .pd-sticky-name { font-size: .8rem; color: var(--charcoal-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pd-sticky-price { font-weight: 600; color: var(--charcoal); }
+  .pd-sticky-btn { flex: none; border: 0; border-radius: 999px; padding: 12px 20px; background: var(--charcoal); color: var(--white); font: 600 .9rem var(--font-body); cursor: pointer; }
+}

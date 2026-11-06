@@ -29,7 +29,7 @@ for p in products:
     s = s.replace('<meta property="og:image" content="https://www.p-pure.com/img/logo.png" />', f'<meta property="og:image" content="{e(p["image"])}" />')
     s = s.replace('<meta name="twitter:card" content="summary_large_image" />', f'<meta name="twitter:card" content="summary_large_image" />\n<meta name="twitter:title" content="{e(p["seo_title"])}" />\n<meta name="twitter:image" content="{e(p["image"])}" />')
     s = s.replace("</head>", '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + '</script>\n<script type="application/ld+json">' + json.dumps(crumbs, ensure_ascii=False) + "</script>\n</head>", 1)
-    s = s.replace("<body>", f'<body class="product-page" data-handle="{p["handle"]}">', 1)
+    s = s.replace('<body class="product-page">', f'<body class="product-page" data-handle="{p["handle"]}">', 1)
     s = s.replace('<span class="breadcrumb-current" id="breadcrumbProduct">Chargement…</span>', f'<span class="breadcrumb-current" id="breadcrumbProduct">{e(p["title"])}</span>')
     static = (f'<div class="product-detail"><div class="product-gallery"><div class="product-gallery-main"><img src="{e(p["image"])}" alt="{e(p["title"])}" width="568" height="704" /></div></div>'
               f'<div class="product-info"><h1 class="product-title">{e(p["title"])}</h1><p>{e(p["intro"])}</p><p>{p["price"].replace(".", ",")} € – bidon de 5 L, jusqu\'à 120 lavages, fabriqué en France.</p></div></div>')

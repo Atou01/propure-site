@@ -42,6 +42,7 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url><loc>https://www.p-pure.com/pack.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
   <url>
     <loc>https://www.p-pure.com/lessive-marine-5-l.html</loc>
@@ -79,5 +80,4 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  <url><loc>https://www.p-pure.com/pack.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>

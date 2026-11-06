@@ -2272,3 +2272,14 @@ body.cart-open .cookie-banner { visibility: hidden; }
 .product-description-full p { margin: 0 0 14px; }
 .product-description-full ul { margin: 0 0 16px; padding-left: 20px; }
 .product-description-full li { margin-bottom: 6px; }
+
+/* Bidons blancs : fond coloré doux, le blanc de la photo prend la teinte du fond (multiply) */
+.product-gallery-main {
+  background: radial-gradient(ellipse at 50% 38%, #eaf1f6 0%, #d6e3ec 70%, #c9d9e5 100%);
+}
+.product-gallery-main img {
+  mix-blend-mode: multiply;
+  object-fit: contain;
+}
+.product-gallery-thumb { background: #dbe7ef; }
+.product-gallery-thumb img { mix-blend-mode: multiply; }

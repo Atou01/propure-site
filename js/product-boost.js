@@ -7,7 +7,7 @@
     var card = root.querySelector('.product-card');
     var btn = root.querySelector('.product-add-btn');
     if (!card || !btn) return;
-    var price = parseFloat(card.getAttribute('data-base-price'));
+    var price = parseFloat(String(card.getAttribute('data-base-price')).replace(',', '.'));
     var handle = (document.body.getAttribute('data-handle') || location.pathname);
     var washes = /adoucissant/.test(handle) ? 150 : 120;
     var row = root.querySelector('.pd-price-row');

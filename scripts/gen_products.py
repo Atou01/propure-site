@@ -11,7 +11,7 @@ for p in products:
     url = f"{BASE}/{p['handle']}.html"
     ld = {"@context": "https://schema.org", "@type": "Product", "name": p["title"], "image": [p["image"]],
           "description": p["seo_description"], "sku": p["sku"], "brand": {"@type": "Brand", "name": "Pro Pure"},
-          "category": "Lessive liquide",
+          "category": "Lessive liquide" if p.get("type","Lessive")=="Lessive" else "Adoucissant",
           "offers": {"@type": "Offer", "url": url, "priceCurrency": "EUR", "price": p["price"],
                      "availability": "https://schema.org/InStock" if p["in_stock"] else "https://schema.org/OutOfStock",
                      "itemCondition": "https://schema.org/NewCondition",
@@ -32,14 +32,19 @@ for p in products:
     s = s.replace('<body class="product-page">', f'<body class="product-page" data-handle="{p["handle"]}">', 1)
     s = s.replace('<span class="breadcrumb-current" id="breadcrumbProduct">Chargement…</span>', f'<span class="breadcrumb-current" id="breadcrumbProduct">{e(p["title"])}</span>')
     static = (f'<div class="product-detail"><div class="product-gallery"><div class="product-gallery-main"><img src="{e(p["image"])}" alt="{e(p["title"])}" width="568" height="704" /></div></div>'
-              f'<div class="product-info"><h1 class="product-title">{e(p["title"])}</h1><p>{e(p["intro"])}</p><p>{p["price"].replace(".", ",")} € – bidon de 5 L, jusqu\'à 120 lavages, fabriqué en France.</p></div></div>')
+              f'<div class="product-info"><h1 class="product-title">{e(p["title"])}</h1><p>{e(p["intro"])}</p><p>{p["price"].replace(".", ",")} € – bidon de 5 L, jusqu\'à {'120' if p.get('type','Lessive')=='Lessive' else '150'} lavages, fabriqué en France.</p></div></div>')
     s = re.sub(r'<div class="product-loading".*?</div>\s*</div>', static, s, count=1, flags=re.S) if False else s.replace('<div class="product-loading" id="productLoading" role="status" aria-live="polite">\n      <div class="loading-spinner"></div>\n      <p>Chargement du produit…</p>\n    </div>', static, 1)
     open(f"{p['handle']}.html", "w", encoding="utf-8").write(s)
     print("écrit", p["handle"] + ".html")
 # sitemap
 sm = open("sitemap.xml", encoding="utf-8").read()
-sm = re.sub(r"\s*<url>\s*<loc>https://www.p-pure.com/lessive-[^<]*</loc>.*?</url>", "", sm, flags=re.S)
+sm = re.sub(r"\s*<url>\s*<loc>https://www.p-pure.com/(?:lessive|adoucissant)-[^<]*</loc>.*?</url>", "", sm, flags=re.S)
 add = "".join(f"\n  <url>\n    <loc>{BASE}/{p['handle']}.html</loc>\n    <lastmod>{today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>" for p in products)
 sm = sm.replace("</urlset>", add + "\n</urlset>")
 sm = re.sub(r"(<loc>https://www.p-pure.com/(?:|catalogue.html)</loc>\s*<lastmod>)[^<]*", r"\g<1>" + today, sm)
 open("sitemap.xml", "w", encoding="utf-8").write(sm)
+
+# liste des pages statiques dans le JS
+js = open("js/shopify.js", encoding="utf-8").read()
+js = re.sub(r"var STATIC_PRODUCT_HANDLES = \[.*?\];", "var STATIC_PRODUCT_HANDLES = " + json.dumps([p["handle"] for p in products]) + ";", js)
+open("js/shopify.js", "w", encoding="utf-8").write(js)

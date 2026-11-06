@@ -1,4 +1,24 @@
 [
- {"handle":"lessive-marine-5-l","title":"Lessive liquide Marine 5 L – Trésor d'Océan","seo_title":"Lessive liquide concentrée Marine 5 L – 120 lavages | Pro Pure","seo_description":"Lessive liquide concentrée Trésor d'Océan, parfum frais et iodé. Bidon 5 L, jusqu'à 120 lavages, fabriquée en France. Livraison rapide, abonnement possible.","intro":"Notre best-seller, Trésor d'Océan. Une lessive liquide concentrée au parfum frais et iodé qui donne à votre linge l'odeur d'une brise marine, longtemps après le lavage.","image":"https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-marine-5l.jpg?v=1793624239","price":"22.90","sku":"PP-LES-MARINE-5L","in_stock":true},
- {"handle":"lessive-prestige-5-l","title":"Lessive liquide Prestige 5 L – Élégance intense","seo_title":"Lessive liquide concentrée Prestige 5 L – 120 lavages | Pro Pure","seo_description":"Lessive liquide concentrée Prestige, notre parfum signature luxueux. Bidon 5 L, jusqu'à 120 lavages, fabriquée en France. Livraison rapide, abonnement possible.","intro":"Notre parfum signature le plus luxueux, élégance intense. Une lessive liquide concentrée au sillage riche et enveloppant, pour un linge qui sent le parfum de grande maison.","image":"https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-prestige-5l.jpg?v=1793624239","price":"22.90","sku":"PP-LES-PRESTIGE-5L","in_stock":false}
+ {
+  "handle": "lessive-marine-5-l",
+  "title": "Lessive liquide Marine 5 L – Trésor d'Océan",
+  "seo_title": "Lessive liquide concentrée Marine 5 L – 120 lavages | Pro Pure",
+  "seo_description": "Lessive liquide concentrée Trésor d'Océan, parfum frais et iodé. Bidon 5 L, jusqu'à 120 lavages, fabriquée en France. Livraison rapide, abonnement possible.",
+  "intro": "Notre best-seller, Trésor d'Océan. Une lessive liquide concentrée au parfum frais et iodé qui donne à votre linge l'odeur d'une brise marine, longtemps après le lavage.",
+  "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-marine-5l-detoure.png?v=1793981552",
+  "price": "22.90",
+  "sku": "PP-LES-MARINE-5L",
+  "in_stock": true
+ },
+ {
+  "handle": "lessive-prestige-5-l",
+  "title": "Lessive liquide Prestige 5 L – Élégance intense",
+  "seo_title": "Lessive liquide concentrée Prestige 5 L – 120 lavages | Pro Pure",
+  "seo_description": "Lessive liquide concentrée Prestige, notre parfum signature luxueux. Bidon 5 L, jusqu'à 120 lavages, fabriquée en France. Livraison rapide, abonnement possible.",
+  "intro": "Notre parfum signature le plus luxueux, élégance intense. Une lessive liquide concentrée au sillage riche et enveloppant, pour un linge qui sent le parfum de grande maison.",
+  "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-prestige-5l-detoure.png?v=1793981553",
+  "price": "22.90",
+  "sku": "PP-LES-PRESTIGE-5L",
+  "in_stock": false
+ }
 ]

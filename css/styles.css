@@ -2273,22 +2273,14 @@ body.cart-open .cookie-banner { visibility: hidden; }
 .product-description-full ul { margin: 0 0 16px; padding-left: 20px; }
 .product-description-full li { margin-bottom: 6px; }
 
-/* Bidons blancs : fond beige chaud partout (le blanc de la photo prend la teinte du fond via multiply) */
-:root { --beige-photo: radial-gradient(ellipse at 50% 40%, #EFE6D9 0%, #E6DAC8 65%, #DDCFBB 100%); }
-.product-gallery-main,
-.product-img,
-.product-card-link .product-img,
-.cart-item-img,
-.product-gallery-thumb { background: var(--beige-photo); }
-.product-gallery-main img,
-.product-img img,
-.cart-item-img img,
-.product-gallery-thumb img { mix-blend-mode: multiply; }
-.product-gallery-main img { object-fit: contain; }
+/* Bidons détourés (PNG transparents) sur fond beige chaud */
+.product-gallery-main, .product-img, .product-card-link .product-img, .cart-item-img, .product-gallery-thumb { background: #EFE6D9; }
+.product-gallery-main img { object-fit: contain; padding: 4%; filter: drop-shadow(0 18px 22px rgba(60,45,25,0.18)); }
+.product-img img { object-fit: contain !important; padding: 6%; filter: drop-shadow(0 10px 12px rgba(60,45,25,0.15)); }
 
 /* ===== Page produit : tout en beige uniforme ===== */
 body.product-page { background: #EFE6D9; }
-body.product-page .product-gallery-main { background: #EFE6D9; border-radius: 0; }
+body.product-page .product-gallery-main { background: transparent; border-radius: 0; }
 body.product-page .product-gallery-thumb { background: #EFE6D9; border: 2px solid transparent; }
 body.product-page .product-gallery-thumb.active { border-color: var(--gold); }
 body.product-page .related-products-section,

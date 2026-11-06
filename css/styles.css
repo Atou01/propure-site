@@ -2375,3 +2375,9 @@ body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light)
   .pd-reassure li { flex-direction: column; text-align: center; font-size: 0.72rem; gap: 0.3rem; }
   body.product-page { padding-bottom: 80px; }
 }
+
+/* Accueil : gammes réduites, cartes best-sellers avec photo détourée */
+.gammes-grid.gammes-2 { grid-template-columns: repeat(2, minmax(0, 340px)); justify-content: center; }
+.bestsellers-grid .product-img { background: #F6EFE5; }
+.bestsellers-grid .product-img img { width: 100%; height: 100%; object-fit: contain; padding: 6%; }
+@media (max-width: 900px) { .gammes-grid.gammes-2 { grid-template-columns: 1fr 1fr; } }

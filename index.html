@@ -48,7 +48,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="preconnect" href="https://47kjax-uw.myshopify.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/styles.css?v=16" />
+<link rel="stylesheet" href="css/styles.css?v=17" />
 </head>
 
 <body>
@@ -167,67 +167,40 @@
   <div class="section-header reveal">
     <span class="section-label">Les Plus Aim&eacute;s</span>
     <h2 class="section-title">Nos Best-Sellers</h2>
-    <p class="section-subtitle">Les 3 produits pr&eacute;f&eacute;r&eacute;s de nos clients, s&eacute;lectionn&eacute;s pour leur efficacit&eacute; et leur parfum unique.</p>
+    <p class="section-subtitle">Nos produits les plus demand&eacute;s : concentr&eacute;s, parfum&eacute;s longtemps, fabriqu&eacute;s en France.</p>
   </div>
   <div class="bestsellers-grid" id="bestsellersGrid">
-    <!-- Static fallback: Top 3 best-sellers -->
-    <div class="product-card reveal" data-base-price="24.90">
-      <div class="product-img">
-        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>
-        <span class="product-tag">Best-seller</span>
-      </div>
+    <!-- Static fallback (remplacé par Shopify au chargement) -->
+    <div class="product-card reveal" data-base-price="22.90">
+      <a href="lessive-marine-5-l.html" class="product-img" style="display:block"><img src="img/produits/bidon-lessive-marine-5l.png" alt="Lessive Marine 5 L" loading="lazy"><span class="product-tag">Best-seller</span></a>
       <div class="product-info">
-        <h3 class="product-name">Adoucissant Myst&egrave;re</h3>
-        <p class="product-desc">Fragrance envo&ucirc;tante et myst&eacute;rieuse — 5L</p>
-        <div class="sub-toggle">
-          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
-        </div>
-        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
-        <div class="sub-discount">&eacute;conomisez 2,49&euro; sur le produit</div>
+        <h3 class="product-name">Lessive Marine</h3>
+        <p class="product-desc">Fra&icirc;cheur oc&eacute;anique &mdash; 120 lavages</p>
         <div class="product-bottom">
-          <div class="product-price">24,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Adoucissant Myst&egrave;re au panier">+</button>
-        </div>
-      </div>
-    </div>
-    <div class="product-card reveal" data-base-price="26.90">
-      <div class="product-img">
-        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #F5F0E0 0%, #C8B480 100%);"></div>
-        <span class="product-tag">Populaire</span>
-      </div>
-      <div class="product-info">
-        <h3 class="product-name">Adoucissant Prestige</h3>
-        <p class="product-desc">L'excellence du parfum premium — 5L</p>
-        <div class="sub-toggle">
-          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
-        </div>
-        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
-        <div class="sub-discount">&eacute;conomisez 2,69&euro; sur le produit</div>
-        <div class="product-bottom">
-          <div class="product-price">26,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Adoucissant Prestige au panier">+</button>
+          <div class="product-price">22,90&euro; <span>/ 5L</span></div>
+          <a class="add-to-cart-btn" href="lessive-marine-5-l.html" aria-label="Voir Lessive Marine">+</a>
         </div>
       </div>
     </div>
     <div class="product-card reveal" data-base-price="22.90">
-      <div class="product-img">
-        <div class="product-img-placeholder" style="background: linear-gradient(180deg, #E0E8F0 0%, #96B8D4 100%);"></div>
-        <span class="product-tag">Top vente</span>
-      </div>
+      <a href="lessive-prestige-5-l.html" class="product-img" style="display:block"><img src="img/produits/bidon-lessive-prestige-5l.png" alt="Lessive Prestige 5 L" loading="lazy"><span class="product-tag">Populaire</span></a>
       <div class="product-info">
-        <h3 class="product-name">Lessive Marine</h3>
-        <p class="product-desc">Fra&icirc;cheur oc&eacute;anique longue dur&eacute;e — 5L</p>
-        <div class="sub-toggle">
-          <button class="sub-toggle-btn active" onclick="setMode(this,'once')">Achat unique</button>
-          <button class="sub-toggle-btn sub-option" onclick="setMode(this,'sub')">Abonnement -15%</button>
-        </div>
-        <div class="sub-freq"><button class="sub-freq-btn active" data-freq="2" onclick="setFreq(this,'2')">Tous les 2 mois</button><button class="sub-freq-btn" data-freq="4" onclick="setFreq(this,'4')">Tous les 4 mois</button></div>
-        <div class="sub-discount">&eacute;conomisez 2,29&euro; sur le produit</div>
+        <h3 class="product-name">Lessive Prestige</h3>
+        <p class="product-desc">&Eacute;l&eacute;gance intense &mdash; 120 lavages</p>
         <div class="product-bottom">
           <div class="product-price">22,90&euro; <span>/ 5L</span></div>
-          <button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter Lessive Marine au panier">+</button>
+          <a class="add-to-cart-btn" href="lessive-prestige-5-l.html" aria-label="Voir Lessive Prestige">+</a>
+        </div>
+      </div>
+    </div>
+    <div class="product-card reveal" data-base-price="19.90">
+      <a href="adoucissant-douceur-prestige-5-l.html" class="product-img" style="display:block"><img src="img/produits/bidon-adoucissant-douceur-prestige-5l.png" alt="Adoucissant Douceur Prestige 5 L" loading="lazy"><span class="product-tag">Nouveau</span></a>
+      <div class="product-info">
+        <h3 class="product-name">Adoucissant Douceur Prestige</h3>
+        <p class="product-desc">&Eacute;l&eacute;gance et douceur &mdash; 5 L</p>
+        <div class="product-bottom">
+          <div class="product-price">19,90&euro; <span>/ 5L</span></div>
+          <a class="add-to-cart-btn" href="adoucissant-douceur-prestige-5-l.html" aria-label="Voir Adoucissant Douceur Prestige">+</a>
         </div>
       </div>
     </div>
@@ -243,38 +216,20 @@
   <div class="section-header reveal">
     <span class="section-label">Explorez</span>
     <h2 class="section-title">Nos Gammes</h2>
-    <p class="section-subtitle">Cinq univers de produits pour r&eacute;pondre &agrave; tous vos besoins d'entretien.</p>
+    <p class="section-subtitle">Deux essentiels du linge, en grand format concentr&eacute;.</p>
   </div>
-  <div class="gammes-grid stagger-anim reveal-up">
+  <div class="gammes-grid gammes-2 stagger-anim reveal-up">
     <div class="gamme-card reveal">
-      <img src="https://cdn.shopify.com/s/files/1/1052/4118/2472/files/propure-lessive-air-de-montagne.png?v=1784730819" alt="Lessive Air de Montagne Pro Pure 5 L" class="gamme-img" loading="lazy">
+      <img src="img/produits/bidon-lessive-marine-5l.png" alt="Lessive Pro Pure 5 L" class="gamme-img" loading="lazy">
       <h3 class="gamme-title">Lessives</h3>
-      <p class="gamme-count">9 parfums — Format 5 L</p>
+      <p class="gamme-count">4 parfums &mdash; 5 L, 120 lavages</p>
       <a href="catalogue.html?filter=lessives" class="gamme-link">D&eacute;couvrir &rarr;</a>
     </div>
     <div class="gamme-card reveal">
-      <img src="https://cdn.shopify.com/s/files/1/1052/4118/2472/files/propure-adoucissant-souffle-mysterieux.png?v=1784730995" alt="Adoucissant Souffle Myst&eacute;rieux Pro Pure 5 L" class="gamme-img" loading="lazy">
+      <img src="img/produits/bidon-adoucissant-douceur-prestige-5l.png" alt="Adoucissant Pro Pure 5 L" class="gamme-img" loading="lazy">
       <h3 class="gamme-title">Adoucissants</h3>
-      <p class="gamme-count">4 parfums — Format 5 L</p>
+      <p class="gamme-count">2 parfums &mdash; Format 5 L</p>
       <a href="catalogue.html?filter=adoucissants" class="gamme-link">D&eacute;couvrir &rarr;</a>
-    </div>
-    <div class="gamme-card reveal">
-      <img src="https://cdn.shopify.com/s/files/1/1052/4118/2472/files/propure-sol-jardin-fleuri.png?v=1784731039" alt="Nettoyant sols Jardin Fleuri Pro Pure 5 L" class="gamme-img" loading="lazy">
-      <h3 class="gamme-title">Nettoyants sols</h3>
-      <p class="gamme-count">3 parfums — Format 5 L</p>
-      <a href="catalogue.html?filter=nettoyants-sols" class="gamme-link">D&eacute;couvrir &rarr;</a>
-    </div>
-    <div class="gamme-card reveal">
-      <img src="https://cdn.shopify.com/s/files/1/1052/4118/2472/files/propure-vaisselle-pomme-verte.png?v=1784731137" alt="Liquide vaisselle Pomme Verte Pro Pure 5 L" class="gamme-img" loading="lazy">
-      <h3 class="gamme-title">Liquides vaisselle</h3>
-      <p class="gamme-count">3 parfums — Format 5 L</p>
-      <a href="catalogue.html?filter=liquides-vaisselle" class="gamme-link">D&eacute;couvrir &rarr;</a>
-    </div>
-    <div class="gamme-card reveal">
-      <img src="https://cdn.shopify.com/s/files/1/1052/4118/2472/files/propure-spray-anticalcaire_1b92f606-faeb-4194-8a7b-50b5a87d9226.png?v=1784731269" alt="Spray anticalcaire concentr&eacute; Pro Pure 1 L" class="gamme-img" loading="lazy">
-      <h3 class="gamme-title">Sprays d'Entretien</h3>
-      <p class="gamme-count">3 essentiels — Format 1 L</p>
-      <a href="catalogue.html?filter=sprays-entretien" class="gamme-link">D&eacute;couvrir &rarr;</a>
     </div>
   </div>
 </section>
@@ -383,9 +338,6 @@
       <ul>
         <li><a href="catalogue.html?filter=lessives">Lessives</a></li>
         <li><a href="catalogue.html?filter=adoucissants">Adoucissants</a></li>
-        <li><a href="catalogue.html?filter=nettoyants-sols">Nettoyants sols</a></li>
-        <li><a href="catalogue.html?filter=liquides-vaisselle">Liquides vaisselle</a></li>
-        <li><a href="catalogue.html?filter=sprays-entretien">Sprays d'Entretien</a></li>
       </ul>
     </div>
     <div class="footer-col">

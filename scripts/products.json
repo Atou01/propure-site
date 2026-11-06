@@ -9,7 +9,8 @@
   "price": "22.90",
   "sku": "PP-LES-MARINE-5L",
   "in_stock": true,
-  "type": "Lessive"
+  "type": "Lessive",
+  "launch": true
  },
  {
   "handle": "lessive-prestige-5-l",
@@ -21,7 +22,8 @@
   "price": "22.90",
   "sku": "PP-LES-PRESTIGE-5L",
   "in_stock": false,
-  "type": "Lessive"
+  "type": "Lessive",
+  "launch": true
  },
  {
   "handle": "lessive-air-de-montagne-5-l",
@@ -33,7 +35,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-air-de-montagne-5l.png?v=1793981671",
   "price": "22.90",
   "sku": "PP-LES-AIRMONT-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "lessive-alpine-5-l",
@@ -45,7 +48,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-alpine-5l.png?v=1793981672",
   "price": "22.90",
   "sku": "PP-LES-ALPINE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "lessive-fraicheur-5-l",
@@ -57,7 +61,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-fraicheur-5l.png?v=1793981674",
   "price": "22.90",
   "sku": "PP-LES-FRAICHEUR-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "lessive-musc-blanc-5-l",
@@ -69,7 +74,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-musc-blanc-5l.png?v=1793981676",
   "price": "22.90",
   "sku": "PP-LES-MUSC-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": true
  },
  {
   "handle": "lessive-mystere-5-l",
@@ -81,7 +87,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-mystere-5l.png?v=1793981676",
   "price": "22.90",
   "sku": "PP-LES-MYSTERE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "lessive-savon-de-marseille-5-l",
@@ -93,7 +100,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-savon-de-marseille-5l.png?v=1793981678",
   "price": "22.90",
   "sku": "PP-LES-MARSEILLE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": true
  },
  {
   "handle": "lessive-souffle-mysterieux-5-l",
@@ -105,7 +113,8 @@
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-lessive-souffle-mysterieux-5l.png?v=1793981679",
   "price": "22.90",
   "sku": "PP-LES-SOUFFLE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "adoucissant-air-de-montagne-5-l",
@@ -115,9 +124,10 @@
   "seo_description": "Adoucissant concentré Air de Montagne, fraîcheur alpine. Bidon 5 L, jusqu'à 150 lavages, fabriqué en France. Livraison rapide, abonnement possible.",
   "intro": "Un adoucissant au parfum vif et pur des sommets, pour un linge doux et frais comme le grand air.",
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-adoucissant-air-de-montagne-5l.png?v=1793981681",
-  "price": "22.90",
+  "price": "19.90",
   "sku": "PP-ADO-AIRMONT-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  },
  {
   "handle": "adoucissant-douceur-prestige-5-l",
@@ -127,9 +137,10 @@
   "seo_description": "Adoucissant concentré Douceur Prestige, élégance et douceur. Bidon 5 L, jusqu'à 150 lavages, fabriqué en France. Livraison rapide, abonnement possible.",
   "intro": "Notre adoucissant le plus élégant, au sillage riche et enveloppant, pour un linge d'une douceur luxueuse.",
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-adoucissant-douceur-prestige-5l.png?v=1793981683",
-  "price": "22.90",
+  "price": "19.90",
   "sku": "PP-ADO-PRESTIGE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": true
  },
  {
   "handle": "adoucissant-fraicheur-5-l",
@@ -139,9 +150,10 @@
   "seo_description": "Adoucissant concentré Fraîcheur, douceur et fraîcheur. Bidon 5 L, jusqu'à 150 lavages, fabriqué en France. Livraison rapide, abonnement possible.",
   "intro": "Un adoucissant frais et léger qui laisse le linge souple et délicatement parfumé.",
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-adoucissant-fraicheur-5l.png?v=1793981684",
-  "price": "22.90",
+  "price": "19.90",
   "sku": "PP-ADO-FRAICHEUR-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": true
  },
  {
   "handle": "adoucissant-souffle-mysterieux-5-l",
@@ -151,8 +163,9 @@
   "seo_description": "Adoucissant concentré Souffle Mystérieux, douceur envoûtante. Bidon 5 L, jusqu'à 150 lavages, fabriqué en France. Livraison rapide, abonnement possible.",
   "intro": "Un adoucissant au parfum envoûtant et intense, pour un linge doux au sillage profond.",
   "image": "https://cdn.shopify.com/s/files/1/1078/4905/6598/files/bidon-adoucissant-souffle-mysterieux-5l.png?v=1793981686",
-  "price": "22.90",
+  "price": "19.90",
   "sku": "PP-ADO-SOUFFLE-5L",
-  "in_stock": false
+  "in_stock": false,
+  "launch": false
  }
 ]

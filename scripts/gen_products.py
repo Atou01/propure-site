@@ -4,7 +4,7 @@ puis régénère le sitemap. Lancer depuis la racine du site : python3 scripts/g
 import json, html, re, datetime
 BASE = "https://www.p-pure.com"
 tpl = open("product.html", encoding="utf-8").read()
-products = json.load(open("scripts/products.json", encoding="utf-8"))
+products = [p for p in json.load(open("scripts/products.json", encoding="utf-8")) if p.get("launch", True)]
 today = datetime.date.today().isoformat()
 e = lambda s: html.escape(s, quote=True)
 for p in products:

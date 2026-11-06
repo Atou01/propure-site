@@ -1051,7 +1051,7 @@ function setupStickyBuyBar(name, price) {
     bar.classList.toggle('show', !entries[0].isIntersecting);
   }).observe(btn);
 }
-var STATIC_PRODUCT_HANDLES = ["lessive-marine-5-l", "lessive-prestige-5-l", "lessive-air-de-montagne-5-l", "lessive-alpine-5-l", "lessive-fraicheur-5-l", "lessive-musc-blanc-5-l", "lessive-mystere-5-l", "lessive-savon-de-marseille-5-l", "lessive-souffle-mysterieux-5-l", "adoucissant-air-de-montagne-5-l", "adoucissant-douceur-prestige-5-l", "adoucissant-fraicheur-5-l", "adoucissant-souffle-mysterieux-5-l"];
+var STATIC_PRODUCT_HANDLES = ["lessive-marine-5-l", "lessive-prestige-5-l", "lessive-musc-blanc-5-l", "lessive-savon-de-marseille-5-l", "adoucissant-douceur-prestige-5-l", "adoucissant-fraicheur-5-l"];
 function productUrl(handle) {
   return STATIC_PRODUCT_HANDLES.indexOf(handle) !== -1 ? handle + '.html' : 'product.html?handle=' + encodeURIComponent(handle);
 }

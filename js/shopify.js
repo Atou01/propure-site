@@ -1018,6 +1018,26 @@ function sanitizeDescriptionHtml(h) {
   return d.innerHTML;
 }
 
+// Découpe la description Shopify : intro, points forts, mode d'emploi, composition
+function splitProductDescription(html, text) {
+  var out = { intro: '', highlights: '', usage: '', composition: '' };
+  if (!html) { out.intro = escapeHTML(text); return out; }
+  var d = document.createElement('div');
+  d.innerHTML = sanitizeDescriptionHtml(html);
+  Array.prototype.slice.call(d.children).forEach(function(el) {
+    if (el.tagName === 'UL' && !out.highlights) { out.highlights = el.innerHTML; return; }
+    var t = (el.textContent || '').trim();
+    if (!out.intro && el.tagName === 'P' && !/^(machine|lavage|composition|tenir|dosage)/i.test(t)) { out.intro = el.outerHTML; return; }
+    if (/^(composition|tenir|attention|danger|contient)/i.test(t)) out.composition += el.outerHTML;
+    else out.usage += el.outerHTML;
+  });
+  return out;
+}
+function washesFromText(t) {
+  var m = /(\d{2,4})\s*lavages/i.exec(t || '');
+  return m ? parseInt(m[1], 10) : 0;
+}
+
 var STATIC_PRODUCT_HANDLES = ['lessive-marine-5-l', 'lessive-prestige-5-l'];
 function productUrl(handle) {
   return STATIC_PRODUCT_HANDLES.indexOf(handle) !== -1 ? handle + '.html' : 'product.html?handle=' + encodeURIComponent(handle);
@@ -1112,47 +1132,52 @@ async function loadSingleProduct(handle) {
       });
     }
 
-    container.innerHTML = '<div class="product-detail">'
+    var parts = splitProductDescription(product.descriptionHtml || '', product.description || '');
+    var perWash = washesFromText(product.title + ' ' + (product.description || ''));
+    var perWashHtml = perWash ? '<div class="pd-per-wash">soit <strong>' + (basePrice / perWash).toFixed(2).replace('.', ',') + ' &euro;</strong> par lavage &middot; ' + perWash + ' lavages</div>' : '';
+    var acc = function(title, body, open) {
+      return body ? '<details class="pd-acc"' + (open ? ' open' : '') + '><summary>' + title + '</summary><div class="pd-acc-body">' + body + '</div></details>' : '';
+    };
+
+    container.innerHTML = '<div class="product-detail pd-v2">'
       + '<div class="product-gallery">'
       + '<div class="product-gallery-main">'
-      + '<img id="mainProductImage" src="' + encodeURI(mainImg) + '" alt="' + escapeHTML(product.title) + '" />'
+      + '<img id="mainProductImage" src="' + encodeURI(mainImg) + '" alt="' + escapeHTML((images[0] && images[0].altText) || product.title) + '" />'
       + '</div>'
       + (thumbsHtml ? '<div class="product-gallery-thumbs">' + thumbsHtml + '</div>' : '')
       + '</div>'
       + '<div class="product-info">'
       + (pType ? '<div class="product-category">' + escapeHTML(pType) + '</div>' : '')
       + '<h1 class="product-title">' + escapeHTML(product.title) + '</h1>'
-      + '<div class="product-price-detail">' + price + ' &euro;</div>'
-      + '<div class="product-description-full">' + (product.descriptionHtml ? sanitizeDescriptionHtml(product.descriptionHtml) : escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.')) + '</div>'
+      + (parts.intro ? '<div class="pd-intro">' + parts.intro + '</div>' : '')
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" data-product-id="' + escapeHTML(product.id) + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
+      + '<div class="product-bottom pd-price-row"><div class="product-price">' + price + ' &euro;</div></div>'
+      + perWashHtml
       + detailSubHtml
-      + '<div class="product-bottom" style="margin-top:1rem;">'
-      + '<div class="product-price" style="font-size:1.3rem;">' + price + ' &euro;</div>'
-      + '</div>'
       + (inStock
-        ? '<div class="qty-selector" data-qty="1">'
-          + '<button type="button" onclick="changeDetailQty(this,-1)" aria-label="Diminuer la quantit\u00e9">&minus;</button>'
+        ? '<div class="pd-buy-row"><div class="qty-selector" data-qty="1">'
+          + '<button type="button" onclick="changeDetailQty(this,-1)" aria-label="Diminuer la quantité">&minus;</button>'
           + '<span id="detailQty">1</span>'
-          + '<button type="button" onclick="changeDetailQty(this,1)" aria-label="Augmenter la quantit\u00e9">+</button>'
+          + '<button type="button" onclick="changeDetailQty(this,1)" aria-label="Augmenter la quantité">+</button>'
           + '</div>'
-        : '')
-      + '<div class="product-actions" style="margin-top:0.5rem;">'
-      + (inStock
-        ? '<button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">'
+          + '<button class="product-add-btn add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)">'
           + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>'
-          + ' Ajouter au panier'
-          + '</button>'
-        : '<div class="out-of-stock-banner">Produit temporairement indisponible</div>')
-      + '</div>'
-      + '</div>'
-      + '<div class="trust-badges">'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>' + escapeHTML(productFormatLabel(product.title)) + '</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison France &amp; Gen\u00e8ve\u2013Nyon</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Fabriqu\u00e9 en France</span></div>'
-      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Paiement s\u00e9curis\u00e9</span></div>'
+          + ' Ajouter au panier</button></div>'
+        : '<div class="out-of-stock-banner">Rupture de stock &middot; bientôt de retour</div>')
       + '</div>'
       + '<div class="delivery-estimate" id="deliveryEstimate"></div>'
+      + (parts.highlights ? '<ul class="pd-highlights">' + parts.highlights + '</ul>' : '')
+      + '<div class="pd-accordions">'
+      + acc('Mode d’emploi', parts.usage, false)
+      + acc('Composition &amp; sécurité', parts.composition, false)
+      + acc('Livraison &amp; abonnement', '<p>Expédition sous 2 jours ouvrés. Livraison en France en 3 à 5 jours ouvrés (5,90 &euro;, offerte dès 39 &euro;). Genève–Nyon : livraison sur rendez-vous, offerte dès 49 &euro;.</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
+      + '</div>'
+      + '<div class="trust-badges">'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Fabriqué en France</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>Paiement sécurisé</span></div>'
+      + '<div class="trust-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg><span>Livraison France &amp; Genève–Nyon</span></div>'
+      + '</div>'
       + '</div>'
       + '</div>';
 
@@ -1247,7 +1272,7 @@ function renderRelatedGrid(container, products) {
       + '<div class="product-info">'
       + '<h3 class="product-name">' + escapeHTML(product.title) + '</h3>'
       + '<div class="product-bottom">'
-      + '<div class="product-price">' + price + ' &euro;</div>'
+      + '<div class="product-price">' + price + ' &euro;' + (product.availableForSale === false ? ' <span class="pd-oos-tag">Rupture</span>' : '') + '</div>'
       + '</div>'
       + '</div>'
       + '</div>';

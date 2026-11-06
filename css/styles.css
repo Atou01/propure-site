@@ -2288,8 +2288,8 @@ body.cart-open .cookie-banner { visibility: hidden; }
 
 /* ===== Page produit : tout en beige uniforme ===== */
 body.product-page { background: #EFE6D9; }
-body.product-page .product-gallery-main { background: transparent; border-radius: 0; }
-body.product-page .product-gallery-thumb { background: transparent; border: 2px solid transparent; }
+body.product-page .product-gallery-main { background: #EFE6D9; border-radius: 0; }
+body.product-page .product-gallery-thumb { background: #EFE6D9; border: 2px solid transparent; }
 body.product-page .product-gallery-thumb.active { border-color: var(--gold); }
 body.product-page .related-products-section,
 body.product-page .product-detail-container,

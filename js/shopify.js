@@ -169,7 +169,7 @@ const CART_FRAGMENT = `
               title
               price { amount currencyCode }
               image { url altText }
-              product { title handle }
+              product { title handle featuredImage { url } }
             }
           }
           sellingPlanAllocation {
@@ -464,6 +464,8 @@ function buildProductCard(product, i, tagLabel) {
 
 function updateProductsFromShopify(products) {
   allShopifyProducts = products;
+  window.__proPureProducts = products;
+  document.dispatchEvent(new CustomEvent('products:loaded'));
 
   // --- BEST-SELLERS: trois références actives ---
   var bsGrid = document.getElementById('bestsellersGrid');
@@ -579,8 +581,10 @@ function addToCartLocal(title, price, imgSrc) {
 }
 
 // ============ SYNC CART FROM GRAPHQL ============
+var cartRealTotal = null;
 function syncCartFromGraphQL(cart) {
   if (!cart || !cart.lines) return;
+  cartRealTotal = (cart.cost && cart.cost.totalAmount) ? parseFloat(cart.cost.totalAmount.amount) : null;
   cartItemsData = cart.lines.edges.map(function(edge) {
     var node = edge.node;
     var merch = node.merchandise;
@@ -605,7 +609,7 @@ function syncCartFromGraphQL(cart) {
       id: node.id,
       title: displayTitle,
       price: displayPrice,
-      imgSrc: merch.image ? merch.image.url : '',
+      imgSrc: merch.image ? merch.image.url : ((merch.product && merch.product.featuredImage) ? merch.product.featuredImage.url : ''),
       qty: node.quantity,
       variantId: merch.id
     };
@@ -691,7 +695,23 @@ function renderCart() {
     container.appendChild(row);
   });
   footer.style.display = 'block';
-  totalEl.textContent = total.toFixed(2).replace('.', ',') + '\u20AC';
+  // Remise automatique (packs) : total réel renvoyé par Shopify, avec ligne de remise explicite
+  var discountRow = document.getElementById('cartDiscountRow');
+  var shownTotal = total;
+  var discount = (cartRealTotal !== null && cartId) ? total - cartRealTotal : 0;
+  if (discount > 0.005) {
+    shownTotal = cartRealTotal;
+    if (!discountRow) {
+      discountRow = document.createElement('div');
+      discountRow.id = 'cartDiscountRow';
+      discountRow.className = 'cart-total cart-discount-row';
+      totalEl.parentNode.parentNode.insertBefore(discountRow, totalEl.parentNode);
+    }
+    discountRow.innerHTML = '<span>Remise pack</span><span>&minus;' + discount.toFixed(2).replace('.', ',') + '\u20AC</span>';
+  } else if (discountRow) {
+    discountRow.remove();
+  }
+  totalEl.textContent = shownTotal.toFixed(2).replace('.', ',') + '\u20AC';
   if (badge) {
     badge.textContent = totalQty;
     badge.classList.add('show');

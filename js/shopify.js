@@ -441,14 +441,14 @@ function buildProductCard(product, i, tagLabel) {
   card.setAttribute('data-tags', tags.join(',').toLowerCase());
 
   var handle = product.handle || '';
-  card.innerHTML = '<a href="product.html?handle=' + encodeURIComponent(handle) + '" class="product-img" style="display:block;text-decoration:none;">'
+  card.innerHTML = '<a href="' + productUrl(handle) + '" class="product-img" style="display:block;text-decoration:none;">'
     + (imgSrc
       ? '<img src="' + encodeURI(imgSrc) + '" alt="' + escapeHTML(product.title) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:16px 16px 0 0;" />'
       : '<div class="product-img-placeholder" style="background: linear-gradient(180deg, #E8E4F0 0%, #B8A5D4 100%);"></div>')
     + (tagLabel ? '<span class="product-tag">' + escapeHTML(tagLabel) + '</span>' : '')
     + '</a>'
     + '<div class="product-info">'
-    + '<a href="product.html?handle=' + encodeURIComponent(handle) + '" class="product-name" style="text-decoration:none;color:inherit;display:block;">' + escapeHTML(product.title) + '</a>'
+    + '<a href="' + productUrl(handle) + '" class="product-name" style="text-decoration:none;color:inherit;display:block;">' + escapeHTML(product.title) + '</a>'
     + '<p class="product-desc">' + escapeHTML((product.description || '').substring(0, 60)) + '</p>'
     + subHtml
     + '<div class="product-bottom">'
@@ -1000,6 +1000,12 @@ function buildDetailSubscriptionHtml(productId, basePrice, priceLabel) {
     + '</div>';
 }
 
+// Pages produit statiques (générées par scripts/gen_products.py) : meilleures pour le SEO
+var STATIC_PRODUCT_HANDLES = ['lessive-marine-5-l', 'lessive-prestige-5-l'];
+function productUrl(handle) {
+  return STATIC_PRODUCT_HANDLES.indexOf(handle) !== -1 ? handle + '.html' : 'product.html?handle=' + encodeURIComponent(handle);
+}
+
 async function loadSingleProduct(handle) {
   var container = document.getElementById('productDetailContainer');
   if (!container) return;
@@ -1077,7 +1083,7 @@ async function loadSingleProduct(handle) {
     if (breadcrumbCurrent) {
       breadcrumbCurrent.textContent = product.title;
     }
-    document.title = product.title + ' \u2014 Pro Pure';
+    if (!document.body.getAttribute('data-handle')) document.title = product.title + ' \u2014 Pro Pure';
 
     var thumbsHtml = '';
     if (images.length > 1) {
@@ -1212,7 +1218,7 @@ function renderRelatedGrid(container, products) {
     var handle = product.handle || '';
 
     var card = document.createElement('a');
-    card.href = 'product.html?handle=' + encodeURIComponent(handle);
+    card.href = productUrl(handle);
     card.className = 'product-card-link';
     card.innerHTML = '<div class="product-card reveal visible" data-base-price="' + price + '">'
       + '<div class="product-img">'
@@ -1254,7 +1260,7 @@ function syncSubscriptionVisibility() {
 
 window.addEventListener('DOMContentLoaded', async function() {
   var urlParams = new URLSearchParams(window.location.search);
-  var handle = urlParams.get('handle');
+  var handle = urlParams.get('handle') || (document.body && document.body.getAttribute('data-handle'));
   if (handle && document.getElementById('productDetailContainer')) {
     await loadSingleProduct(handle);
   } else {

@@ -154,7 +154,7 @@
 <div class="cart-toast" id="cartToast" role="status" aria-live="polite">Produit ajouté au panier !</div>
 
 <!-- Scripts -->
-<script src="js/shopify.js?v=11" defer></script>
+<script src="js/shopify.js?v=12" defer></script>
 <script src="js/main.js?v=6" defer></script>
 <script src="js/animations.js?v=4" defer></script>
 
@@ -162,7 +162,7 @@
 // Update page title and meta when product loads
 document.addEventListener('productLoaded', function(e) {
   if (e.detail && e.detail.title) {
-    document.title = e.detail.title + ' — Pro Pure';
+    if (!document.body.getAttribute('data-handle')) document.title = e.detail.title + ' — Pro Pure';
   }
 });
 </script>

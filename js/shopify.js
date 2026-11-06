@@ -1001,6 +1001,23 @@ function buildDetailSubscriptionHtml(productId, basePrice, priceLabel) {
 }
 
 // Pages produit statiques (générées par scripts/gen_products.py) : meilleures pour le SEO
+// Description Shopify : on ne garde que des balises de mise en forme simples
+function sanitizeDescriptionHtml(h) {
+  var d = document.createElement('div');
+  d.innerHTML = h;
+  var ok = { P: 1, UL: 1, OL: 1, LI: 1, STRONG: 1, B: 1, EM: 1, I: 1, BR: 1 };
+  (function clean(n) {
+    Array.prototype.slice.call(n.childNodes).forEach(function(c) {
+      if (c.nodeType === 8) { n.removeChild(c); return; }
+      if (c.nodeType !== 1) return;
+      if (!ok[c.tagName]) { n.replaceChild(document.createTextNode(c.textContent), c); return; }
+      while (c.attributes.length) c.removeAttribute(c.attributes[0].name);
+      clean(c);
+    });
+  })(d);
+  return d.innerHTML;
+}
+
 var STATIC_PRODUCT_HANDLES = ['lessive-marine-5-l', 'lessive-prestige-5-l'];
 function productUrl(handle) {
   return STATIC_PRODUCT_HANDLES.indexOf(handle) !== -1 ? handle + '.html' : 'product.html?handle=' + encodeURIComponent(handle);
@@ -1037,7 +1054,7 @@ async function loadSingleProduct(handle) {
     var productResult = await storefrontFetch(
       `query getProductByHandle($handle: String!) {
         productByHandle(handle: $handle) {
-          id title handle description productType availableForSale
+          id title handle description descriptionHtml productType availableForSale
           variants(first: 10) {
             edges { node { id title price { amount currencyCode } availableForSale } }
           }
@@ -1060,6 +1077,7 @@ async function loadSingleProduct(handle) {
       title: productData.title,
       handle: productData.handle,
       description: productData.description,
+      descriptionHtml: productData.descriptionHtml,
       productType: productData.productType,
       availableForSale: productData.availableForSale,
       variants: productData.variants.edges.map(function(e) { return e.node; }),
@@ -1105,7 +1123,7 @@ async function loadSingleProduct(handle) {
       + (pType ? '<div class="product-category">' + escapeHTML(pType) + '</div>' : '')
       + '<h1 class="product-title">' + escapeHTML(product.title) + '</h1>'
       + '<div class="product-price-detail">' + price + ' &euro;</div>'
-      + '<div class="product-description-full">' + escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.') + '</div>'
+      + '<div class="product-description-full">' + (product.descriptionHtml ? sanitizeDescriptionHtml(product.descriptionHtml) : escapeHTML(product.description || 'Un produit d\'exception de la gamme Pro Pure.')) + '</div>'
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" data-product-id="' + escapeHTML(product.id) + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
       + detailSubHtml

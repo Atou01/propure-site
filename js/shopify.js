@@ -115,6 +115,65 @@ function clearSavedCart() {
   localStorage.removeItem('propure_cartId');
 }
 
+// --- Étiquette pub (UTM) : relie une commande à la vidéo / pub qui l'a amenée ---
+// Gardée seulement si le visiteur a accepté les cookies ; 30 jours ; dernier clic gagnant.
+// Les clés commencent par « _ » : invisibles pour le client, visibles dans la commande Shopify.
+var PP_ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'ttclid'];
+var ppAttrPending = null;
+function ppConsentOk() { try { return localStorage.getItem('cookieConsent') === 'accepted'; } catch (e) { return false; } }
+function ppCaptureAttribution() {
+  var p = new URLSearchParams(location.search), a = {}, has = false;
+  PP_ATTR_KEYS.forEach(function (k) { var v = p.get(k); if (v) { a[k] = v.slice(0, 200); has = true; } });
+  if (!has) return;
+  a.landing = location.pathname.slice(0, 120);
+  a.at = new Date().toISOString();
+  ppAttrPending = a;
+  if (ppConsentOk()) ppSaveAttribution();
+}
+function ppSaveAttribution() {
+  if (!ppAttrPending) return;
+  try { localStorage.setItem('pp_attrib', JSON.stringify(ppAttrPending)); } catch (e) {}
+}
+function ppGetAttribution() {
+  if (!ppConsentOk()) return null;
+  try {
+    var a = JSON.parse(localStorage.getItem('pp_attrib') || 'null');
+    if (!a || !a.at) return null;
+    if (Date.now() - Date.parse(a.at) > 30 * 864e5) { localStorage.removeItem('pp_attrib'); return null; }
+    return a;
+  } catch (e) { return null; }
+}
+function ppAttributionList() {
+  var a = ppGetAttribution(); if (!a) return [];
+  return Object.keys(a).map(function (k) { return { key: '_' + k, value: String(a[k]) }; });
+}
+function ppAttribStamp(id) { var a = ppGetAttribution(); return a ? (id + '|' + a.at) : ''; }
+async function ppEnsureCartAttribution() {
+  if (!cartId) return;
+  var stamp = ppAttribStamp(cartId);
+  if (!stamp) return;
+  try { if (localStorage.getItem('pp_attrib_cart') === stamp) return; } catch (e) {}
+  var m = 'mutation cartAttributesUpdate($cartId: ID!, $attributes: [AttributeInput!]!) { cartAttributesUpdate(cartId: $cartId, attributes: $attributes) { cart { id } userErrors { field message } } }';
+  try {
+    var r = await storefrontFetch(m, { cartId: cartId, attributes: ppAttributionList() });
+    if (r && r.data && r.data.cartAttributesUpdate && r.data.cartAttributesUpdate.cart) localStorage.setItem('pp_attrib_cart', stamp);
+  } catch (e) { /* l'achat ne doit jamais être bloqué par l'étiquette */ }
+}
+ppCaptureAttribution();
+window.addEventListener('DOMContentLoaded', function () {
+  var orig = window.setCookieConsent;
+  if (typeof orig === 'function' && !orig.ppAttrib) {
+    var wrapped = function (accepted) {
+      var r = orig.apply(this, arguments);
+      if (accepted) { ppSaveAttribution(); ppEnsureCartAttribution(); }
+      else { try { localStorage.removeItem('pp_attrib'); localStorage.removeItem('pp_attrib_cart'); } catch (e) {} }
+      return r;
+    };
+    wrapped.ppAttrib = true;
+    window.setCookieConsent = wrapped;
+  }
+});
+
 async function restoreCart(savedId) {
   var query = 'query getCart($cartId: ID!) { cart(id: $cartId) { ...CartFields } } ' + CART_FRAGMENT;
   var result = await storefrontFetch(query, { cartId: savedId });
@@ -250,12 +309,16 @@ async function createCart(lines) {
     }
     ${CART_FRAGMENT}
   `;
-  const result = await storefrontFetch(mutation, { input: { lines: lines || [], buyerIdentity: { countryCode: PP_COUNTRY } } });
+  const input = { lines: lines || [], buyerIdentity: { countryCode: PP_COUNTRY } };
+  const attrs = ppAttributionList();
+  if (attrs.length) input.attributes = attrs;
+  const result = await storefrontFetch(mutation, { input: input });
   if (result.data && result.data.cartCreate && result.data.cartCreate.cart) {
     const cart = result.data.cartCreate.cart;
     cartId = cart.id;
     cartCheckoutUrl = cart.checkoutUrl;
     saveCartId();
+    if (attrs.length) { try { localStorage.setItem('pp_attrib_cart', ppAttribStamp(cartId)); } catch (e) {} }
     syncCartFromGraphQL(cart);
     return cart;
   }
@@ -276,6 +339,7 @@ async function cartLinesAdd(lines) {
     ${CART_FRAGMENT}
   `;
   const result = await storefrontFetch(mutation, { cartId: cartId, lines: lines });
+  ppEnsureCartAttribution();
   if (result.data && result.data.cartLinesAdd && result.data.cartLinesAdd.cart) {
     const cart = result.data.cartLinesAdd.cart;
     cartCheckoutUrl = cart.checkoutUrl;

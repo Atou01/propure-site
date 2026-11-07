@@ -1,0 +1,20 @@
+{
+  "name": "hermes",
+  "version": "0.1.0",
+  "description": "Agent B2B Pro Pure — prospection Suisse romande (scout, analyste, digest)",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "scout": "node src/index.js --only=scout",
+    "digest": "node src/index.js --only=digest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88",
+    "dotenv": "^16",
+    "nodemailer": "^6"
+  }
+}

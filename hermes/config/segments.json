@@ -1,0 +1,47 @@
+{
+  "locations": [
+    "Geneva, Switzerland",
+    "Lausanne, Switzerland",
+    "Vevey, Switzerland",
+    "Montreux, Switzerland",
+    "Fribourg, Switzerland",
+    "Neuchatel, Switzerland",
+    "Sion, Switzerland",
+    "Nyon, Switzerland"
+  ],
+  "employeeRanges": ["1,10", "11,50", "51,200"],
+  "segments": [
+    {
+      "id": "conciergeries",
+      "label": "Conciergeries / gestion locative Airbnb",
+      "enabled": true,
+      "priority": 1,
+      "keywords": ["property management", "vacation rental", "concierge", "airbnb management"],
+      "pitchAngle": "Linge impeccable et parfums d'exception pour les locations courte durée : l'odeur du linge est un critère direct des avis 5 étoiles. Abonnement = réassort automatique, zéro rupture de stock entre deux check-ins."
+    },
+    {
+      "id": "nettoyage",
+      "label": "Entreprises de nettoyage / facility services",
+      "enabled": true,
+      "priority": 2,
+      "keywords": ["cleaning services", "cleaning", "facility services"],
+      "pitchAngle": "Produits ménagers premium fabriqués en France, tarifs pro dégressifs sur volume, livraison récurrente planifiée. Se différencier chez les clients haut de gamme par des parfums signature."
+    },
+    {
+      "id": "hotellerie",
+      "label": "Hôtels boutique, B&B, guest houses",
+      "enabled": true,
+      "priority": 3,
+      "keywords": ["hotel", "bed and breakfast", "guest house"],
+      "pitchAngle": "Une signature olfactive pour le linge et les chambres, produits premium fabriqués en France. Volumes adaptés aux petites structures, sans engagement."
+    },
+    {
+      "id": "salons",
+      "label": "Salons de coiffure, instituts, spas",
+      "enabled": false,
+      "priority": 4,
+      "keywords": ["hair salon", "beauty salon", "barbershop", "spa"],
+      "pitchAngle": "Serviettes parfumées et dépôt-vente de produits ménagers premium pour la clientèle du salon."
+    }
+  ]
+}

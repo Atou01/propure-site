@@ -2445,3 +2445,4 @@ body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light)
 .add-to-cart-btn.card-add-btn:hover{transform:none}
 @media (max-width:420px){.add-to-cart-btn.card-add-btn{height:38px;padding:0 12px;font-size:.8rem}}
 .product-card .product-bottom .product-price{white-space:nowrap}
+.product-card .product-bottom{gap:8px}

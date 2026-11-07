@@ -1212,7 +1212,7 @@ async function loadSingleProduct(handle) {
       + '<div class="pd-accordions">'
       + acc('Mode d’emploi', parts.usage, false)
       + acc('Composition &amp; sécurité', parts.composition, false)
-      + acc('Livraison &amp; abonnement', '<p>Livraison locale sur rendez-vous : Pays de Gex jusqu’à Annemasse (5,90 &euro;, offerte dès 39 &euro;) et Genève jusqu’à Nyon (5 &euro;, offerte dès 49 &euro;).</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
+      + acc('Livraison &amp; abonnement', '<p>Livraison locale sur rendez-vous : Pays de Gex jusqu’à Annemasse (5,90 &euro;, offerte dès 39 &euro;) et Genève jusqu’à Nyon (5 CHF, offerte dès 49 CHF).</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
       + '</div>'
       + '</div>'
       + '</div>';

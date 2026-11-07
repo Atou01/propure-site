@@ -499,7 +499,7 @@ function buildProductCard(product, i, tagLabel) {
     + '<div class="product-bottom">'
     + '<div class="product-price">' + price + ' ' + PP_SYM + '</div>'
     + (inStock
-      ? '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier">+</button>'
+      ? '<button class="add-to-cart-btn card-add-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Ajouter</span></button>'
       : '<span class="out-of-stock-label">Rupture</span>')
     + '</div>'
     + '</div>';

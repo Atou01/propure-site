@@ -2439,3 +2439,9 @@ body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light)
   .pd-sticky-btn { flex: none; border: 0; border-radius: 999px; padding: 12px 20px; background: var(--charcoal); color: var(--white); font: 600 .9rem var(--font-body); cursor: pointer; }
 }
 
+
+/* Bouton « Ajouter » visible sur les cartes produit (accueil, catalogue, suggestions) */
+.add-to-cart-btn.card-add-btn{width:auto;height:40px;border-radius:999px;padding:0 14px;gap:6px;font:600 .85rem Inter,system-ui,sans-serif;white-space:nowrap}
+.add-to-cart-btn.card-add-btn:hover{transform:none}
+@media (max-width:420px){.add-to-cart-btn.card-add-btn{height:38px;padding:0 12px;font-size:.8rem}}
+.product-card .product-bottom .product-price{white-space:nowrap}

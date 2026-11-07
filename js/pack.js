@@ -12,7 +12,7 @@
   var state = { pack: null, picks: [], products: [] };
 
   function pct(n) { return n >= 4 ? 0.12 : (n >= 2 ? 0.08 : 0); }
-  function money(v) { return v.toFixed(2).replace('.', ',') + ' €'; }
+  function money(v) { return v.toFixed(2).replace('.', ',') + ' ' + (window.PP_SYM || '€'); }
   function esc(s) { return window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function kindOf(p) { return (window.ProPureProductCategories && window.ProPureProductCategories.classifyProduct(p)) === 'adoucissants' ? 'A' : 'L'; }
   function scent(p) {

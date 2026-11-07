@@ -6,6 +6,63 @@ const SHOPIFY_DOMAIN = '47kjax-uw.myshopify.com';
 const STOREFRONT_TOKEN = '';
 const STOREFRONT_API_VERSION = '2026-07';
 
+// --- Pays / devise (France = EUR, Suisse = CHF) ---
+// Le pays vient du choix du visiteur (memorise) sinon de la geolocalisation Vercel (/api/geo).
+// Shopify renvoie alors les prix du marche correspondant (@inContext) et le panier est cree dans ce pays.
+var PP_COUNTRY = 'FR';
+var PP_SYM = '€';
+function ppSetCountry(c) {
+  PP_COUNTRY = (c === 'CH' || c === 'LI') ? 'CH' : 'FR';
+  PP_SYM = PP_COUNTRY === 'CH' ? 'CHF' : '€';
+  try { document.documentElement.setAttribute('data-pp-country', PP_COUNTRY); } catch (e) {}
+}
+var ppCountryReady = (async function() {
+  var saved = null;
+  try { saved = localStorage.getItem('ppCountry'); } catch (e) {}
+  if (saved === 'CH' || saved === 'FR') { ppSetCountry(saved); return PP_COUNTRY; }
+  try {
+    var ctrl = new AbortController();
+    var t = setTimeout(function() { ctrl.abort(); }, 1500);
+    var r = await fetch('/api/geo', { signal: ctrl.signal, cache: 'no-store' });
+    clearTimeout(t);
+    var j = await r.json();
+    ppSetCountry(j && j.country);
+  } catch (e) { ppSetCountry('FR'); }
+  return PP_COUNTRY;
+})();
+function ppFreeShipText() { return PP_COUNTRY === 'CH' ? 'dès 49 CHF' : 'dès 39 €'; }
+function ppChooseCountry(c) {
+  try { localStorage.setItem('ppCountry', c); localStorage.removeItem('propure_cartId'); } catch (e) {}
+  location.reload();
+}
+// Petit selecteur de pays dans la barre de navigation
+document.addEventListener('DOMContentLoaded', function() {
+  ppCountryReady.then(function() {
+    var ct = document.getElementById('cartTotal');
+    if (ct && PP_COUNTRY === 'CH' && /\u20ac/.test(ct.textContent)) ct.textContent = '0,00 CHF';
+    var nav = document.querySelector('.navbar');
+    var cartBtn = nav && nav.querySelector('.nav-cart');
+    if (!nav || !cartBtn || document.getElementById('ppCountrySel')) return;
+    var sel = document.createElement('select');
+    sel.id = 'ppCountrySel';
+    sel.className = 'pp-country-select';
+    sel.setAttribute('aria-label', 'Pays de livraison et devise');
+    sel.innerHTML = '<option value="FR">🇫🇷 France · €</option><option value="CH">🇨🇭 Suisse · CHF</option>';
+    sel.value = PP_COUNTRY;
+    sel.addEventListener('change', function() { ppChooseCountry(sel.value); });
+    cartBtn.parentNode.insertBefore(sel, cartBtn);
+  });
+});
+
+function ppInContext(query) {
+  var dir = ' @inContext(country: ' + PP_COUNTRY + ')';
+  var q = query.replace(/^\s+/, '');
+  if (q.charAt(0) === '{') return 'query' + dir + ' ' + q;
+  var m = q.match(/^(query|mutation)\b\s*\w*\s*(\([^)]*\))?/);
+  if (m) return q.slice(0, m[0].length) + dir + q.slice(m[0].length);
+  return q;
+}
+
 // --- Selling Plans (abonnement) ---
 // Les formules viennent de l'app Shopify Subscriptions (forfait « Abonnement Pro Pure ») et sont lues
 // dynamiquement. La fréquence (en mois) est extraite du premier nombre de l'option de la formule.
@@ -63,9 +120,12 @@ var cartUpdating = false;
 function saveCartId() {
   if (cartId) {
     localStorage.setItem('propure_cartId', cartId);
+    localStorage.setItem('propure_cartCountry', PP_COUNTRY);
   }
 }
 function getSavedCartId() {
+  var c = localStorage.getItem('propure_cartCountry') || 'FR';
+  if (c !== PP_COUNTRY) { localStorage.removeItem('propure_cartId'); return null; }
   return localStorage.getItem('propure_cartId');
 }
 function clearSavedCart() {
@@ -95,6 +155,8 @@ function escapeHTML(str) {
 
 // ============ STOREFRONT API GRAPHQL HELPER ============
 async function storefrontFetch(query, variables) {
+  await ppCountryReady;
+  query = ppInContext(query);
   var headers = {
     'Content-Type': 'application/json'
   };
@@ -205,7 +267,7 @@ async function createCart(lines) {
     }
     ${CART_FRAGMENT}
   `;
-  const result = await storefrontFetch(mutation, { input: { lines: lines || [] } });
+  const result = await storefrontFetch(mutation, { input: { lines: lines || [], buyerIdentity: { countryCode: PP_COUNTRY } } });
   if (result.data && result.data.cartCreate && result.data.cartCreate.cart) {
     const cart = result.data.cartCreate.cart;
     cartId = cart.id;
@@ -409,7 +471,7 @@ function buildCardSubscriptionHtml(productId, basePrice) {
     + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">Abonnement jusqu\'à -' + formatPct(bestRate) + '%</button>'
     + '</div>'
     + '<div class="sub-freq" style="display:none">' + freqButtons + '</div>'
-    + '<div class="sub-discount" style="display:none">Économisez ' + saving + ' € sur le produit</div>'
+    + '<div class="sub-discount" style="display:none">Économisez ' + saving + ' ' + PP_SYM + ' sur le produit</div>'
     + '<div class="sub-explainer sub-explainer-card" style="display:none">'
     + '<div class="sub-explainer-items-compact">'
     + '<div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg> Livraison automatique à la fréquence choisie</div>'
@@ -452,7 +514,7 @@ function buildProductCard(product, i, tagLabel) {
     + '<p class="product-desc">' + escapeHTML((product.description || '').substring(0, 60)) + '</p>'
     + subHtml
     + '<div class="product-bottom">'
-    + '<div class="product-price">' + price + ' &euro;</div>'
+    + '<div class="product-price">' + price + ' ' + PP_SYM + '</div>'
     + (inStock
       ? '<button class="add-to-cart-btn ripple-btn" onclick="addToCartStatic(this)" aria-label="Ajouter ' + escapeHTML(product.title) + ' au panier">+</button>'
       : '<span class="out-of-stock-label">Rupture</span>')
@@ -663,7 +725,7 @@ function renderCart() {
 
     var priceDiv = document.createElement('div');
     priceDiv.className = 'cart-item-price';
-    priceDiv.textContent = item.price + '\u20ac';
+    priceDiv.textContent = item.price + ' ' + PP_SYM;
     details.appendChild(priceDiv);
 
     var qtyDiv = document.createElement('div');
@@ -707,11 +769,11 @@ function renderCart() {
       discountRow.className = 'cart-total cart-discount-row';
       totalEl.parentNode.parentNode.insertBefore(discountRow, totalEl.parentNode);
     }
-    discountRow.innerHTML = '<span>Remise pack</span><span>&minus;' + discount.toFixed(2).replace('.', ',') + '\u20AC</span>';
+    discountRow.innerHTML = '<span>Remise pack</span><span>&minus;' + discount.toFixed(2).replace('.', ',') + ' ' + PP_SYM + '</span>';
   } else if (discountRow) {
     discountRow.remove();
   }
-  totalEl.textContent = shownTotal.toFixed(2).replace('.', ',') + '\u20AC';
+  totalEl.textContent = shownTotal.toFixed(2).replace('.', ',') + ' ' + PP_SYM + '';
   if (badge) {
     badge.textContent = totalQty;
     badge.classList.add('show');
@@ -883,15 +945,15 @@ function setMode(btn, mode) {
     while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
     var oldPriceSpan = document.createElement('span');
     oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
-    oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
+    oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' ' + PP_SYM + '';
     priceEl.appendChild(oldPriceSpan);
-    priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
-    if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
+    priceEl.appendChild(document.createTextNode(discounted + ' ' + PP_SYM + ''));
+    if (discountDiv) discountDiv.textContent = '\u00c9conomisez ' + saving + ' ' + PP_SYM + ' sur le produit';
     // Update saving box
     var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
-    if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit';
+    if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' ' + PP_SYM + '</strong> sur le produit';
     var annualEl = card.querySelector('#subAnnualSaving');
-    if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
+    if (annualEl) annualEl.textContent = annualSaving + ' ' + PP_SYM + '';
     var subOptionBtn = btn.closest('.sub-toggle').querySelector('.sub-option');
     if (subOptionBtn) {
       var badgeEl = subOptionBtn.querySelector('.sub-option-badge');
@@ -906,7 +968,7 @@ function setMode(btn, mode) {
     if (discountDiv) { discountDiv.style.display = ''; discountDiv.classList.remove('visible'); }
     if (savingBox) { savingBox.style.display = 'none'; savingBox.classList.remove('visible'); }
     if (explainerDiv) { explainerDiv.style.display = 'none'; explainerDiv.classList.remove('visible'); }
-    priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
+    priceEl.textContent = basePrice.toFixed(2).replace('.', ',') + ' ' + PP_SYM + '';
   }
 }
 
@@ -932,12 +994,12 @@ function setFreq(btn, months) {
   while (priceEl.firstChild) priceEl.removeChild(priceEl.firstChild);
   var oldPriceSpan = document.createElement('span');
   oldPriceSpan.style.cssText = 'text-decoration:line-through;opacity:.5;font-size:.85em;margin-right:6px';
-  oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' \u20ac';
+  oldPriceSpan.textContent = basePrice.toFixed(2).replace('.', ',') + ' ' + PP_SYM + '';
   priceEl.appendChild(oldPriceSpan);
-  priceEl.appendChild(document.createTextNode(discounted + ' \u20ac'));
+  priceEl.appendChild(document.createTextNode(discounted + ' ' + PP_SYM + ''));
 
   if (discountDiv) {
-    discountDiv.textContent = '\u00c9conomisez ' + saving + ' \u20ac sur le produit';
+    discountDiv.textContent = '\u00c9conomisez ' + saving + ' ' + PP_SYM + ' sur le produit';
     discountDiv.style.display = '';
     discountDiv.classList.add('visible');
   }
@@ -946,15 +1008,15 @@ function setFreq(btn, months) {
   var savingBox = card.querySelector('.sub-saving-box');
   var explainerDiv = card.querySelector('.sub-explainer');
   var savingPerDelivery = card.querySelector('.sub-saving-per-delivery');
-  if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit';
+  if (savingPerDelivery) savingPerDelivery.innerHTML = '\u00c9conomisez <strong>' + saving + ' ' + PP_SYM + '</strong> sur le produit';
   var annualEl = card.querySelector('#subAnnualSaving');
-  if (annualEl) annualEl.textContent = annualSaving + ' \u20ac';
+  if (annualEl) annualEl.textContent = annualSaving + ' ' + PP_SYM + '';
   if (savingBox) { savingBox.style.display = ''; savingBox.classList.add('visible'); }
   if (explainerDiv) { explainerDiv.style.display = ''; explainerDiv.classList.add('visible'); }
 
   // Update btn price display
   var subBtnPrice = card.querySelector('.sub-option .sub-btn-price');
-  if (subBtnPrice) subBtnPrice.textContent = discounted + ' \u20ac';
+  if (subBtnPrice) subBtnPrice.textContent = discounted + ' ' + PP_SYM + '';
 
   if (subToggle) {
     var subBtn = subToggle.querySelector('.sub-option');
@@ -990,11 +1052,11 @@ function buildDetailSubscriptionHtml(productId, basePrice, priceLabel) {
     + '<div class="sub-toggle sub-toggle-detail">'
     + '<button class="sub-toggle-btn active" onclick="setMode(this,\'once\')">'
     + '<span class="sub-btn-title">Achat unique</span>'
-    + '<span class="sub-btn-price">' + priceLabel + ' \u20ac</span>'
+    + '<span class="sub-btn-price">' + priceLabel + ' ' + PP_SYM + '</span>'
     + '</button>'
     + '<button class="sub-toggle-btn sub-option" onclick="setMode(this,\'sub\')">'
     + '<span class="sub-btn-title">Abonnement <span class="sub-option-badge">-' + formatPct(firstRate) + '%</span></span>'
-    + '<span class="sub-btn-price">' + (basePrice * (1 - firstRate)).toFixed(2).replace('.', ',') + ' \u20ac</span>'
+    + '<span class="sub-btn-price">' + (basePrice * (1 - firstRate)).toFixed(2).replace('.', ',') + ' ' + PP_SYM + '</span>'
     + '</button>'
     + '</div>'
     + '<div class="sub-freq" style="display:none">'
@@ -1002,8 +1064,8 @@ function buildDetailSubscriptionHtml(productId, basePrice, priceLabel) {
     + '<div class="sub-freq-options">' + freqButtons + '</div>'
     + '</div>'
     + '<div class="sub-saving-box" style="display:none">'
-    + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' \u20ac</strong> sur le produit</div>'
-    + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + annual + ' \u20ac</strong> d\'\u00e9conomie par an</div>'
+    + '<div class="sub-saving-per-delivery">\u00c9conomisez <strong>' + saving + ' ' + PP_SYM + '</strong> sur le produit</div>'
+    + '<div class="sub-saving-annual">Soit <strong id="subAnnualSaving">' + annual + ' ' + PP_SYM + '</strong> d\'\u00e9conomie par an</div>'
     + '</div>'
     + '<div class="sub-explainer" style="display:none">'
     + '<div class="sub-explainer-title">'
@@ -1064,7 +1126,7 @@ function setupStickyBuyBar(name, price) {
   if (!btn || !('IntersectionObserver' in window)) return;
   var bar = document.createElement('div');
   bar.id = 'pdSticky'; bar.className = 'pd-sticky';
-  bar.innerHTML = '<div class="pd-sticky-info"><span class="pd-sticky-name">' + escapeHTML(name) + '</span><span class="pd-sticky-price">' + price + ' &euro;</span></div><button type="button">Ajouter au panier</button>';
+  bar.innerHTML = '<div class="pd-sticky-info"><span class="pd-sticky-name">' + escapeHTML(name) + '</span><span class="pd-sticky-price">' + price + ' ' + PP_SYM + '</span></div><button type="button">Ajouter au panier</button>';
   bar.querySelector('button').addEventListener('click', function() { btn.click(); });
   document.body.appendChild(bar);
   new IntersectionObserver(function(entries) {
@@ -1172,7 +1234,7 @@ async function loadSingleProduct(handle) {
     })(product.title);
     var parts = splitProductDescription(product.descriptionHtml || '', product.description || '');
     var perWash = washesFromText(product.title + ' ' + (product.description || ''));
-    var perWashHtml = perWash ? '<div class="pd-per-wash">soit <strong>' + (basePrice / perWash).toFixed(2).replace('.', ',') + ' &euro;</strong> par lavage &middot; ' + perWash + ' lavages</div>' : '';
+    var perWashHtml = perWash ? '<div class="pd-per-wash">soit <strong>' + (basePrice / perWash).toFixed(2).replace('.', ',') + ' ' + PP_SYM + '</strong> par lavage &middot; ' + perWash + ' lavages</div>' : '';
     var acc = function(title, body, open) {
       return body ? '<details class="pd-acc"' + (open ? ' open' : '') + '><summary>' + title + '</summary><div class="pd-acc-body">' + body + '</div></details>' : '';
     };
@@ -1189,7 +1251,7 @@ async function loadSingleProduct(handle) {
       + (parts.intro ? '<div class="pd-intro">' + parts.intro + '</div>' : '')
       + '<div class="product-card" data-base-price="' + price + '" data-variant-id="' + variant.id + '" data-product-id="' + escapeHTML(product.id) + '" style="background:none;box-shadow:none;padding:0;">'
       + '<span class="product-name" style="display:none">' + escapeHTML(product.title) + '</span>'
-      + '<div class="product-bottom pd-price-row"><div class="product-price">' + price + ' &euro;</div></div>'
+      + '<div class="product-bottom pd-price-row"><div class="product-price">' + price + ' ' + PP_SYM + '</div></div>'
       + perWashHtml
       + detailSubHtml
       + (inStock
@@ -1204,8 +1266,8 @@ async function loadSingleProduct(handle) {
         : '<div class="out-of-stock-banner">Rupture de stock &middot; bientôt de retour</div>')
       + '</div>'
       + '<ul class="pd-reassure">'
-      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/></svg><span><strong>Livraison offerte</strong> d\u00e8s 39 &euro;</span></li>'
-      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><strong>Exp\u00e9di\u00e9</strong> sous 48 h</span></li>'
+      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17" cy="17.5" r="1.5"/></svg><span><strong>Livraison offerte</strong> ' + ppFreeShipText() + '</span></li>'
+      + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span><strong>Livraison locale</strong> sur rendez-vous</span></li>'
       + '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.5-7-11a7 7 0 0114 0c0 6.5-7 11-7 11z"/><path d="M9 10l2 2 4-4"/></svg><span><strong>Fabriqu\u00e9</strong> en France</span></li>'
       + '</ul>'
       + (parts.highlights ? '<ul class="pd-highlights">' + parts.highlights + '</ul>' : '')
@@ -1311,7 +1373,7 @@ function renderRelatedGrid(container, products) {
       + '<div class="product-info">'
       + '<h3 class="product-name">' + escapeHTML(product.title) + '</h3>'
       + '<div class="product-bottom">'
-      + '<div class="product-price">' + price + ' &euro;' + (product.availableForSale === false ? ' <span class="pd-oos-tag">Rupture</span>' : '') + '</div>'
+      + '<div class="product-price">' + price + ' ' + PP_SYM + '' + (product.availableForSale === false ? ' <span class="pd-oos-tag">Rupture</span>' : '') + '</div>'
       + '</div>'
       + '</div>'
       + '</div>';

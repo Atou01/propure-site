@@ -15,7 +15,7 @@
       var per = (price / washes).toFixed(2).replace('.', ',');
       var p = document.createElement('p');
       p.className = 'pd-perwash';
-      p.innerHTML = 'Soit seulement <strong>' + per + ' &euro; par lavage</strong> &middot; ' + washes + ' lavages par bidon';
+      p.innerHTML = 'Soit seulement <strong>' + per + '' + ' ' + (window.PP_SYM||'\u20ac') + ' par lavage</strong> &middot; ' + washes + ' lavages par bidon';
       row.insertAdjacentElement('afterend', p);
     }
     var name = (root.querySelector('.pd-name') || {}).textContent || '';
@@ -23,7 +23,7 @@
     bar.className = 'pd-sticky';
     bar.setAttribute('aria-hidden', 'true');
     bar.innerHTML = '<div class="pd-sticky-info"><span class="pd-sticky-name">' + name + '</span>'
-      + '<span class="pd-sticky-price">' + (price ? price.toFixed(2).replace('.', ',') + ' &euro;' : '') + '</span></div>'
+      + '<span class="pd-sticky-price">' + (price ? price.toFixed(2).replace('.', ',') + '' + ' ' + (window.PP_SYM||'\u20ac') : '') + '</span></div>'
       + '<button type="button" class="pd-sticky-btn">Ajouter au panier</button>';
     document.body.appendChild(bar);
     bar.querySelector('button').addEventListener('click', function () { btn.click(); });

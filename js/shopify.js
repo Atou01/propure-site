@@ -1212,7 +1212,7 @@ async function loadSingleProduct(handle) {
       + '<div class="pd-accordions">'
       + acc('Mode d’emploi', parts.usage, false)
       + acc('Composition &amp; sécurité', parts.composition, false)
-      + acc('Livraison &amp; abonnement', '<p>Expédition sous 2 jours ouvrés. Livraison en France en 3 à 5 jours ouvrés (5,90 &euro;, offerte dès 39 &euro;). Genève–Nyon : livraison sur rendez-vous, offerte dès 49 &euro;.</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
+      + acc('Livraison &amp; abonnement', '<p>Livraison locale sur rendez-vous : Pays de Gex jusqu’à Annemasse (5,90 &euro;, offerte dès 39 &euro;) et Genève jusqu’à Nyon (5 &euro;, offerte dès 49 &euro;).</p><p>Abonnement sans engagement : modifiable ou résiliable en ligne à tout moment depuis votre compte.</p>', false)
       + '</div>'
       + '</div>'
       + '</div>';
@@ -1235,7 +1235,7 @@ function updateDeliveryEstimate() {
   var el = document.getElementById('deliveryEstimate');
   if (!el) return;
   // Délais alignés sur les CGV : pas de date calculée qui ne pourrait pas être tenue.
-  el.textContent = 'Exp\u00e9dition sous 2 jours ouvr\u00e9s \u00b7 Livraison en France en 3 \u00e0 5 jours ouvr\u00e9s \u00b7 Livraison Gen\u00e8ve\u2013Nyon sur rendez-vous';
+  el.textContent = 'Livraison locale sur rendez-vous \u00b7 Pays de Gex jusqu\u2019\u00e0 Annemasse \u00b7 Gen\u00e8ve jusqu\u2019\u00e0 Nyon';
 }
 
 function productFormatLabel(title) {

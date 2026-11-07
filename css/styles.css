@@ -2439,6 +2439,3 @@ body.product-page .breadcrumb .breadcrumb-current { color: var(--charcoal-light)
   .pd-sticky-btn { flex: none; border: 0; border-radius: 999px; padding: 12px 20px; background: var(--charcoal); color: var(--white); font: 600 .9rem var(--font-body); cursor: pointer; }
 }
 
-/* Sélecteur pays / devise */
-.pp-country-select{margin-right:10px;padding:6px 8px;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:#fff;color:#2c2c2c;font:500 13px Inter,system-ui,sans-serif;cursor:pointer}
-@media (max-width:640px){.pp-country-select{font-size:12px;padding:5px 6px;margin-right:6px;max-width:118px}}

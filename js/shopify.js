@@ -7,7 +7,7 @@ const STOREFRONT_TOKEN = '';
 const STOREFRONT_API_VERSION = '2026-07';
 
 // --- Pays / devise (France = EUR, Suisse = CHF) ---
-// Le pays vient du choix du visiteur (memorise) sinon de la geolocalisation Vercel (/api/geo).
+// Le pays est detecte automatiquement via la geolocalisation Vercel (/api/geo).
 // Shopify renvoie alors les prix du marche correspondant (@inContext) et le panier est cree dans ce pays.
 var PP_COUNTRY = 'FR';
 var PP_SYM = '€';
@@ -17,9 +17,7 @@ function ppSetCountry(c) {
   try { document.documentElement.setAttribute('data-pp-country', PP_COUNTRY); } catch (e) {}
 }
 var ppCountryReady = (async function() {
-  var saved = null;
-  try { saved = localStorage.getItem('ppCountry'); } catch (e) {}
-  if (saved === 'CH' || saved === 'FR') { ppSetCountry(saved); return PP_COUNTRY; }
+  try { localStorage.removeItem('ppCountry'); } catch (e) {}
   try {
     var ctrl = new AbortController();
     var t = setTimeout(function() { ctrl.abort(); }, 1500);
@@ -31,26 +29,11 @@ var ppCountryReady = (async function() {
   return PP_COUNTRY;
 })();
 function ppFreeShipText() { return PP_COUNTRY === 'CH' ? 'dès 49 CHF' : 'dès 39 €'; }
-function ppChooseCountry(c) {
-  try { localStorage.setItem('ppCountry', c); localStorage.removeItem('propure_cartId'); } catch (e) {}
-  location.reload();
-}
-// Petit selecteur de pays dans la barre de navigation
+// Total du panier vide dans la bonne devise
 document.addEventListener('DOMContentLoaded', function() {
   ppCountryReady.then(function() {
     var ct = document.getElementById('cartTotal');
     if (ct && PP_COUNTRY === 'CH' && /\u20ac/.test(ct.textContent)) ct.textContent = '0,00 CHF';
-    var nav = document.querySelector('.navbar');
-    var cartBtn = nav && nav.querySelector('.nav-cart');
-    if (!nav || !cartBtn || document.getElementById('ppCountrySel')) return;
-    var sel = document.createElement('select');
-    sel.id = 'ppCountrySel';
-    sel.className = 'pp-country-select';
-    sel.setAttribute('aria-label', 'Pays de livraison et devise');
-    sel.innerHTML = '<option value="FR">🇫🇷 France · €</option><option value="CH">🇨🇭 Suisse · CHF</option>';
-    sel.value = PP_COUNTRY;
-    sel.addEventListener('change', function() { ppChooseCountry(sel.value); });
-    cartBtn.parentNode.insertBefore(sel, cartBtn);
   });
 });
 
